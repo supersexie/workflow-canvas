@@ -83,6 +83,17 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
           placeholder={placeholder}
           value={data.prompt || ""}
           onChange={(e) => set({ prompt: e.target.value })}
+          onKeyDown={(e) => e.stopPropagation()}
+          onPaste={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            const text = e.clipboardData.getData("text");
+            const el = e.target;
+            const cur = data.prompt || "";
+            const start = el.selectionStart ?? cur.length;
+            const end = el.selectionEnd ?? start;
+            set({ prompt: cur.slice(0, start) + text + cur.slice(end) });
+          }}
           disabled={isAudio}
         />
         <span className="pb-tab">Tab</span>
