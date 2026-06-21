@@ -2,41 +2,43 @@
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 html,body{margin:0;padding:0;background:#0a0a0a}
-#root{min-height:60px}
+#root{min-height:80px;color:#7CFC00;font:13px ui-monospace,Menlo,monospace;padding:14px;white-space:pre-wrap;word-break:break-word}
 #root video,#root img{width:100%;height:auto;display:block;border-radius:12px}
-.msg{color:#888;font:13px -apple-system,system-ui,sans-serif;padding:14px}
 </style></head>
-<body><div id="root"><div class="msg">Loading…</div></div>
+<body><div id="root">GEOFLIX WIDGET v3 LOADED
+waiting…</div>
 <script>
 (function(){
   var root=document.getElementById('root');
+  var lines=['GEOFLIX WIDGET v3 LOADED'];
+  function log(s){ lines.push(s); root.textContent=lines.slice(-16).join('\n'); }
   function render(url,kind){
-    if(!url){ root.innerHTML='<div class="msg">No media in result.</div>'; return; }
-    root.innerHTML=(kind==='video')
+    root.innerHTML=(kind==='video'
       ? '<video src="'+url+'" controls autoplay loop playsinline></video>'
-      : '<img src="'+url+'" alt="">';
+      : '<img src="'+url+'" alt="">')
+      + '<div style="color:#7CFC00;font:11px monospace;padding:6px">rendered '+kind+'</div>';
   }
-  // Find an object carrying {url, kind} (our structuredContent), anywhere in the message.
-  function deepFind(o,depth){
-    if(o==null||depth>9) return null;
+  function deepFind(o,d){
+    if(o==null||d>9) return null;
     if(typeof o==='object'){
-      if(typeof o.url==='string' && /^https?:/i.test(o.url)){
-        return {url:o.url, kind:o.kind || (/\.(mp4|webm|mov)(\?|$)/i.test(o.url)?'video':'image')};
-      }
-      for(var k in o){ var r=deepFind(o[k],depth+1); if(r) return r; }
+      if(typeof o.url==='string'&&/^https?:/i.test(o.url)) return {url:o.url,kind:o.kind||'image'};
+      for(var k in o){ var r=deepFind(o[k],d+1); if(r) return r; }
     }
     return null;
   }
   var id=0;
-  function post(m){ try{ parent.postMessage(m,'*'); }catch(e){} }
+  function post(m){ try{ parent.postMessage(m,'*'); log('SENT '+(m.method||('req#'+m.id))); }catch(e){ log('POSTERR '+e.message); } }
   function init(){ post({jsonrpc:'2.0',id:++id,method:'ui/initialize',params:{protocolVersion:'2026-01-26',capabilities:{},clientInfo:{name:'geoflix',version:'1.0.0'}}}); }
   window.addEventListener('message',function(ev){
-    var d=ev.data; if(!d||typeof d!=='object') return;
+    var d=ev.data;
+    log('RECV '+(d&&typeof d==='object' ? (d.method||('id#'+d.id)||'obj') : typeof d));
+    if(!d||typeof d!=='object') return;
     if(d.method==='ui/notifications/sandbox-proxy-ready') init();
     if(d.id&&d.result&&d.result.protocolVersion) post({jsonrpc:'2.0',method:'ui/notifications/initialized'});
-    var f=deepFind(d,0); if(f) render(f.url,f.kind);
+    var f=deepFind(d,0); if(f){ log('FOUND '+f.kind); render(f.url,f.kind); }
   });
   init();
+  log('listening');
 })();
 </script>
 </body></html>
