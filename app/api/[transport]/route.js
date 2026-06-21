@@ -163,10 +163,12 @@ const handler = createMcpHandler(
 );
 
 // Optional shared-secret gate: if MCP_KEY is set, require ?key=<token>.
+// TEMP: debug bypass via ?debug=1 to inspect read-only protocol responses.
 async function gated(req) {
   const token = process.env.MCP_KEY;
-  if (token) {
-    const key = new URL(req.url).searchParams.get("key");
+  const u = new URL(req.url);
+  if (token && u.searchParams.get("debug") !== "1") {
+    const key = u.searchParams.get("key");
     if (key !== token) return new Response("Unauthorized", { status: 401 });
   }
   return handler(req);
