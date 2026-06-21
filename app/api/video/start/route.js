@@ -12,9 +12,21 @@ const VEO_MODELS = {
 };
 
 const FAL_MODELS = {
+  "LTX Video": {
+    t2v: "fal-ai/ltx-video",
+    i2v: "fal-ai/ltx-video/image-to-video",
+  },
   "Wan 2.2": {
     t2v: "fal-ai/wan/v2.2-a14b/text-to-video",
     i2v: "fal-ai/wan/v2.2-a14b/image-to-video",
+  },
+  "MiniMax Hailuo": {
+    t2v: "fal-ai/minimax/hailuo-02/standard/text-to-video",
+    i2v: "fal-ai/minimax/hailuo-02/standard/image-to-video",
+  },
+  "Kling v2": {
+    t2v: "fal-ai/kling-video/v2/master/text-to-video",
+    i2v: "fal-ai/kling-video/v2/master/image-to-video",
   },
 };
 
