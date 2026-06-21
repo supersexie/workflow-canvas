@@ -51,7 +51,7 @@ const nextId = () => `n_${++idCounter}_${Math.random().toString(36).slice(2, 6)}
 
 function CanvasInner({ workflowId }) {
   const router = useRouter();
-  const { screenToFlowPosition } = useReactFlow();
+  const { screenToFlowPosition, fitView } = useReactFlow();
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [name, setName] = useState("Untitled Workflow");
@@ -61,8 +61,45 @@ function CanvasInner({ workflowId }) {
   const [runningId, setRunningId] = useState(null);
   const [savedAt, setSavedAt] = useState(null);
   const [picker, setPicker] = useState(null); // { x, y, flowPos, sourceId }
+  const [past, setPast] = useState([]);
+  const [future, setFuture] = useState([]);
   const saveTimer = useRef(null);
+  const histTimer = useRef(null);
   const connectingRef = useRef(null);
+  const skipNextHistRef = useRef(false);
+  const lastSnapshotRef = useRef(null);
+
+  // Snapshot helpers
+  const snapshot = useCallback(() => ({
+    nodes: nodes.map((n) => ({ ...n, data: { ...n.data } })),
+    edges: edges.map((e) => ({ ...e })),
+  }), [nodes, edges]);
+
+  const restore = useCallback((snap) => {
+    skipNextHistRef.current = true;
+    setNodes(snap.nodes);
+    setEdges(snap.edges);
+  }, []);
+
+  const undo = useCallback(() => {
+    setPast((p) => {
+      if (!p.length) return p;
+      const prev = p[p.length - 1];
+      setFuture((f) => [snapshot(), ...f].slice(0, 50));
+      restore(prev);
+      return p.slice(0, -1);
+    });
+  }, [snapshot, restore]);
+
+  const redo = useCallback(() => {
+    setFuture((f) => {
+      if (!f.length) return f;
+      const next = f[0];
+      setPast((p) => [...p, snapshot()].slice(-50));
+      restore(next);
+      return f.slice(1);
+    });
+  }, [snapshot, restore]);
 
   useEffect(() => {
     if (!workflowId) return;
@@ -83,6 +120,47 @@ function CanvasInner({ workflowId }) {
     }, 500);
     return () => clearTimeout(saveTimer.current);
   }, [nodes, edges, name, workflowId, loaded]);
+
+  // History snapshot (debounced) — captures the PREVIOUS state before the change settled
+  useEffect(() => {
+    if (!loaded) return;
+    if (skipNextHistRef.current) {
+      skipNextHistRef.current = false;
+      lastSnapshotRef.current = { nodes, edges };
+      return;
+    }
+    clearTimeout(histTimer.current);
+    histTimer.current = setTimeout(() => {
+      const prev = lastSnapshotRef.current;
+      if (prev) {
+        setPast((p) => [...p, prev].slice(-50));
+        setFuture([]);
+      }
+      lastSnapshotRef.current = {
+        nodes: nodes.map((n) => ({ ...n, data: { ...n.data } })),
+        edges: edges.map((e) => ({ ...e })),
+      };
+    }, 500);
+    return () => clearTimeout(histTimer.current);
+  }, [nodes, edges, loaded]);
+
+  // Keyboard shortcuts
+  useEffect(() => {
+    const onKey = (e) => {
+      const tag = e.target?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || e.target?.isContentEditable) return;
+      const mod = e.metaKey || e.ctrlKey;
+      if (mod && e.key.toLowerCase() === "z") {
+        e.preventDefault();
+        if (e.shiftKey) redo(); else undo();
+      } else if (mod && e.key.toLowerCase() === "y") {
+        e.preventDefault();
+        redo();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [undo, redo]);
 
   // Propagate upstream output → downstream sourceThumb
   const sourcesByNode = useMemo(() => {
@@ -223,13 +301,13 @@ function CanvasInner({ workflowId }) {
       <div className="rail">
         <button title="Select">{RAIL_ICONS.cursor}</button>
         <button title="Add node" onClick={() => setAddMenuOpen((v) => !v)}>{RAIL_ICONS.plus}</button>
-        <button title="Fit view">{RAIL_ICONS.frame}</button>
+        <button title="Fit view" onClick={() => fitView({ padding: 0.3, duration: 300 })}>{RAIL_ICONS.frame}</button>
         <button title="Templates">{RAIL_ICONS.grid}</button>
         <button title="Comments">{RAIL_ICONS.chat}</button>
         <button title="Assets">{RAIL_ICONS.folder}</button>
         <div className="divider" />
-        <button title="Undo">{RAIL_ICONS.undo}</button>
-        <button title="Redo">{RAIL_ICONS.redo}</button>
+        <button title="Undo (Ctrl+Z)" onClick={undo} disabled={!past.length} style={!past.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.undo}</button>
+        <button title="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={!future.length} style={!future.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.redo}</button>
       </div>
 
       {addMenuOpen && (
@@ -254,6 +332,8 @@ function CanvasInner({ workflowId }) {
           onConnectStart={onConnectStart}
           onConnectEnd={onConnectEnd}
           onSelectionChange={onSelectionChange}
+          onPaneClick={() => { setSelectedId(null); setAddMenuOpen(false); }}
+          deleteKeyCode={["Backspace", "Delete"]}
           fitView={nodes.length > 0}
           fitViewOptions={{ padding: 0.3, maxZoom: 0.85 }}
           defaultViewport={{ x: 0, y: 0, zoom: 0.7 }}
