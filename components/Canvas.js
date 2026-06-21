@@ -13,6 +13,7 @@ import {
 } from "@xyflow/react";
 import WorkflowNode from "./nodes/WorkflowNode";
 import PromptBar from "./PromptBar";
+import Assistant from "./Assistant";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
 import { generateOutput } from "@/lib/run";
 
@@ -61,6 +62,7 @@ function CanvasInner({ workflowId }) {
   const [runningId, setRunningId] = useState(null);
   const [savedAt, setSavedAt] = useState(null);
   const [picker, setPicker] = useState(null); // { x, y, flowPos, sourceId }
+  const [assistantOpen, setAssistantOpen] = useState(false);
   const [past, setPast] = useState([]);
   const [future, setFuture] = useState([]);
   const saveTimer = useRef(null);
@@ -68,6 +70,8 @@ function CanvasInner({ workflowId }) {
   const connectingRef = useRef(null);
   const skipNextHistRef = useRef(false);
   const lastSnapshotRef = useRef(null);
+  const nodesRef = useRef(nodes);
+  useEffect(() => { nodesRef.current = nodes; }, [nodes]);
 
   // Snapshot helpers
   const snapshot = useCallback(() => ({
@@ -211,7 +215,7 @@ function CanvasInner({ workflowId }) {
       };
     }
     const id = nextId();
-    const node = { id, type: "workflow", position: pos, data: { kind, prompt: "" }, width: W, height: H };
+    const node = { id, type: "workflow", position: pos, data: { kind, prompt: options.prompt || "" }, width: W, height: H };
     setNodes((n) => [...n, node]);
     if (options.connectFrom) {
       setEdges((e) => addEdge({ source: options.connectFrom, target: id, animated: true }, e));
@@ -232,7 +236,7 @@ function CanvasInner({ workflowId }) {
 
   const runNode = async (id) => {
     if (runningId) return;
-    const node = nodes.find((n) => n.id === id);
+    const node = nodesRef.current.find((n) => n.id === id);
     if (!node) return;
     setRunningId(id);
     setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "running", output: null, error: null } } : n)));
@@ -392,6 +396,21 @@ function CanvasInner({ workflowId }) {
           running={runningId === selectedNode.id}
         />
       )}
+
+      {!assistantOpen && (
+        <button className="assistant-fab" onClick={() => setAssistantOpen(true)} title="Open Assistant">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6h6l-5 4 2 7-7-4-7 4 2-7-5-4h6z"/></svg>
+        </button>
+      )}
+
+      <Assistant
+        open={assistantOpen}
+        onClose={() => setAssistantOpen(false)}
+        onCreateAndMaybeRun={({ kind, prompt }, autoRun) => {
+          const id = addNode(kind, { prompt });
+          if (autoRun) setTimeout(() => runNode(id), 50);
+        }}
+      />
     </>
   );
 }
