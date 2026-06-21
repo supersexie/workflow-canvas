@@ -83,7 +83,11 @@ server.tool(
       const s = await postJson("/api/video/status", start);
       if (s.done) {
         const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-        return { content: [{ type: "text", text: `✅ Video ready!\n\n${url}` }] };
+        const html = `<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000"><video src="${url}" controls autoplay loop playsinline style="width:100%;height:auto;display:block"></video></body></html>`;
+        return { content: [
+          { type: "resource", resource: { uri: `ui://geoflix/video/${Date.now()}`, mimeType: "text/html", text: html } },
+          { type: "text", text: `✅ Video ready: ${url}` },
+        ] };
       }
     }
     return { content: [{ type: "text", text: "Video generation timed out (over 5 min)." }], isError: true };

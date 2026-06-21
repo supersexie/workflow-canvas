@@ -33,8 +33,14 @@ async function pollVideo(handle, budgetMs) {
     const s = await postJson("/api/video/status", handle);
     if (s.done) {
       const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-      // Return the bare public .mp4 URL in text — Claude renders mp4 URLs as an inline player.
-      return { content: [{ type: "text", text: `✅ Video ready!\n\n${url}` }] };
+      // MCP UI resource (like Eromify): an HTML <video> player Claude renders in a sandboxed iframe.
+      const html = `<!doctype html><html><head><meta charset="utf-8"></head><body style="margin:0;padding:0;background:#000"><video src="${url}" controls autoplay loop playsinline style="width:100%;height:auto;display:block"></video></body></html>`;
+      return {
+        content: [
+          { type: "resource", resource: { uri: `ui://geoflix/video/${Date.now()}`, mimeType: "text/html", text: html } },
+          { type: "text", text: `✅ Video ready: ${url}` },
+        ],
+      };
     }
   }
   return null;
