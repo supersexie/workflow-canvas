@@ -14,7 +14,7 @@ import {
 import WorkflowNode from "./nodes/WorkflowNode";
 import PromptBar from "./PromptBar";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
-import { mockOutput } from "@/lib/mockRun";
+import { generateOutput } from "@/lib/run";
 
 const NODE_TYPES_META = [
   { kind: "image", label: "Image", sub: "Generate or upload" },
@@ -232,16 +232,18 @@ function CanvasInner({ workflowId }) {
 
   const runNode = async (id) => {
     if (runningId) return;
+    const node = nodes.find((n) => n.id === id);
+    if (!node) return;
     setRunningId(id);
-    setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "running", output: null } } : n)));
-    await new Promise((r) => setTimeout(r, 900));
-    setNodes((ns) =>
-      ns.map((n) => {
-        if (n.id !== id) return n;
-        return { ...n, data: { ...n.data, status: "done", output: mockOutput(n.data.kind, n.data.prompt) } };
-      })
-    );
-    setRunningId(null);
+    setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "running", output: null, error: null } } : n)));
+    try {
+      const output = await generateOutput(node.data.kind, node.data.prompt);
+      setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
+    } catch (e) {
+      setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "error", error: e.message } } : n)));
+    } finally {
+      setRunningId(null);
+    }
   };
 
   // Drop-to-create wiring
