@@ -91,9 +91,9 @@ const handler = createMcpHandler(
   { basePath: "/api" }
 );
 
-// Optional shared-secret gate: if MCP_TOKEN is set, require ?key=<token>.
+// Optional shared-secret gate: if MCP_KEY is set, require ?key=<token>.
 async function gated(req) {
-  const token = process.env.MCP_TOKEN;
+  const token = process.env.MCP_KEY;
   if (token) {
     const key = new URL(req.url).searchParams.get("key");
     if (key !== token) return new Response("Unauthorized", { status: 401 });
