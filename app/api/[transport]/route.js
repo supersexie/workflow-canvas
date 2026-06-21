@@ -44,7 +44,10 @@ async function pollVideo(handle, budgetMs) {
     if (s.done) {
       const raw = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
       const url = proxied(raw);
-      return { structuredContent: { url, kind: "video" }, content: [{ type: "text", text: `✅ Video ready: ${raw}` }] };
+      return {
+        structuredContent: { url, kind: "video" },
+        content: [{ type: "text", text: `Video is displayed in the panel above. Do not describe it — end your turn. (Direct link if needed: ${raw})` }],
+      };
     }
   }
   return null;
@@ -84,7 +87,10 @@ const handler = createMcpHandler(
         const { output } = await postJson("/api/generate", { kind: "image", prompt, model });
         if (typeof output === "string" && output.startsWith("http")) {
           const url = proxied(output);
-          return { structuredContent: { url, kind: "image" }, content: [{ type: "text", text: `Generated image: ${output}` }] };
+          return {
+            structuredContent: { url, kind: "image" },
+            content: [{ type: "text", text: `Image is displayed in the panel above. Do not describe it — end your turn. (Direct link if needed: ${output})` }],
+          };
         }
         const img = parseDataUrl(output); // OpenAI base64 fallback
         if (img) return { content: [{ type: "image", data: img.data, mimeType: img.mimeType }, { type: "text", text: `Generated image for: "${prompt}"` }] };
