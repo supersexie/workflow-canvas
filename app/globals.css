@@ -147,6 +147,16 @@ body {
   padding-left: 4px;
 }
 .wf-card-header-ic { color: #a3a3a3; display: inline-flex; }
+.wf-card-delete {
+  margin-left: auto;
+  width: 24px; height: 24px; border-radius: 6px;
+  background: transparent; border: none; color: #737373;
+  display: grid; place-items: center; cursor: pointer;
+  opacity: 0; transition: opacity .15s, background .15s, color .15s;
+}
+.react-flow__node:hover .wf-card-delete,
+.react-flow__node.selected .wf-card-delete { opacity: 1; }
+.wf-card-delete:hover { background: #2a1414; color: #f87171; }
 
 .wf-card-body {
   position: relative;

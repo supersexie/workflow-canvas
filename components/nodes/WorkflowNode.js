@@ -90,7 +90,12 @@ const SIZE_CLASS = {
 export default function WorkflowNode({ id, data, selected }) {
   const kind = data.kind || "image";
   const fileRef = useRef(null);
-  const { setNodes } = useReactFlow();
+  const { setNodes, deleteElements } = useReactFlow();
+
+  const onDelete = (e) => {
+    e.stopPropagation();
+    deleteElements({ nodes: [{ id }] });
+  };
 
   const onPickFile = (e) => {
     e.stopPropagation();
@@ -126,6 +131,17 @@ export default function WorkflowNode({ id, data, selected }) {
       <div className="wf-card-header">
         <span className="wf-card-header-ic">{HEADER_ICONS[kind]}</span>
         <span>{KIND_TITLE[kind]}</span>
+        <button
+          type="button"
+          className="wf-card-delete"
+          onClick={onDelete}
+          onPointerDown={(e) => e.stopPropagation()}
+          title="Delete node"
+        >
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M3 6h18M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/>
+          </svg>
+        </button>
       </div>
       <div className="wf-card-body">
         {data.output && (kind === "image" || kind === "video") && (data.output.startsWith("http") || data.output.startsWith("data:")) ? (
