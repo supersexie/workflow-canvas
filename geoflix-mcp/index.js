@@ -83,24 +83,17 @@ server.tool(
       const s = await postJson("/api/video/status", start);
       if (s.done) {
         const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-        // Poster still (renders inline in Claude): source image for i2v, generated still for t2v
-        let poster = null;
         try {
-          if (image_url) {
-            poster = parseDataUrl(image_url);
-            if (!poster) {
-              const r = await fetch(image_url);
-              if (r.ok) poster = { mimeType: r.headers.get("content-type") || "image/png", data: Buffer.from(await r.arrayBuffer()).toString("base64") };
-            }
-          } else if (prompt) {
-            const g = await postJson("/api/generate", { kind: "image", prompt });
-            poster = parseDataUrl(g.output);
+          const vid = await fetch(url);
+          const buf = Buffer.from(await vid.arrayBuffer());
+          if (vid.ok && buf.length <= 25_000_000) {
+            return { content: [
+              { type: "resource", resource: { uri: url, mimeType: "video/mp4", blob: buf.toString("base64") } },
+              { type: "text", text: "✅ Video ready (playing above)." },
+            ] };
           }
         } catch {}
-        const content = [];
-        if (poster) content.push({ type: "image", data: poster.data, mimeType: poster.mimeType });
-        content.push({ type: "text", text: `✅ Video ready${poster ? " (still preview above)" : ""} — [▶ play / download](${url})` });
-        return { content };
+        return { content: [{ type: "text", text: `✅ Video ready — [▶ open / download](${url})` }] };
       }
     }
     return { content: [{ type: "text", text: "Video generation timed out (over 5 min)." }], isError: true };
