@@ -31,7 +31,7 @@ export async function POST(req) {
   const parameters = {};
   if (aspect) parameters.aspectRatio = aspect;        // "16:9" | "9:16"
   if (resolution) parameters.resolution = resolution; // "720p" | "1080p"
-  if (duration) parameters.durationSeconds = String(duration); // "4" | "6" | "8"
+  if (duration) parameters.durationSeconds = Number(duration); // 4 | 6 | 8 (must be a number)
 
   try {
     const res = await fetch(
