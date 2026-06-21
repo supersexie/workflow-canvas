@@ -49,9 +49,16 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
 
   const reset = () => setHistory([]);
 
+  const S = {
+    panel: { position: "fixed", top: 0, right: 0, bottom: 0, width: 380, height: "100vh" },
+    header: { position: "absolute", top: 0, left: 0, right: 0, height: 57 },
+    body: { position: "absolute", top: 57, left: 0, right: 0, bottom: 132, overflowY: "auto" },
+    inputArea: { position: "absolute", left: 0, right: 0, bottom: 0 },
+  };
+
   return (
-    <div className="assistant">
-      <div className="assistant-header">
+    <div className="assistant" style={S.panel}>
+      <div className="assistant-header" style={S.header}>
         <span>Assistant</span>
         <div style={{ display: "flex", gap: 6 }}>
           <button className="assistant-iconbtn" onClick={reset} title="New chat">
@@ -63,7 +70,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
         </div>
       </div>
 
-      <div className="assistant-body" ref={scrollRef}>
+      <div className="assistant-body" style={S.body} ref={scrollRef}>
         {history.length === 0 ? (
           <div className="assistant-empty">
             <h3>How can I help?</h3>
@@ -86,7 +93,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
         {sending && <div className="assistant-msg assistant"><div className="assistant-msg-bubble assistant-thinking">Thinking…</div></div>}
       </div>
 
-      <div className="assistant-input-area">
+      <div className="assistant-input-area" style={S.inputArea}>
         <textarea
           className="assistant-input"
           placeholder="Type your task here..."
