@@ -144,10 +144,10 @@ export default function WorkflowNode({ id, data, selected }) {
         </button>
       </div>
       <div className="wf-card-body">
-        {data.output && (kind === "image" || kind === "video") && (data.output.startsWith("http") || data.output.startsWith("data:")) ? (
+        {data.output && (kind === "image" || kind === "video") && (data.output.startsWith("http") || data.output.startsWith("data:") || data.output.startsWith("/api/")) ? (
           <>
             {kind === "video" ? (
-              <video src={data.output} className="wf-card-output" muted loop playsInline autoPlay />
+              <video src={data.output} className="wf-card-output" muted loop playsInline autoPlay controls />
             ) : (
               <img src={data.output} alt="output" className="wf-card-output" />
             )}
@@ -204,7 +204,8 @@ export default function WorkflowNode({ id, data, selected }) {
             )}
           </>
         )}
-        {data.status === "running" && <div className="wf-card-running">Generating…</div>}
+        {data.status === "running" && <div className="wf-card-running">{kind === "video" ? "Generating video… (1-3 min)" : "Generating…"}</div>}
+        {data.status === "error" && <div className="wf-card-running" style={{ background: "rgba(248,113,113,.15)", color: "#fca5a5", borderColor: "#7f1d1d" }}>{data.error || "Failed"}</div>}
         {kind === "text" && <div className="wf-card-resize" />}
       </div>
       <Handle type="source" position={Position.Right} />

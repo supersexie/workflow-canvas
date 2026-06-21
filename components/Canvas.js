@@ -15,7 +15,7 @@ import WorkflowNode from "./nodes/WorkflowNode";
 import PromptBar from "./PromptBar";
 import Assistant from "./Assistant";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
-import { generateOutput } from "@/lib/run";
+import { generateOutput, generateVideo } from "@/lib/run";
 
 const NODE_TYPES_META = [
   { kind: "image", label: "Image", sub: "Generate or upload" },
@@ -241,7 +241,22 @@ function CanvasInner({ workflowId }) {
     setRunningId(id);
     setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "running", output: null, error: null } } : n)));
     try {
-      const output = await generateOutput(node.data.kind, node.data.prompt, node.data.model);
+      let output;
+      if (node.data.kind === "video") {
+        const [aspectRatio, resolution] = (node.data.aspect || "16:9 · 720p").split("·").map((s) => s.trim());
+        let dur = parseInt(node.data.duration) || 8;
+        dur = dur <= 4 ? 4 : dur <= 6 ? 6 : 8;
+        output = await generateVideo({
+          prompt: node.data.prompt,
+          model: node.data.model,
+          image: node.data.sourceThumb || null,
+          aspect: aspectRatio,
+          resolution,
+          duration: dur,
+        });
+      } else {
+        output = await generateOutput(node.data.kind, node.data.prompt, node.data.model);
+      }
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
     } catch (e) {
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "error", error: e.message } } : n)));

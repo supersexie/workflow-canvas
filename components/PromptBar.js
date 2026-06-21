@@ -3,7 +3,7 @@ import { useState } from "react";
 
 const MODELS = {
   image: ["GPT Image 1", "GPT Image 2"],
-  video: ["Veo 3.1 Fast", "Veo 3", "Runway Gen-3", "Kling 1.6"],
+  video: ["Veo 3.1 Fast", "Veo 3.1"],
   text: ["GPT-5.1", "Claude Opus 4.7", "Gemini 2.5 Pro"],
   audio: ["ElevenLabs", "OpenAI TTS", "Suno v4"],
   motion: ["Motion Pro", "After Effects AI"],
@@ -11,11 +11,11 @@ const MODELS = {
 
 const ASPECTS = {
   image: ["1:1 · 1080p", "16:9 · 1080p", "9:16 · 1080p", "4:3 · 1024p"],
-  video: ["16:9 · 720p", "16:9 · 1080p", "9:16 · 720p", "1:1 · 720p"],
+  video: ["16:9 · 720p", "16:9 · 1080p", "9:16 · 720p"],
   motion: ["16:9 · 1080p", "1:1 · 1080p"],
 };
 
-const DURATIONS = ["4s", "8s", "12s", "16s"];
+const DURATIONS = ["4s", "6s", "8s"];
 const VOICES = ["James – Husky & Engaging", "Aria – Warm & Bright", "Nova – Crisp Narrator"];
 
 const MODEL_ICON = {
