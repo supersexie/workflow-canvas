@@ -2,7 +2,7 @@
 import { useState } from "react";
 
 const MODELS = {
-  image: ["GPT Image 1", "GPT Image 2"],
+  image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"],
   video: ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2", "Veo 3.1 Fast", "Veo 3.1"],
   text: ["GPT-5.1", "Claude Opus 4.7", "Gemini 2.5 Pro"],
   audio: ["ElevenLabs", "OpenAI TTS", "Suno v4"],

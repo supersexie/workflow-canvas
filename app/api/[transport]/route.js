@@ -46,16 +46,9 @@ const handler = createMcpHandler(
       { prompt: z.string(), model: z.enum(["GPT Image 1", "GPT Image 2"]).optional() },
       async ({ prompt, model }) => {
         const { output } = await postJson("/api/generate", { kind: "image", prompt, model });
-        // Public URL (fal): return inline image block + a markdown link so it renders in Claude.
+        // Public URL (fal): return a markdown image link — small payload that Claude renders inline.
         if (typeof output === "string" && output.startsWith("http")) {
-          const content = [];
-          try {
-            const r = await fetch(output);
-            const buf = Buffer.from(await r.arrayBuffer());
-            content.push({ type: "image", data: buf.toString("base64"), mimeType: r.headers.get("content-type") || "image/png" });
-          } catch {}
-          content.push({ type: "text", text: `![${prompt.slice(0, 60)}](${output})\n\n${output}` });
-          return { content };
+          return { content: [{ type: "text", text: `![${prompt.slice(0, 60)}](${output})\n\n${output}` }] };
         }
         // Data URL fallback (OpenAI)
         const img = parseDataUrl(output);

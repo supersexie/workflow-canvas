@@ -8,10 +8,12 @@ const FAL = process.env.FAL_KEY;
 const OAI = "https://api.openai.com/v1";
 
 // fal image endpoints — return a public fal.media URL (small payload, renders in Claude + no localStorage bloat).
+// These all return a public fal.media URL (gpt-image returns base64, so it's not used here).
 const FAL_IMAGE_MAP = {
-  "GPT Image 1": "openai/gpt-image-2",
-  "GPT Image 2": "openai/gpt-image-2",
   "Flux 2 Pro": "fal-ai/flux-2-pro",
+  "Flux 2 Max": "fal-ai/flux-2-max",
+  "Nano Banana Pro": "fal-ai/nano-banana-pro",
+  "Seedream 4.5": "fal-ai/bytedance/seedream/v4.5/text-to-image",
 };
 
 async function genImageFal(prompt, modelLabel) {
