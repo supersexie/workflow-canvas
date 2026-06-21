@@ -54,7 +54,12 @@ export async function POST(req) {
       if (!res.ok) throw new Error(`fal ${res.status}: ${(await res.text()).slice(0, 300)}`);
       const data = await res.json();
       if (!data.request_id) throw new Error("fal did not return a request_id");
-      return NextResponse.json({ provider: "fal", endpoint, requestId: data.request_id });
+      // Use fal's own returned URLs (correct base path for multi-segment models)
+      return NextResponse.json({
+        provider: "fal",
+        statusUrl: data.status_url,
+        responseUrl: data.response_url,
+      });
     } catch (e) {
       return NextResponse.json({ error: e.message }, { status: 500 });
     }

@@ -13,17 +13,13 @@ export async function POST(req) {
   // ---- fal.ai ----
   if (provider === "fal") {
     if (!FAL) return NextResponse.json({ done: true, output: "Generated video (mock — no FAL_KEY)" });
-    const { endpoint, requestId } = body;
+    const { statusUrl, responseUrl } = body;
     try {
-      const st = await fetch(`https://queue.fal.run/${endpoint}/requests/${requestId}/status`, {
-        headers: { Authorization: `Key ${FAL}` },
-      });
+      const st = await fetch(statusUrl, { headers: { Authorization: `Key ${FAL}` } });
       if (!st.ok) throw new Error(`fal status ${st.status}: ${(await st.text()).slice(0, 200)}`);
       const s = await st.json();
       if (s.status !== "COMPLETED") return NextResponse.json({ done: false });
-      const r = await fetch(`https://queue.fal.run/${endpoint}/requests/${requestId}`, {
-        headers: { Authorization: `Key ${FAL}` },
-      });
+      const r = await fetch(responseUrl, { headers: { Authorization: `Key ${FAL}` } });
       if (!r.ok) throw new Error(`fal result ${r.status}`);
       const result = await r.json();
       const url = result.video?.url || result.videos?.[0]?.url;
