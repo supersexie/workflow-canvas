@@ -1,12 +1,23 @@
 import { createMcpHandler } from "mcp-handler";
+import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from "@modelcontextprotocol/ext-apps/server";
 import { z } from "zod";
+import { WIDGET_HTML } from "./widget-html.js";
 
 export const maxDuration = 60;
+
+const UI_URI = "ui://geoflix/media.html";
 
 const BASE = (
   process.env.GEOFLIX_BASE_URL ||
   (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://geoflix.online")
 ).replace(/\/$/, "");
+
+// Wrap a generated media URL in our same-origin proxy so the widget iframe can load it
+// (claude.ai won't load raw fal.media in the sandbox — Eromify does the same thing).
+function proxied(url) {
+  if (!url || typeof url !== "string" || !url.startsWith("http")) return url;
+  return `${BASE}/api/media?u=${encodeURIComponent(url)}`;
+}
 
 async function postJson(path, body) {
   const res = await fetch(`${BASE}${path}`, {
@@ -24,34 +35,58 @@ function parseDataUrl(s) {
   return m ? { mimeType: m[1], data: m[2] } : null;
 }
 
-// Poll a video job for up to `budgetMs`. Returns a tool result when done, else null.
+// Poll a video job; when done return structuredContent the widget renders, else null.
 async function pollVideo(handle, budgetMs) {
   const deadline = Date.now() + budgetMs;
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 5000));
     const s = await postJson("/api/video/status", handle);
     if (s.done) {
-      const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-      return { content: [{ type: "text", text: `✅ Video ready — watch/download:\n${url}` }] };
+      const raw = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
+      const url = proxied(raw);
+      return { structuredContent: { url, kind: "video" }, content: [{ type: "text", text: `✅ Video ready: ${raw}` }] };
     }
   }
   return null;
 }
 
+const VIDEO_INPUT = {
+  prompt: z.string(),
+  model: z.enum(["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2", "Veo 3.1 Fast", "Veo 3.1"]).optional(),
+  image_url: z.string().optional(),
+  aspect: z.enum(["16:9", "9:16"]).optional(),
+  resolution: z.enum(["720p", "1080p"]).optional(),
+  duration: z.number().optional(),
+};
+
 const handler = createMcpHandler(
   (server) => {
-    server.tool(
+    // UI widget that renders generated media inline (same-origin source).
+    registerAppResource(
+      server,
+      "geoflix-media",
+      UI_URI,
+      { _meta: { ui: { csp: { resourceDomains: [BASE, "https://*.fal.media", "https://*.googleapis.com"] } } } },
+      async () => ({ contents: [{ uri: UI_URI, mimeType: RESOURCE_MIME_TYPE, text: WIDGET_HTML }] })
+    );
+
+    // ---- Image (app tool → renders inline in widget) ----
+    registerAppTool(
+      server,
       "generate_image",
-      "Generate an image from a text prompt (GPT Image). Returns the image inline.",
-      { prompt: z.string(), model: z.enum(["GPT Image 1", "GPT Image 2"]).optional() },
+      {
+        title: "Generate image",
+        description: "Generate an image from a text prompt (FLUX / Seedream / Nano Banana). Renders inline.",
+        inputSchema: { prompt: z.string(), model: z.enum(["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"]).optional() },
+        _meta: { ui: { resourceUri: UI_URI } },
+      },
       async ({ prompt, model }) => {
         const { output } = await postJson("/api/generate", { kind: "image", prompt, model });
-        // Public URL (fal): return a markdown image link — small payload that Claude renders inline.
         if (typeof output === "string" && output.startsWith("http")) {
-          return { content: [{ type: "text", text: `![${prompt.slice(0, 60)}](${output})\n\n${output}` }] };
+          const url = proxied(output);
+          return { structuredContent: { url, kind: "image" }, content: [{ type: "text", text: `Generated image: ${output}` }] };
         }
-        // Data URL fallback (OpenAI)
-        const img = parseDataUrl(output);
+        const img = parseDataUrl(output); // OpenAI base64 fallback
         if (img) return { content: [{ type: "image", data: img.data, mimeType: img.mimeType }, { type: "text", text: `Generated image for: "${prompt}"` }] };
         return { content: [{ type: "text", text: output }] };
       }
@@ -79,16 +114,15 @@ const handler = createMcpHandler(
       }
     );
 
-    server.tool(
+    // ---- Video (app tools → render inline in widget) ----
+    registerAppTool(
+      server,
       "generate_video",
-      "Generate a video from text (and optionally a source image for image-to-video). Cheap models (LTX) finish in under a minute; pricier ones may exceed the time limit — then call check_video with the handle. Returns a link to the finished video.",
       {
-        prompt: z.string(),
-        model: z.enum(["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2", "Veo 3.1 Fast", "Veo 3.1"]).optional(),
-        image_url: z.string().optional(),
-        aspect: z.enum(["16:9", "9:16"]).optional(),
-        resolution: z.enum(["720p", "1080p"]).optional(),
-        duration: z.number().optional(),
+        title: "Generate video",
+        description: "Generate a video from text (and optionally a source image for image-to-video). LTX is fastest/cheapest. If it takes too long, call check_video with the handle. Renders inline.",
+        inputSchema: VIDEO_INPUT,
+        _meta: { ui: { resourceUri: UI_URI } },
       },
       async ({ prompt, model, image_url, aspect, resolution, duration }) => {
         const start = await postJson("/api/video/start", { prompt, model: model || "LTX Video", image: image_url, aspect, resolution, duration });
@@ -98,21 +132,24 @@ const handler = createMcpHandler(
         return {
           content: [{
             type: "text",
-            text:
-              "Video is rendering (takes ~1-2 min). Call `check_video` with this exact handle to retrieve the link once ready:\n\n" +
-              "```json\n" + JSON.stringify(start) + "\n```",
+            text: "Video is rendering (~1-2 min). Call `check_video` with this exact handle to retrieve it:\n\n```json\n" + JSON.stringify(start) + "\n```",
           }],
         };
       }
     );
 
-    server.tool(
+    registerAppTool(
+      server,
       "check_video",
-      "Retrieve a video started by generate_video that wasn't ready yet. Pass the exact `handle` JSON from generate_video. Returns the video link once ready.",
-      { handle: z.string().describe("The JSON handle string from generate_video") },
+      {
+        title: "Check video",
+        description: "Retrieve a video started by generate_video. Pass the exact `handle` JSON from generate_video. Renders inline once ready.",
+        inputSchema: { handle: z.string().describe("The JSON handle string from generate_video") },
+        _meta: { ui: { resourceUri: UI_URI } },
+      },
       async ({ handle }) => {
         let start;
-        try { start = JSON.parse(handle); } catch { return { content: [{ type: "text", text: "Invalid handle. Pass the exact JSON from generate_video." }], isError: true }; }
+        try { start = JSON.parse(handle); } catch { return { content: [{ type: "text", text: "Invalid handle." }], isError: true }; }
         const done = await pollVideo(start, 50 * 1000);
         if (done) return done;
         return { content: [{ type: "text", text: "Still rendering — call `check_video` again with the same handle in a few seconds." }] };

@@ -4,43 +4,39 @@
 html,body{margin:0;padding:0;background:#0a0a0a}
 #root{min-height:60px}
 #root video,#root img{width:100%;height:auto;display:block;border-radius:12px}
-.msg{color:#9aa;font:12px ui-monospace,Menlo,monospace;padding:12px;white-space:pre-wrap;word-break:break-word}
+.msg{color:#888;font:13px -apple-system,system-ui,sans-serif;padding:14px}
 </style></head>
-<body><div id="root"><div class="msg">geoflix widget booting…</div></div>
+<body><div id="root"><div class="msg">Loading…</div></div>
 <script>
 (function(){
   var root=document.getElementById('root');
-  var log=["booting"];
-  function dbg(extra){
-    if(extra) log.push(extra);
-    root.innerHTML='<div class="msg">geoflix widget — '+log.length+' events\n'+log.slice(-12).join('\n')+'</div>';
-  }
-  function render(url){
-    var v=/\.(mp4|webm|mov)(\?|$)/i.test(url);
-    root.innerHTML=v
+  function render(url,kind){
+    if(!url){ root.innerHTML='<div class="msg">No media in result.</div>'; return; }
+    root.innerHTML=(kind==='video')
       ? '<video src="'+url+'" controls autoplay loop playsinline></video>'
       : '<img src="'+url+'" alt="">';
   }
-  function find(o,d){
-    if(o==null||d>8) return null;
-    if(typeof o==='string'){var m=o.match(/https?:\/\/[^\s"'<>)]+\.(mp4|webm|mov|png|jpe?g|webp|gif)(\?[^\s"'<>)]*)?/i);return m?m[0]:null;}
-    if(typeof o==='object'){for(var k in o){var r=find(o[k],d+1);if(r) return r;}}
+  // Find an object carrying {url, kind} (our structuredContent), anywhere in the message.
+  function deepFind(o,depth){
+    if(o==null||depth>9) return null;
+    if(typeof o==='object'){
+      if(typeof o.url==='string' && /^https?:/i.test(o.url)){
+        return {url:o.url, kind:o.kind || (/\.(mp4|webm|mov)(\?|$)/i.test(o.url)?'video':'image')};
+      }
+      for(var k in o){ var r=deepFind(o[k],depth+1); if(r) return r; }
+    }
     return null;
   }
   var id=0;
-  function post(m){ try{ parent.postMessage(m,'*'); log.push("->"+(m.method||("req#"+m.id))); dbg(); }catch(e){ dbg("post-err:"+e.message); } }
+  function post(m){ try{ parent.postMessage(m,'*'); }catch(e){} }
   function init(){ post({jsonrpc:'2.0',id:++id,method:'ui/initialize',params:{protocolVersion:'2026-01-26',capabilities:{},clientInfo:{name:'geoflix',version:'1.0.0'}}}); }
   window.addEventListener('message',function(ev){
-    var d=ev.data;
-    var tag = (d && typeof d==='object') ? ("<-"+(d.method || (d.id?("res#"+d.id):"obj")) ) : ("<-"+typeof d);
-    log.push(tag); dbg();
-    if(!d||typeof d!=='object') return;
+    var d=ev.data; if(!d||typeof d!=='object') return;
     if(d.method==='ui/notifications/sandbox-proxy-ready') init();
     if(d.id&&d.result&&d.result.protocolVersion) post({jsonrpc:'2.0',method:'ui/notifications/initialized'});
-    var u=find(d,0); if(u){ log.push("FOUND "+u.slice(0,40)); render(u); }
+    var f=deepFind(d,0); if(f) render(f.url,f.kind);
   });
   init();
-  dbg("listening");
 })();
 </script>
 </body></html>
