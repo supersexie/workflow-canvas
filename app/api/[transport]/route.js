@@ -7,6 +7,18 @@ export const maxDuration = 60;
 
 const UI_URI = "ui://geoflix/media.html";
 
+// Domains the widget iframe is allowed to load media from (CSP media-src/img-src).
+const MEDIA_DOMAINS = [
+  "https://*.fal.media",
+  "https://*.fal.run",
+  "https://*.googleapis.com",
+  "https://storage.googleapis.com",
+  "https://*.eromify.com",
+  "https://geoflix.online",
+  "https://www.geoflix.online",
+];
+const UI_CSP = { resourceDomains: MEDIA_DOMAINS, connectDomains: MEDIA_DOMAINS };
+
 const BASE = (
   process.env.GEOFLIX_BASE_URL ||
   (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "https://geoflix.online")
@@ -62,8 +74,8 @@ const handler = createMcpHandler(
       server,
       "geoflix-media",
       UI_URI,
-      {},
-      async () => ({ contents: [{ uri: UI_URI, mimeType: RESOURCE_MIME_TYPE, text: WIDGET_HTML }] })
+      { _meta: { ui: { csp: UI_CSP } } },
+      async () => ({ contents: [{ uri: UI_URI, mimeType: RESOURCE_MIME_TYPE, text: WIDGET_HTML, _meta: { ui: { csp: UI_CSP } } }] })
     );
 
     server.tool(

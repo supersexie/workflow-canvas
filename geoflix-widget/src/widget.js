@@ -14,12 +14,13 @@ function render(url, kind) {
 }
 
 function extract(result) {
-  // Prefer structured data, fall back to a URL in text content.
+  // Prefer structured data; only fall back to a *media* URL in text (never a status/handle URL).
   const sc = result?.structuredContent;
   if (sc?.url) return { url: sc.url, kind: sc.kind };
   const text = (result?.content || []).map((c) => c?.text || "").join(" ");
-  const m = text.match(/https?:\/\/\S+/);
-  return { url: m ? m[0] : null, kind: undefined };
+  const m = text.match(/https?:\/\/\S+\.(mp4|webm|mov|png|jpe?g|webp|gif)(\?\S*)?/i);
+  if (m) return { url: m[0], kind: /\.(mp4|webm|mov)/i.test(m[0]) ? "video" : "image" };
+  return { url: null };
 }
 
 const app = new App({ name: "Geoflix Media", version: "1.0.0" });
