@@ -14,6 +14,7 @@ import {
 import WorkflowNode from "./nodes/WorkflowNode";
 import PromptBar from "./PromptBar";
 import Assistant from "./Assistant";
+import Library from "./Library";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
 import { generateOutput, generateVideo } from "@/lib/run";
 
@@ -22,7 +23,6 @@ const NODE_TYPES_META = [
   { kind: "video", label: "Video", sub: "Generate or upload" },
   { kind: "text", label: "Text", sub: "Write or generate" },
   { kind: "audio", label: "Audio", sub: "Generate or upload" },
-  { kind: "motion", label: "Motion", sub: "Motion Graphics", isNew: true },
 ];
 
 const CARD_ICONS = {
@@ -63,6 +63,7 @@ function CanvasInner({ workflowId }) {
   const [savedAt, setSavedAt] = useState(null);
   const [picker, setPicker] = useState(null); // { x, y, flowPos, sourceId }
   const [assistantOpen, setAssistantOpen] = useState(false);
+  const [libraryOpen, setLibraryOpen] = useState(false);
   const [past, setPast] = useState([]);
   const [future, setFuture] = useState([]);
   const saveTimer = useRef(null);
@@ -329,7 +330,7 @@ function CanvasInner({ workflowId }) {
         <button title="Fit view" onClick={() => fitView({ padding: 0.3, duration: 300 })}>{RAIL_ICONS.frame}</button>
         <button title="Templates">{RAIL_ICONS.grid}</button>
         <button title="Comments">{RAIL_ICONS.chat}</button>
-        <button title="Assets">{RAIL_ICONS.folder}</button>
+        <button title="Library" onClick={() => setLibraryOpen(true)}>{RAIL_ICONS.folder}</button>
         <div className="divider" />
         <button title="Undo (Ctrl+Z)" onClick={undo} disabled={!past.length} style={!past.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.undo}</button>
         <button title="Redo (Ctrl+Shift+Z)" onClick={redo} disabled={!future.length} style={!future.length ? { opacity: .3, cursor: "not-allowed" } : null}>{RAIL_ICONS.redo}</button>
@@ -385,6 +386,11 @@ function CanvasInner({ workflowId }) {
                 <div className="sub">{t.sub}</div>
               </div>
             ))}
+            <div className="node-card" onClick={() => setLibraryOpen(true)}>
+              <div className="ic">{RAIL_ICONS.folder}</div>
+              <div className="label">Library</div>
+              <div className="sub">All your generations</div>
+            </div>
           </div>
         </div>
       )}
@@ -421,6 +427,8 @@ function CanvasInner({ workflowId }) {
           <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6h6l-5 4 2 7-7-4-7 4 2-7-5-4h6z"/></svg>
         </button>
       )}
+
+      <Library open={libraryOpen} onClose={() => setLibraryOpen(false)} />
 
       <Assistant
         open={assistantOpen}
