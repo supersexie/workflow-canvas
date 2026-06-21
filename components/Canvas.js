@@ -237,7 +237,7 @@ function CanvasInner({ workflowId }) {
     setRunningId(id);
     setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "running", output: null, error: null } } : n)));
     try {
-      const output = await generateOutput(node.data.kind, node.data.prompt);
+      const output = await generateOutput(node.data.kind, node.data.prompt, node.data.model);
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
     } catch (e) {
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "error", error: e.message } } : n)));

@@ -22,11 +22,17 @@ async function oai(path, init = {}, json = true) {
   return res;
 }
 
-async function genImage(prompt) {
+const IMAGE_MODEL_MAP = {
+  "GPT Image 1": "gpt-image-1",
+  "GPT Image 2": "gpt-image-2",
+};
+
+async function genImage(prompt, modelLabel) {
+  const model = IMAGE_MODEL_MAP[modelLabel] || "gpt-image-1";
   const res = await oai("/images/generations", {
     method: "POST",
     body: JSON.stringify({
-      model: "gpt-image-1",
+      model,
       prompt: prompt || "abstract gradient",
       size: "1024x1024",
       n: 1,
@@ -78,7 +84,7 @@ function mockFallback(kind, prompt) {
 }
 
 export async function POST(req) {
-  const { kind, prompt } = await req.json();
+  const { kind, prompt, model } = await req.json();
 
   if (!KEY) {
     return NextResponse.json({ output: mockFallback(kind, prompt), provider: "mock" });
@@ -86,7 +92,7 @@ export async function POST(req) {
 
   try {
     let output;
-    if (kind === "image") output = await genImage(prompt);
+    if (kind === "image") output = await genImage(prompt, model);
     else if (kind === "text") output = await genText(prompt);
     else if (kind === "audio") output = await genAudio(prompt);
     else output = mockFallback(kind, prompt); // video, motion
