@@ -33,19 +33,13 @@ async function pollVideo(handle, budgetMs) {
     const s = await postJson("/api/video/status", handle);
     if (s.done) {
       const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-      try {
-        const vid = await fetch(url);
-        const buf = Buffer.from(await vid.arrayBuffer());
-        if (vid.ok && buf.length <= 25_000_000) {
-          return {
-            content: [
-              { type: "resource", resource: { uri: url, mimeType: "video/mp4", blob: buf.toString("base64") } },
-              { type: "text", text: "✅ Video ready (playing above)." },
-            ],
-          };
-        }
-      } catch {}
-      return { content: [{ type: "text", text: `✅ Video ready — [▶ open / download](${url})` }] };
+      const html = `<!doctype html><meta charset="utf-8"><body style="margin:0;background:#000;display:flex"><video src="${url}" controls autoplay loop playsinline style="width:100%;height:auto;display:block"></video></body>`;
+      return {
+        content: [
+          { type: "resource", resource: { uri: `ui://geoflix/video/${Date.now()}`, mimeType: "text/html", text: html } },
+          { type: "text", text: `✅ Video ready — [▶ open / download](${url})` },
+        ],
+      };
     }
   }
   return null;
