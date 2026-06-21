@@ -4,7 +4,29 @@ export const runtime = "nodejs";
 export const maxDuration = 60;
 
 const KEY = process.env.OPENAI_API_KEY;
+const FAL = process.env.FAL_KEY;
 const OAI = "https://api.openai.com/v1";
+
+// fal image endpoints — return a public fal.media URL (small payload, renders in Claude + no localStorage bloat).
+const FAL_IMAGE_MAP = {
+  "GPT Image 1": "openai/gpt-image-2",
+  "GPT Image 2": "openai/gpt-image-2",
+  "Flux 2 Pro": "fal-ai/flux-2-pro",
+};
+
+async function genImageFal(prompt, modelLabel) {
+  const endpoint = FAL_IMAGE_MAP[modelLabel] || "fal-ai/flux-2-pro";
+  const res = await fetch(`https://fal.run/${endpoint}`, {
+    method: "POST",
+    headers: { Authorization: `Key ${FAL}`, "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt: prompt || "abstract gradient" }),
+  });
+  if (!res.ok) throw new Error(`fal image ${res.status}: ${(await res.text()).slice(0, 200)}`);
+  const data = await res.json();
+  const url = data.images?.[0]?.url || data.image?.url;
+  if (!url) throw new Error("No image URL from fal: " + JSON.stringify(data).slice(0, 200));
+  return url;
+}
 
 async function oai(path, init = {}, json = true) {
   const res = await fetch(`${OAI}${path}`, {
@@ -86,17 +108,21 @@ function mockFallback(kind, prompt) {
 export async function POST(req) {
   const { kind, prompt, model } = await req.json();
 
-  if (!KEY) {
-    return NextResponse.json({ output: mockFallback(kind, prompt), provider: "mock" });
-  }
-
   try {
     let output;
-    if (kind === "image") output = await genImage(prompt, model);
-    else if (kind === "text") output = await genText(prompt);
-    else if (kind === "audio") output = await genAudio(prompt);
-    else output = mockFallback(kind, prompt); // video, motion
-    return NextResponse.json({ output, provider: kind === "video" || kind === "motion" ? "mock" : "openai" });
+    if (kind === "image") {
+      // Prefer fal (public URL); fall back to OpenAI base64; else mock.
+      if (FAL) output = await genImageFal(prompt, model);
+      else if (KEY) output = await genImage(prompt, model);
+      else output = mockFallback(kind, prompt);
+    } else if (kind === "text") {
+      output = KEY ? await genText(prompt) : mockFallback(kind, prompt);
+    } else if (kind === "audio") {
+      output = KEY ? await genAudio(prompt) : mockFallback(kind, prompt);
+    } else {
+      output = mockFallback(kind, prompt);
+    }
+    return NextResponse.json({ output });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
