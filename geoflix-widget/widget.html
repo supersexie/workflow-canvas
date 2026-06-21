@@ -1,0 +1,41 @@
+<!doctype html>
+<html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<style>
+html,body{margin:0;padding:0;background:#0a0a0a}
+#root{min-height:60px}
+#root video,#root img{width:100%;height:auto;display:block;border-radius:12px}
+.msg{color:#888;font:14px -apple-system,system-ui,sans-serif;padding:16px}
+</style></head>
+<body><div id="root"><div class="msg">Loading…</div></div>
+<script>
+(function(){
+  var root=document.getElementById('root');
+  function render(url){
+    if(!url) return;
+    var v=/\.(mp4|webm|mov)(\?|$)/i.test(url);
+    root.innerHTML=v
+      ? '<video src="'+url+'" controls autoplay loop playsinline></video>'
+      : '<img src="'+url+'" alt="">';
+  }
+  function find(o,d){
+    if(o==null||d>8) return null;
+    if(typeof o==='string'){
+      var m=o.match(/https?:\/\/[^\s"'<>)]+\.(mp4|webm|mov|png|jpe?g|webp|gif)(\?[^\s"'<>)]*)?/i);
+      return m?m[0]:null;
+    }
+    if(typeof o==='object'){ for(var k in o){ var r=find(o[k],d+1); if(r) return r; } }
+    return null;
+  }
+  var id=0;
+  function post(m){ try{ parent.postMessage(m,'*'); }catch(e){} }
+  function init(){ post({jsonrpc:'2.0',id:++id,method:'ui/initialize',params:{protocolVersion:'2026-01-26',capabilities:{},clientInfo:{name:'geoflix',version:'1.0.0'}}}); }
+  window.addEventListener('message',function(ev){
+    var d=ev.data; if(!d||typeof d!=='object') return;
+    if(d.method==='ui/notifications/sandbox-proxy-ready') init();
+    if(d.id&&d.result&&d.result.protocolVersion) post({jsonrpc:'2.0',method:'ui/notifications/initialized'});
+    var u=find(d,0); if(u) render(u);
+  });
+  init();
+})();
+</script>
+</body></html>

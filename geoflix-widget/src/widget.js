@@ -1,4 +1,4 @@
-import { App } from "@modelcontextprotocol/ext-apps/app-with-deps";
+import { App } from "@modelcontextprotocol/ext-apps";
 
 const root = document.getElementById("root");
 
