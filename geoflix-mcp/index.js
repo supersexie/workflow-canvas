@@ -83,7 +83,7 @@ server.tool(
       const s = await postJson("/api/video/status", start);
       if (s.done) {
         const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-        return { content: [{ type: "text", text: `Video ready: ${url}` }] };
+        return { content: [{ type: "text", text: `✅ Video ready — [▶ Watch / download](${url})\n\n${url}` }] };
       }
     }
     return { content: [{ type: "text", text: "Video generation timed out (over 5 min)." }], isError: true };
