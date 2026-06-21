@@ -3,11 +3,19 @@ import { NextResponse } from "next/server";
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
-const KEY = process.env.GEMINI_API_KEY;
+const GEMINI = process.env.GEMINI_API_KEY;
+const FAL = process.env.FAL_KEY;
 
-const MODEL_MAP = {
+const VEO_MODELS = {
   "Veo 3.1 Fast": "veo-3.1-fast-generate-preview",
   "Veo 3.1": "veo-3.1-generate-preview",
+};
+
+const FAL_MODELS = {
+  "Wan 2.2": {
+    t2v: "fal-ai/wan/v2.2-a14b/text-to-video",
+    i2v: "fal-ai/wan/v2.2-a14b/image-to-video",
+  },
 };
 
 function parseDataUrl(d) {
@@ -18,34 +26,51 @@ function parseDataUrl(d) {
 export async function POST(req) {
   const { prompt, model, image, aspect, resolution, duration } = await req.json();
 
-  if (!KEY) {
-    return NextResponse.json({ mock: true, output: "Generated video (mock — set GEMINI_API_KEY for real Veo)" });
+  // ---- fal.ai (Wan) ----
+  const fal = FAL_MODELS[model];
+  if (fal) {
+    if (!FAL) return NextResponse.json({ mock: true, output: "Generated video (mock — set FAL_KEY for real fal.ai)" });
+    const endpoint = image ? fal.i2v : fal.t2v;
+    const input = { prompt: prompt || "a cinematic scene, smooth camera motion" };
+    if (image) input.image_url = image; // fal accepts data URIs
+    try {
+      const res = await fetch(`https://queue.fal.run/${endpoint}`, {
+        method: "POST",
+        headers: { Authorization: `Key ${FAL}`, "Content-Type": "application/json" },
+        body: JSON.stringify(input),
+      });
+      if (!res.ok) throw new Error(`fal ${res.status}: ${(await res.text()).slice(0, 300)}`);
+      const data = await res.json();
+      if (!data.request_id) throw new Error("fal did not return a request_id");
+      return NextResponse.json({ provider: "fal", endpoint, requestId: data.request_id });
+    } catch (e) {
+      return NextResponse.json({ error: e.message }, { status: 500 });
+    }
   }
 
-  const modelId = MODEL_MAP[model] || "veo-3.1-fast-generate-preview";
+  // ---- Google Veo (default) ----
+  if (!GEMINI) return NextResponse.json({ mock: true, output: "Generated video (mock — set GEMINI_API_KEY for real Veo)" });
+  const modelId = VEO_MODELS[model] || "veo-3.1-fast-generate-preview";
   const instance = { prompt: prompt || "a cinematic establishing shot, smooth camera motion" };
-
   const img = parseDataUrl(image);
   if (img) instance.image = { inlineData: { mimeType: img.mimeType, data: img.data } };
-
   const parameters = {};
-  if (aspect) parameters.aspectRatio = aspect;        // "16:9" | "9:16"
-  if (resolution) parameters.resolution = resolution; // "720p" | "1080p"
-  if (duration) parameters.durationSeconds = Number(duration); // 4 | 6 | 8 (must be a number)
-
+  if (aspect) parameters.aspectRatio = aspect;
+  if (resolution) parameters.resolution = resolution;
+  if (duration) parameters.durationSeconds = Number(duration);
   try {
     const res = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/${modelId}:predictLongRunning`,
       {
         method: "POST",
-        headers: { "x-goog-api-key": KEY, "Content-Type": "application/json" },
+        headers: { "x-goog-api-key": GEMINI, "Content-Type": "application/json" },
         body: JSON.stringify({ instances: [instance], parameters }),
       }
     );
     if (!res.ok) throw new Error(`Veo ${res.status}: ${(await res.text()).slice(0, 300)}`);
     const data = await res.json();
     if (!data.name) throw new Error("Veo did not return an operation name");
-    return NextResponse.json({ operation: data.name });
+    return NextResponse.json({ provider: "veo", operation: data.name });
   } catch (e) {
     return NextResponse.json({ error: e.message }, { status: 500 });
   }
