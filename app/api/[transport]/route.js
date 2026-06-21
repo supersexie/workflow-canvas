@@ -24,6 +24,37 @@ function parseDataUrl(s) {
   return m ? { mimeType: m[1], data: m[2] } : null;
 }
 
+// Poll a video job for up to `budgetMs`. Returns an MCP content result when done, else null.
+async function pollVideo(handle, budgetMs) {
+  const deadline = Date.now() + budgetMs;
+  while (Date.now() < deadline) {
+    await new Promise((r) => setTimeout(r, 5000));
+    const s = await postJson("/api/video/status", handle);
+    if (s.done) {
+      const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
+      try {
+        const vid = await fetch(url);
+        const buf = Buffer.from(await vid.arrayBuffer());
+        if (vid.ok && buf.length <= 8_000_000) {
+          return {
+            content: [
+              { type: "resource", resource: { uri: url, mimeType: "video/mp4", blob: buf.toString("base64") } },
+              { type: "text", text: `✅ Video ready — [▶ open in browser](${url})` },
+            ],
+          };
+        }
+      } catch {}
+      return {
+        content: [
+          { type: "resource_link", uri: url, name: "generated-video.mp4", mimeType: "video/mp4" },
+          { type: "text", text: `✅ Video ready — [▶ Watch / download](${url})` },
+        ],
+      };
+    }
+  }
+  return null;
+}
+
 const handler = createMcpHandler(
   (server) => {
     server.tool(
@@ -74,34 +105,30 @@ const handler = createMcpHandler(
       async ({ prompt, model, image_url, aspect, resolution, duration }) => {
         const start = await postJson("/api/video/start", { prompt, model: model || "LTX Video", image: image_url, aspect, resolution, duration });
         if (start.mock) return { content: [{ type: "text", text: start.output }] };
-        const deadline = Date.now() + 50 * 1000; // stay under serverless cap
-        while (Date.now() < deadline) {
-          await new Promise((r) => setTimeout(r, 5000));
-          const s = await postJson("/api/video/status", start);
-          if (s.done) {
-            const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-            // Embed the video bytes so Claude can render an inline player (falls back to a link if too large).
-            try {
-              const vid = await fetch(url);
-              const buf = Buffer.from(await vid.arrayBuffer());
-              if (vid.ok && buf.length <= 8_000_000) {
-                return {
-                  content: [
-                    { type: "resource", resource: { uri: url, mimeType: "video/mp4", blob: buf.toString("base64") } },
-                    { type: "text", text: `✅ Video ready — [▶ open in browser](${url})` },
-                  ],
-                };
-              }
-            } catch {}
-            return {
-              content: [
-                { type: "resource_link", uri: url, name: "generated-video.mp4", mimeType: "video/mp4", description: prompt },
-                { type: "text", text: `✅ Video ready — [▶ Watch / download](${url})` },
-              ],
-            };
-          }
-        }
-        return { content: [{ type: "text", text: "Video is still processing (longer than the request limit). Check the Geoflix Library shortly for the finished clip." }] };
+        const done = await pollVideo(start, 40 * 1000);
+        if (done) return done;
+        return {
+          content: [{
+            type: "text",
+            text:
+              "Video is rendering (takes ~1-2 min). Call the `check_video` tool with this exact handle to retrieve it once ready:\n\n" +
+              "```json\n" + JSON.stringify(start) + "\n```\n\n" +
+              "If it says still rendering, call `check_video` again with the same handle after a few seconds.",
+          }],
+        };
+      }
+    );
+
+    server.tool(
+      "check_video",
+      "Retrieve a video started by generate_video that wasn't ready yet. Pass the exact `handle` JSON returned by generate_video. Returns the video inline once ready.",
+      { handle: z.string().describe("The JSON handle string from generate_video") },
+      async ({ handle }) => {
+        let start;
+        try { start = JSON.parse(handle); } catch { return { content: [{ type: "text", text: "Invalid handle. Pass the exact JSON from generate_video." }], isError: true }; }
+        const done = await pollVideo(start, 45 * 1000);
+        if (done) return done;
+        return { content: [{ type: "text", text: "Still rendering — call `check_video` again with the same handle in a few seconds." }] };
       }
     );
   },
