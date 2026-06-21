@@ -7,6 +7,11 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
   const [autoRun, setAutoRun] = useState(true);
   const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (open) inputRef.current?.focus();
+  }, [open]);
 
   useEffect(() => {
     scrollRef.current?.scrollTo({ top: scrollRef.current.scrollHeight, behavior: "smooth" });
@@ -19,8 +24,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
     if (!text || sending) return;
     setInput("");
     setSending(true);
-    const userMsg = { role: "user", content: text };
-    setHistory((h) => [...h, userMsg]);
+    setHistory((h) => [...h, { role: "user", content: text }]);
     try {
       const res = await fetch("/api/assistant", {
         method: "POST",
@@ -29,10 +33,11 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
-      setHistory((h) => [...h, { role: "assistant", content: data.message || "Done.", action: data.kind ? { kind: data.kind, prompt: data.prompt } : null }]);
-      if (data.kind) {
-        onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt }, autoRun);
-      }
+      setHistory((h) => [
+        ...h,
+        { role: "assistant", content: data.message || "Done.", action: data.kind ? { kind: data.kind, prompt: data.prompt } : null },
+      ]);
+      if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt }, autoRun);
     } catch (e) {
       setHistory((h) => [...h, { role: "assistant", content: `⚠ ${e.message}` }]);
     } finally {
@@ -47,77 +52,87 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
     }
   };
 
-  const reset = () => setHistory([]);
-
-  const S = {
-    panel: { position: "fixed", top: 0, right: 0, bottom: 0, width: 380, height: "100vh" },
-    header: { position: "absolute", top: 0, left: 0, right: 0, height: 57 },
-    body: { position: "absolute", top: 57, left: 0, right: 0, bottom: 132, overflowY: "auto" },
-    inputArea: { position: "absolute", left: 0, right: 0, bottom: 0 },
-  };
-
   return (
-    <div className="assistant" style={S.panel}>
-      <div className="assistant-header" style={S.header}>
-        <span>Assistant</span>
-        <div style={{ display: "flex", gap: 6 }}>
-          <button className="assistant-iconbtn" onClick={reset} title="New chat">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M3 12a9 9 0 1 1 3 6.7L3 21"/><path d="M3 13v-3h3"/></svg>
-          </button>
-          <button className="assistant-iconbtn" onClick={onClose} title="Close">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M18 6 6 18M6 6l12 12"/></svg>
-          </button>
-        </div>
-      </div>
-
-      <div className="assistant-body" style={S.body} ref={scrollRef}>
-        {history.length === 0 ? (
-          <div className="assistant-empty">
-            <h3>How can I help?</h3>
-            <p>I can create and configure nodes, generate images, edit prompts, connect workflows, and help you build your pipeline step by step. Just describe what you need.</p>
+    <div className="cb-backdrop" onMouseDown={onClose}>
+      <div className="cb-modal" onMouseDown={(e) => e.stopPropagation()}>
+        <div className="cb-head">
+          <div className="cb-head-title">
+            <span className="cb-spark">✦</span> AI Assistant
           </div>
-        ) : (
-          history.map((m, i) => (
-            <div key={i} className={`assistant-msg ${m.role}`}>
-              <div className="assistant-msg-bubble">
+          <div className="cb-head-actions">
+            {history.length > 0 && (
+              <button className="cb-iconbtn" onClick={() => setHistory([])} title="New chat">New chat</button>
+            )}
+            <button className="cb-iconbtn cb-close" onClick={onClose} title="Close">✕</button>
+          </div>
+        </div>
+
+        <div className="cb-messages" ref={scrollRef}>
+          {history.length === 0 && (
+            <div className="cb-welcome">
+              <div className="cb-welcome-icon">✦</div>
+              <h3>How can I help?</h3>
+              <p>Describe what you want and I'll create the right node and generate it.</p>
+              <div className="cb-suggestions">
+                {[
+                  "Generate an image of a sunset over mountains",
+                  "Write a tagline for a coffee brand",
+                  "Make a video of waves crashing",
+                ].map((s) => (
+                  <button key={s} className="cb-suggestion" onClick={() => setInput(s)}>{s}</button>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {history.map((m, i) => (
+            <div key={i} className={`cb-msg cb-msg-${m.role}`}>
+              <div className="cb-bubble">
                 {m.content}
                 {m.action && (
-                  <div className="assistant-action-chip">
-                    + {m.action.kind} node{m.action.prompt ? ` — "${m.action.prompt.slice(0, 60)}${m.action.prompt.length > 60 ? '…' : ''}"` : ''}
+                  <div className="cb-chip">
+                    ✦ Created {m.action.kind} node{m.action.prompt ? ` — "${m.action.prompt.slice(0, 50)}${m.action.prompt.length > 50 ? "…" : ""}"` : ""}
                   </div>
                 )}
               </div>
             </div>
-          ))
-        )}
-        {sending && <div className="assistant-msg assistant"><div className="assistant-msg-bubble assistant-thinking">Thinking…</div></div>}
-      </div>
+          ))}
 
-      <div className="assistant-input-area" style={S.inputArea}>
-        <textarea
-          className="assistant-input"
-          placeholder="Type your task here..."
-          value={input}
-          onChange={(e) => setInput(e.target.value)}
-          onKeyDown={onKey}
-          rows={2}
-        />
-        <div className="assistant-input-row">
-          <button className="assistant-pill" title="Add">
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14"/></svg>
-          </button>
-          <button
-            className={`assistant-pill assistant-autorun ${autoRun ? "on" : ""}`}
-            onClick={() => setAutoRun((v) => !v)}
-            title={autoRun ? "Auto-run is on" : "Auto-run is off"}
-          >
-            <svg width="12" height="12" viewBox="0 0 24 24" fill={autoRun ? "currentColor" : "none"} stroke="currentColor" strokeWidth="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
-            Auto-run
-          </button>
-          <div style={{ flex: 1 }} />
-          <button className="assistant-send" onClick={send} disabled={!input.trim() || sending}>
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M12 19V5M5 12l7-7 7 7"/></svg>
-          </button>
+          {sending && (
+            <div className="cb-msg cb-msg-assistant">
+              <div className="cb-bubble cb-thinking">
+                <span className="cb-dot" /><span className="cb-dot" /><span className="cb-dot" />
+              </div>
+            </div>
+          )}
+        </div>
+
+        <div className="cb-inputbar">
+          <div className="cb-autorun-row">
+            <button
+              className={`cb-autorun ${autoRun ? "on" : ""}`}
+              onClick={() => setAutoRun((v) => !v)}
+              title="When on, generated nodes run automatically"
+            >
+              ⚡ Auto-run {autoRun ? "on" : "off"}
+            </button>
+          </div>
+          <div className="cb-inputrow">
+            <textarea
+              ref={inputRef}
+              className="cb-textarea"
+              placeholder="Describe what you want to create…"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              onKeyDown={onKey}
+              rows={1}
+            />
+            <button className="cb-send" onClick={send} disabled={!input.trim() || sending} title="Send">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+                <path d="M12 19V5M5 12l7-7 7 7" />
+              </svg>
+            </button>
+          </div>
         </div>
       </div>
     </div>
