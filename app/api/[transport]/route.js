@@ -80,7 +80,25 @@ const handler = createMcpHandler(
           const s = await postJson("/api/video/status", start);
           if (s.done) {
             const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-            return { content: [{ type: "text", text: `✅ Video ready — [▶ Watch / download](${url})\n\n${url}` }] };
+            // Embed the video bytes so Claude can render an inline player (falls back to a link if too large).
+            try {
+              const vid = await fetch(url);
+              const buf = Buffer.from(await vid.arrayBuffer());
+              if (vid.ok && buf.length <= 8_000_000) {
+                return {
+                  content: [
+                    { type: "resource", resource: { uri: url, mimeType: "video/mp4", blob: buf.toString("base64") } },
+                    { type: "text", text: `✅ Video ready — [▶ open in browser](${url})` },
+                  ],
+                };
+              }
+            } catch {}
+            return {
+              content: [
+                { type: "resource_link", uri: url, name: "generated-video.mp4", mimeType: "video/mp4", description: prompt },
+                { type: "text", text: `✅ Video ready — [▶ Watch / download](${url})` },
+              ],
+            };
           }
         }
         return { content: [{ type: "text", text: "Video is still processing (longer than the request limit). Check the Geoflix Library shortly for the finished clip." }] };

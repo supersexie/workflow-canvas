@@ -83,6 +83,16 @@ server.tool(
       const s = await postJson("/api/video/status", start);
       if (s.done) {
         const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
+        try {
+          const vid = await fetch(url);
+          const buf = Buffer.from(await vid.arrayBuffer());
+          if (vid.ok && buf.length <= 8_000_000) {
+            return { content: [
+              { type: "resource", resource: { uri: url, mimeType: "video/mp4", blob: buf.toString("base64") } },
+              { type: "text", text: `✅ Video ready — [▶ open in browser](${url})` },
+            ] };
+          }
+        } catch {}
         return { content: [{ type: "text", text: `✅ Video ready — [▶ Watch / download](${url})\n\n${url}` }] };
       }
     }
