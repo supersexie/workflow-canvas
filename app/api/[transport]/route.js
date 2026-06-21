@@ -24,6 +24,26 @@ function parseDataUrl(s) {
   return m ? { mimeType: m[1], data: m[2] } : null;
 }
 
+// Build a poster still (base64 image) for a video: the source image for image-to-video,
+// or a freshly generated still for text-to-video.
+async function buildPoster({ prompt, image_url }) {
+  try {
+    if (image_url) {
+      const d = parseDataUrl(image_url);
+      if (d) return d;
+      const r = await fetch(image_url);
+      if (r.ok) {
+        const buf = Buffer.from(await r.arrayBuffer());
+        return { mimeType: r.headers.get("content-type") || "image/png", data: buf.toString("base64") };
+      }
+    } else if (prompt) {
+      const { output } = await postJson("/api/generate", { kind: "image", prompt });
+      return parseDataUrl(output);
+    }
+  } catch {}
+  return null;
+}
+
 // Poll a video job for up to `budgetMs`. Returns an MCP content result when done, else null.
 async function pollVideo(handle, budgetMs) {
   const deadline = Date.now() + budgetMs;
@@ -32,24 +52,11 @@ async function pollVideo(handle, budgetMs) {
     const s = await postJson("/api/video/status", handle);
     if (s.done) {
       const url = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-      try {
-        const vid = await fetch(url);
-        const buf = Buffer.from(await vid.arrayBuffer());
-        if (vid.ok && buf.length <= 8_000_000) {
-          return {
-            content: [
-              { type: "resource", resource: { uri: url, mimeType: "video/mp4", blob: buf.toString("base64") } },
-              { type: "text", text: `✅ Video ready — [▶ open in browser](${url})` },
-            ],
-          };
-        }
-      } catch {}
-      return {
-        content: [
-          { type: "resource_link", uri: url, name: "generated-video.mp4", mimeType: "video/mp4" },
-          { type: "text", text: `✅ Video ready — [▶ Watch / download](${url})` },
-        ],
-      };
+      const poster = await buildPoster({ prompt: handle.prompt, image_url: handle.image_url });
+      const content = [];
+      if (poster) content.push({ type: "image", data: poster.data, mimeType: poster.mimeType });
+      content.push({ type: "text", text: `✅ Video ready${poster ? " (still preview above)" : ""} — [▶ play / download the full video](${url})` });
+      return { content };
     }
   }
   return null;
@@ -105,6 +112,9 @@ const handler = createMcpHandler(
       async ({ prompt, model, image_url, aspect, resolution, duration }) => {
         const start = await postJson("/api/video/start", { prompt, model: model || "LTX Video", image: image_url, aspect, resolution, duration });
         if (start.mock) return { content: [{ type: "text", text: start.output }] };
+        // carry prompt + image_url so check_video can build the poster
+        start.prompt = prompt;
+        if (image_url) start.image_url = image_url;
         const done = await pollVideo(start, 40 * 1000);
         if (done) return done;
         return {
