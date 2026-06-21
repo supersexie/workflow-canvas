@@ -53,8 +53,8 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
   };
 
   return (
-    <div className="cb-backdrop" onMouseDown={onClose}>
-      <div className="cb-modal" onMouseDown={(e) => e.stopPropagation()}>
+    <div className="cb-sidepanel">
+      <div className="cb-modal">
         <div className="cb-head">
           <div className="cb-head-title">
             <span className="cb-spark">✦</span> AI Assistant
