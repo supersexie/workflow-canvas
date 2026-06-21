@@ -374,8 +374,8 @@ body {
   display: flex; align-items: center; justify-content: center; padding: 32px;
 }
 .lib-modal {
-  width: 100%; max-width: 960px; height: 80vh; max-height: 760px;
-  background: #121212; border: 1px solid #2a2a2a; border-radius: 16px;
+  width: 100%; max-width: 1200px; height: 88vh;
+  background: #0f0f0f; border: 1px solid #2a2a2a; border-radius: 16px;
   display: flex; flex-direction: column; overflow: hidden;
   box-shadow: 0 30px 80px rgba(0,0,0,.6);
 }
@@ -393,33 +393,39 @@ body {
 .lib-empty h3 { color: #e5e5e5; font-size: 18px; margin: 0 0 8px; }
 .lib-empty p { font-size: 13px; line-height: 1.5; margin: 0; }
 .lib-grid {
-  display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px;
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 6px;
 }
-.lib-card {
-  background: #181818; border: 1px solid #262626; border-radius: 12px; overflow: hidden;
-  display: flex; flex-direction: column; position: relative;
+.lib-block {
+  position: relative; aspect-ratio: 16 / 9; background: #0a0a0a;
+  border-radius: 8px; overflow: hidden; display: block; cursor: pointer;
+  text-decoration: none;
 }
-.lib-card:hover { border-color: #404040; }
-.lib-thumb { position: relative; aspect-ratio: 1 / 1; background: #0a0a0a; overflow: hidden; }
-.lib-thumb img, .lib-thumb video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.lib-block img, .lib-block video {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform .25s ease;
+}
+.lib-block:hover img, .lib-block:hover video { transform: scale(1.04); }
 .lib-audio, .lib-textthumb {
   width: 100%; height: 100%; display: grid; place-items: center; color: #525252;
-  background: radial-gradient(circle at 50% 40%, rgba(168,85,247,.12), transparent 70%);
-  text-transform: capitalize; font-size: 13px;
+  background: radial-gradient(circle at 50% 40%, rgba(168,85,247,.14), transparent 70%);
+  text-transform: capitalize; font-size: 14px;
 }
 .lib-badge {
-  position: absolute; top: 8px; left: 8px; font-size: 10px; font-weight: 600;
-  background: rgba(0,0,0,.65); color: #d4d4d4; padding: 2px 8px; border-radius: 5px; backdrop-filter: blur(4px);
+  position: absolute; top: 8px; left: 8px; z-index: 2; font-size: 10px; font-weight: 600;
+  background: rgba(0,0,0,.6); color: #e5e5e5; padding: 3px 8px; border-radius: 5px;
+  backdrop-filter: blur(4px); letter-spacing: .02em;
 }
-.lib-meta { padding: 10px 12px; }
-.lib-prompt { font-size: 12px; color: #d4d4d4; line-height: 1.4; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-.lib-wf { font-size: 11px; color: #6b6b6b; margin-top: 4px; }
-.lib-open {
-  position: absolute; top: 8px; right: 8px; font-size: 10px; color: #c084fc;
-  background: rgba(0,0,0,.65); padding: 3px 8px; border-radius: 5px; text-decoration: none;
-  opacity: 0; transition: opacity .15s; backdrop-filter: blur(4px);
+.lib-overlay {
+  position: absolute; inset: auto 0 0 0; padding: 24px 12px 10px;
+  background: linear-gradient(transparent, rgba(0,0,0,.85));
+  opacity: 0; transition: opacity .15s; pointer-events: none;
 }
-.lib-card:hover .lib-open { opacity: 1; }
+.lib-block:hover .lib-overlay { opacity: 1; }
+.lib-overlay-prompt {
+  font-size: 12px; color: #fff; line-height: 1.35;
+  display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;
+}
+.lib-overlay-wf { font-size: 10px; color: #a3a3a3; margin-top: 3px; }
 
 /* ---- AI Chatbot (right side panel) ---- */
 .cb-sidepanel {

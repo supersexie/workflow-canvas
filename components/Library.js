@@ -36,24 +36,23 @@ export default function Library({ open, onClose }) {
           ) : (
             <div className="lib-grid">
               {items.map((it, i) => (
-                <div key={i} className="lib-card">
-                  <div className="lib-thumb">
-                    {it.kind === "image" && <img src={it.url} alt="" />}
-                    {it.kind === "video" && <video src={it.url} muted loop playsInline onMouseOver={(e) => e.target.play()} onMouseOut={(e) => e.target.pause()} />}
-                    {it.kind === "audio" && (
-                      <div className="lib-audio">
-                        <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 12a4 4 0 0 0-2-3.5"/></svg>
-                      </div>
-                    )}
-                    {(it.kind === "text" || it.kind === "motion") && <div className="lib-textthumb">{it.kind}</div>}
-                    <span className="lib-badge">{KIND_LABEL[it.kind] || it.kind}</span>
+                <a key={i} className="lib-block" href={it.url} target="_blank" rel="noreferrer">
+                  {it.kind === "image" && <img src={it.url} alt="" />}
+                  {it.kind === "video" && (
+                    <video src={it.url} muted loop playsInline onMouseOver={(e) => e.target.play()} onMouseOut={(e) => { e.target.pause(); e.target.currentTime = 0; }} />
+                  )}
+                  {it.kind === "audio" && (
+                    <div className="lib-audio">
+                      <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M19 12a4 4 0 0 0-2-3.5"/></svg>
+                    </div>
+                  )}
+                  {(it.kind === "text" || it.kind === "motion") && <div className="lib-textthumb">{KIND_LABEL[it.kind] || it.kind}</div>}
+                  <span className="lib-badge">{KIND_LABEL[it.kind] || it.kind}</span>
+                  <div className="lib-overlay">
+                    <div className="lib-overlay-prompt">{it.prompt || "(no prompt)"}</div>
+                    <div className="lib-overlay-wf">{it.workflowName}</div>
                   </div>
-                  <div className="lib-meta">
-                    <div className="lib-prompt">{it.prompt || "(no prompt)"}</div>
-                    <div className="lib-wf">{it.workflowName}</div>
-                  </div>
-                  <a className="lib-open" href={it.url} target="_blank" rel="noreferrer" download>Open ↗</a>
-                </div>
+                </a>
               ))}
             </div>
           )}
