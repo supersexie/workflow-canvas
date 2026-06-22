@@ -101,12 +101,12 @@ export default function Landing() {
 
       {/* HERO */}
       <header className={s.hero}>
-        <span className={s.badge}><span className={s.accent}>New:</span> AI Assistant is live! &rarr;</span>
+        <span className={s.badge}><span className={s.accent}>New:</span> AI ad generator is live! <span className={s.accent}>Try now &rarr;</span></span>
         <h1 className={s.h1}>
-          The Node-Based Canvas<br />for <span className={s.grad}>AI Creation</span>
+          The Easiest Way to Make<br />Viral Videos
         </h1>
         <p className={s.sub}>
-          Generate images, video, voiceovers, and scripts — then connect them on one infinite canvas.
+          The AI tool suite for video generation, scripting, voiceovers, caption removal, and more.
         </p>
         <div className={s.heroCta}>
           <Link href="/app" className={`${s.btn} ${s.btnLg}`}>Start Creating <Arrow /></Link>
