@@ -233,9 +233,10 @@
 .featActive .featH { color: var(--blue); }
 .featP { color: var(--muted); font-size: 15px; line-height: 1.5; margin-top: 6px; }
 .featArt {
-  aspect-ratio: 16 / 9; border-radius: 22px;
+  aspect-ratio: 1706 / 788; border-radius: 22px;
   background: linear-gradient(135deg, #dbe7ff, #ede0ff);
-  border: 1px solid #e3e9f7;
+  border: 2px solid #2563eb;
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12);
   display: grid; place-items: center;
   position: relative; overflow: hidden;
 }
