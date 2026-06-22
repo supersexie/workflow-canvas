@@ -21,7 +21,7 @@ const TOOLS = [
   { icon: "🎙️", title: "AI Voiceover", desc: "Turn any script into natural-sounding narration with one click.", video: "/tools/voiceover.mp4" },
   { icon: "✍️", title: "AI Scriptwriter", desc: "Generate captions, copy, and full scripts from a single prompt.", video: "/tools/scriptwriter.mp4" },
   { icon: "🤖", title: "AI Assistant", desc: "Describe what you want in plain language — it builds and runs the nodes for you.", video: "/tools/assistant.mp4" },
-  { icon: "🔗", title: "Genmax Flow", desc: "Build node-based pipelines on an infinite canvas — connect image, video, text, and audio nodes into one workflow.", video: "/tools/genmax.mp4", tag: "New" },
+  { icon: "🔗", title: "Genmax Flow", desc: "Connect image, video, text, and audio nodes on one infinite canvas.", video: "/tools/genmax.mp4", tag: "New" },
 ];
 
 // Auto-scrolling showcase tiles — empty placeholders (3 landscape, 3 portrait).
