@@ -1,6 +1,7 @@
 "use client";
 import { useRef } from "react";
 import { Handle, Position, useReactFlow } from "@xyflow/react";
+import { bodyDims } from "@/lib/cardSize";
 
 const ACCEPT = {
   image: "image/*",
@@ -91,6 +92,7 @@ export default function WorkflowNode({ id, data, selected }) {
   const kind = data.kind || "image";
   const fileRef = useRef(null);
   const { setNodes, deleteElements } = useReactFlow();
+  const dims = bodyDims(kind, data.aspect); // null for text/audio (fixed sizes)
 
   const onDelete = (e) => {
     e.stopPropagation();
@@ -115,7 +117,7 @@ export default function WorkflowNode({ id, data, selected }) {
   };
 
   return (
-    <div className={`wf-card ${SIZE_CLASS[kind]} ${selected ? "is-selected" : ""}`}>
+    <div className={`wf-card ${SIZE_CLASS[kind]} ${selected ? "is-selected" : ""}`} style={dims ? { width: dims.w } : undefined}>
       {ACCEPT[kind] && (
         <input
           ref={fileRef}
@@ -143,7 +145,7 @@ export default function WorkflowNode({ id, data, selected }) {
           </svg>
         </button>
       </div>
-      <div className="wf-card-body">
+      <div className="wf-card-body" style={dims ? { width: dims.w, height: dims.h } : undefined}>
         {data.output && (kind === "image" || kind === "video") && (data.output.startsWith("http") || data.output.startsWith("data:") || data.output.startsWith("/api/")) ? (
           <>
             {kind === "video" ? (

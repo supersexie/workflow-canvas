@@ -17,6 +17,7 @@ import Assistant from "./Assistant";
 import Library from "./Library";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
 import { generateOutput, generateVideo } from "@/lib/run";
+import { nodeDims } from "@/lib/cardSize";
 
 const NODE_TYPES_META = [
   { kind: "image", label: "Image", sub: "Generate or upload" },
@@ -212,12 +213,21 @@ function CanvasInner({ workflowId }) {
   const onConnect = useCallback((p) => setEdges((e) => addEdge({ ...p, animated: true }, e)), []);
 
   const updateNodeData = useCallback((id, newData) => {
-    setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: newData } : n)));
+    setNodes((ns) => ns.map((n) => {
+      if (n.id !== id) return n;
+      const next = { ...n, data: newData };
+      // Keep React Flow's stored size in sync so the card reshapes with the
+      // chosen aspect ratio (handles/edges follow). Null for text/audio.
+      const d = nodeDims(newData.kind, newData.aspect);
+      if (d) { next.width = d.width; next.height = d.height; }
+      return next;
+    }));
   }, []);
 
   const addNode = (kind, options = {}) => {
-    const W = SIZE[kind] || 304;
-    const H = HEIGHT[kind] || 340;
+    const d = nodeDims(kind, options.aspect);
+    const W = d ? d.width : (SIZE[kind] || 304);
+    const H = d ? d.height : (HEIGHT[kind] || 340);
     let pos = options.position;
     if (!pos) {
       pos = {
