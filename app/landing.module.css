@@ -233,12 +233,13 @@
 .featActive .featH { color: var(--blue); }
 .featP { color: var(--muted); font-size: 15px; line-height: 1.5; margin-top: 6px; }
 .featArt {
-  height: 420px; border-radius: 22px;
+  aspect-ratio: 16 / 9; border-radius: 22px;
   background: linear-gradient(135deg, #dbe7ff, #ede0ff);
   border: 1px solid #e3e9f7;
   display: grid; place-items: center;
   position: relative; overflow: hidden;
 }
+.featVideo { width: 100%; height: 100%; object-fit: cover; display: block; }
 .featArt .node {
   position: absolute; background: #fff; border: 1px solid #dbe3f0;
   border-radius: 12px; padding: 12px 16px; font-size: 13px; font-weight: 600;
@@ -322,7 +323,6 @@
   .grid { grid-template-columns: 1fr; }
   .mcpSteps { grid-template-columns: 1fr; }
   .features { grid-template-columns: 1fr; gap: 32px; }
-  .featArt { height: 300px; }
   .footTop { grid-template-columns: 1fr; }
   .section { padding: 64px 24px; }
 }

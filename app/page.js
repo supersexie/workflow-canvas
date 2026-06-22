@@ -184,10 +184,7 @@ export default function Landing() {
             ))}
           </div>
           <div className={s.featArt}>
-            <div className={s.node} style={{ top: 60, left: 50 }}>🖼️ Image</div>
-            <div className={s.node} style={{ top: 180, left: 150 }}>🎬 Video</div>
-            <div className={s.node} style={{ bottom: 70, left: 70 }}>🎙️ Audio</div>
-            <div className={s.node} style={{ top: 120, right: 50 }}>✍️ Text</div>
+            <video className={s.featVideo} src="/tools/canvas.mp4" autoPlay loop muted playsInline preload="metadata" />
           </div>
         </div>
       </section>
