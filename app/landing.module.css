@@ -153,7 +153,7 @@
 }
 .marqueeTrack {
   display: flex; gap: 16px; width: max-content;
-  padding-top: 16px; /* room for the views pill to straddle the tile top */
+  padding-top: 30px; /* generous room so the views pill never clips */
   animation: marquee 80s linear infinite;
 }
 .marquee:hover .marqueeTrack { animation-play-state: paused; }
