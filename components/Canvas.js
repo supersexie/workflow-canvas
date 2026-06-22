@@ -279,8 +279,7 @@ function CanvasInner({ workflowId }) {
       const prompt = typed || textPrompt || "";
       if (node.data.kind === "video") {
         const [aspectRatio, resolution] = (node.data.aspect || "16:9 · 720p").split("·").map((s) => s.trim());
-        let dur = parseInt(node.data.duration) || 8;
-        dur = dur <= 4 ? 4 : dur <= 6 ? 6 : 8;
+        const dur = parseInt(node.data.duration) || 8;
         output = await generateVideo({
           prompt,
           model: node.data.model,

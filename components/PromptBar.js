@@ -15,7 +15,7 @@ const ASPECTS = {
   motion: ["16:9 · 1080p", "1:1 · 1080p"],
 };
 
-const DURATIONS = ["4s", "6s", "8s"];
+const DURATIONS = ["4s", "6s", "8s", "10s", "30s", "45s", "60s"];
 const VOICES = ["James – Husky & Engaging", "Aria – Warm & Bright", "Nova – Crisp Narrator"];
 
 const MODEL_ICON = {
