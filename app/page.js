@@ -32,6 +32,7 @@ const SHOWCASE = [
   { ratio: "9:16", views: "31.5M Views", video: "/marquee/p2.mp4" },
   { ratio: "16:9", views: "117.3M Views", video: "/marquee/l3.mp4" },
   { ratio: "9:16", views: "9.4M Views", video: "/marquee/p3.mp4" },
+  { ratio: "9:16", views: "62.8M Views", video: "/marquee/p4.mp4" },
   { ratio: "16:9", views: "73.6M Views", video: "/marquee/l4.mp4" },
   { ratio: "16:9", views: "45.9M Views", video: "/marquee/l5.mp4" },
 ];
