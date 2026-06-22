@@ -24,13 +24,11 @@ const TOOLS = [
   { icon: "🔗", title: "Genmax Flow", desc: "Build node-based pipelines on an infinite canvas — connect image, video, text, and audio nodes into one workflow.", art: "🔗", tag: "New" },
 ];
 
-// Auto-scrolling showcase tiles (mixed 16:9 / 9:16), reusing the demo clips.
+// Auto-scrolling showcase tiles — empty placeholders (3 landscape, 3 portrait).
 const SHOWCASE = [
-  { src: "/tools/video.mp4", ratio: "9:16", cap: "Video · Kling" },
-  { src: "/tools/image.mp4", ratio: "16:9", cap: "Image · Flux 2" },
-  { src: "/tools/assistant.mp4", ratio: "9:16", cap: "AI Assistant" },
-  { src: "/tools/voiceover.mp4", ratio: "16:9", cap: "AI Voiceover" },
-  { src: "/tools/scriptwriter.mp4", ratio: "9:16", cap: "AI Scriptwriter" },
+  { ratio: "16:9" }, { ratio: "9:16" },
+  { ratio: "16:9" }, { ratio: "9:16" },
+  { ratio: "16:9" }, { ratio: "9:16" },
 ];
 
 const FEATURES = [
@@ -127,12 +125,8 @@ export default function Landing() {
 
         <div className={s.marquee}>
           <div className={s.marqueeTrack}>
-            {[...SHOWCASE, ...SHOWCASE, ...SHOWCASE, ...SHOWCASE].map((t, i) => (
-              <div key={i} className={`${s.mTile} ${t.ratio === "9:16" ? s.mPortrait : s.mLandscape}`}>
-                <video src={t.src} autoPlay loop muted playsInline preload="metadata" />
-                <span className={s.mBadge}>✦ Made with Geoflix</span>
-                <div className={s.mCap}>{t.cap}</div>
-              </div>
+            {[...SHOWCASE, ...SHOWCASE].map((t, i) => (
+              <div key={i} className={`${s.mTile} ${t.ratio === "9:16" ? s.mPortrait : s.mLandscape}`} />
             ))}
           </div>
         </div>

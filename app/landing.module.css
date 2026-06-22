@@ -159,8 +159,10 @@
 @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 .mTile {
   position: relative; flex: 0 0 auto; height: 300px;
-  border-radius: 18px; overflow: hidden; background: #0b1220;
-  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.12);
+  border-radius: 18px; overflow: hidden;
+  background: linear-gradient(135deg, #eaf1ff, #f3ecff);
+  border: 1px solid #e7ecff;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
 }
 .mPortrait { width: 169px; }   /* 9:16 */
 .mLandscape { width: 533px; }  /* 16:9 */
