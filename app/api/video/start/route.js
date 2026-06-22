@@ -45,6 +45,12 @@ export async function POST(req) {
     const endpoint = image ? fal.i2v : fal.t2v;
     const input = { prompt: prompt || "a cinematic scene, smooth camera motion" };
     if (image) input.image_url = image; // fal accepts data URIs
+    // LTX i2v defaults aspect_ratio to "auto", which derives the output size
+    // from the input image and 422s when that size isn't a supported preset.
+    // Pass an explicit ratio (one of 16:9 / 9:16 / 1:1).
+    if (model === "LTX Video") {
+      input.aspect_ratio = aspect === "9:16" || aspect === "1:1" ? aspect : "16:9";
+    }
     try {
       const res = await fetch(`https://queue.fal.run/${endpoint}`, {
         method: "POST",
