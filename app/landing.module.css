@@ -147,7 +147,7 @@
 
 /* ---------- Auto-scrolling video marquee ---------- */
 .marquee {
-  margin-top: 54px; width: 100%; overflow: hidden;
+  margin-top: 54px; width: 100%; overflow: hidden; padding-top: 14px;
   -webkit-mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
@@ -167,6 +167,13 @@
 .mPortrait { width: 169px; }   /* 9:16 */
 .mLandscape { width: 533px; }  /* 16:9 */
 .mTile video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mViews {
+  position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+  z-index: 3; white-space: nowrap;
+  background: #ff3b30; color: #fff; font-size: 11px; font-weight: 700;
+  padding: 4px 11px; border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(255, 59, 48, 0.35);
+}
 .mBadge {
   position: absolute; top: 10px; left: 10px; z-index: 2;
   font-size: 11px; font-weight: 600; color: #fff;

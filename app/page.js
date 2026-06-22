@@ -26,9 +26,12 @@ const TOOLS = [
 
 // Auto-scrolling showcase tiles — empty placeholders (3 landscape, 3 portrait).
 const SHOWCASE = [
-  { ratio: "16:9" }, { ratio: "9:16" },
-  { ratio: "16:9" }, { ratio: "9:16" },
-  { ratio: "16:9" }, { ratio: "9:16" },
+  { ratio: "16:9", views: "54.2M Views" },
+  { ratio: "9:16", views: "12.7M Views" },
+  { ratio: "16:9", views: "88.1M Views" },
+  { ratio: "9:16", views: "31.5M Views" },
+  { ratio: "16:9", views: "117.3M Views" },
+  { ratio: "9:16", views: "9.4M Views" },
 ];
 
 const FEATURES = [
@@ -126,7 +129,9 @@ export default function Landing() {
         <div className={s.marquee}>
           <div className={s.marqueeTrack}>
             {[...SHOWCASE, ...SHOWCASE].map((t, i) => (
-              <div key={i} className={`${s.mTile} ${t.ratio === "9:16" ? s.mPortrait : s.mLandscape}`} />
+              <div key={i} className={`${s.mTile} ${t.ratio === "9:16" ? s.mPortrait : s.mLandscape}`}>
+                <span className={s.mViews}>{t.views}</span>
+              </div>
             ))}
           </div>
         </div>
