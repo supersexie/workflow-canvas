@@ -79,8 +79,20 @@ export async function POST(req) {
   if (!GEMINI) return NextResponse.json({ mock: true, output: "Generated video (mock — set GEMINI_API_KEY for real Veo)" });
   const modelId = VEO_MODELS[model] || "veo-3.1-fast-generate-preview";
   const instance = { prompt: prompt || "a cinematic establishing shot, smooth camera motion" };
-  const img = parseDataUrl(image);
-  if (img) instance.image = { inlineData: { mimeType: img.mimeType, data: img.data } };
+  // Veo's predictLongRunning expects { bytesBase64Encoded, mimeType } — NOT the
+  // chat-API "inlineData" shape. Accept data URLs and http(s) URLs (fetch+encode).
+  let img = parseDataUrl(image);
+  if (!img && typeof image === "string" && /^https?:/.test(image)) {
+    try {
+      const r = await fetch(image);
+      if (r.ok) {
+        const mimeType = r.headers.get("content-type") || "image/png";
+        const data = Buffer.from(await r.arrayBuffer()).toString("base64");
+        img = { mimeType, data };
+      }
+    } catch {}
+  }
+  if (img) instance.image = { bytesBase64Encoded: img.data, mimeType: img.mimeType };
   const parameters = {};
   if (aspect) parameters.aspectRatio = aspect;
   if (resolution) parameters.resolution = resolution;
