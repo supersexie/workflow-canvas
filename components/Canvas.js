@@ -298,7 +298,7 @@ function CanvasInner({ workflowId }) {
   const selectedNode = nodes.find((n) => n.id === selectedId);
   const selectedSources = selectedId ? (sourcesByNode[selectedId] || []) : [];
 
-  if (!loaded) return <div style={{ color: "#737373", padding: 32 }}>Loading…</div>;
+  if (!loaded) return <div style={{ color: "#5b6472", padding: 32 }}>Loading…</div>;
 
   return (
     <>
@@ -367,7 +367,7 @@ function CanvasInner({ workflowId }) {
           minZoom={0.2}
           maxZoom={2}
         >
-          <Background variant={BackgroundVariant.Dots} gap={22} size={1.5} color="#1f1f1f" />
+          <Background variant={BackgroundVariant.Dots} gap={22} size={1.5} color="#c7d0de" />
         </ReactFlow>
       </div>
 
