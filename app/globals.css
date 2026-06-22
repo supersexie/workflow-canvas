@@ -90,7 +90,7 @@ body {
 }
 .title-pill input {
   background: transparent; border: none; color: var(--ink);
-  font-size: 14px; font-family: inherit; outline: none;
+  font-size: 14px; font-weight: 700; font-family: inherit; outline: none;
   width: 160px;
 }
 .back-btn {

@@ -15,6 +15,7 @@ import WorkflowNode from "./nodes/WorkflowNode";
 import PromptBar from "./PromptBar";
 import Assistant from "./Assistant";
 import Library from "./Library";
+import UserMenu from "./UserMenu";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
 import { generateOutput, generateVideo } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
@@ -343,8 +344,8 @@ function CanvasInner({ workflowId }) {
           </button>
           <div className="chip">68% <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M6 9l6 6 6-6"/></svg></div>
           <div className="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2Z"/></svg></div>
-          <div className="avatar"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="8" r="4"/><path d="M4 22a8 8 0 0 1 16 0"/></svg></div>
           <div className="icon-btn"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8M16 6l-4-4-4 4M12 2v13"/></svg></div>
+          <UserMenu />
         </div>
       </div>
 
