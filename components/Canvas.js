@@ -186,9 +186,16 @@ function CanvasInner({ workflowId }) {
       const src = nodes.find((n) => n.id === e.source);
       if (!src) continue;
       const out = src.data?.output;
-      if (out && typeof out === "string" && (out.startsWith("http") || out.startsWith("data:"))) {
-        (map[e.target] ||= []).push({ id: src.id, kind: src.data.kind, url: out });
-      }
+      if (!out || typeof out !== "string") continue;
+      const isUrl = out.startsWith("http") || out.startsWith("data:") || out.startsWith("/api/");
+      const isText = src.data.kind === "text";
+      if (!isUrl && !isText) continue;
+      (map[e.target] ||= []).push({
+        id: src.id,
+        kind: src.data.kind,
+        url: isUrl ? out : null,
+        text: isText ? out : null,
+      });
     }
     return map;
   }, [nodes, edges]);
@@ -198,7 +205,7 @@ function CanvasInner({ workflowId }) {
     setNodes((ns) => {
       let changed = false;
       const next = ns.map((n) => {
-        const wanted = sourcesByNode[n.id]?.[0]?.url || null;
+        const wanted = (sourcesByNode[n.id] || []).find((x) => x.url)?.url || null;
         if ((n.data?.sourceThumb || null) === wanted) return n;
         changed = true;
         return { ...n, data: { ...n.data, sourceThumb: wanted } };
@@ -264,12 +271,18 @@ function CanvasInner({ workflowId }) {
     setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "running", output: null, error: null } } : n)));
     try {
       let output;
+      // A connected Text node supplies the prompt when the node's own prompt
+      // is empty (typed prompt always wins).
+      const srcs = sourcesByNode[id] || [];
+      const textPrompt = srcs.find((s) => s.kind === "text" && s.text)?.text;
+      const typed = (node.data.prompt || "").trim();
+      const prompt = typed || textPrompt || "";
       if (node.data.kind === "video") {
         const [aspectRatio, resolution] = (node.data.aspect || "16:9 · 720p").split("·").map((s) => s.trim());
         let dur = parseInt(node.data.duration) || 8;
         dur = dur <= 4 ? 4 : dur <= 6 ? 6 : 8;
         output = await generateVideo({
-          prompt: node.data.prompt,
+          prompt,
           model: node.data.model,
           image: node.data.sourceThumb || null,
           aspect: aspectRatio,
@@ -279,9 +292,9 @@ function CanvasInner({ workflowId }) {
       } else {
         // For image nodes, forward connected source image(s) → image-to-image edit.
         const images = node.data.kind === "image"
-          ? (sourcesByNode[id] || []).filter((s) => s.kind === "image").map((s) => s.url)
+          ? srcs.filter((s) => s.kind === "image" && s.url).map((s) => s.url)
           : [];
-        output = await generateOutput(node.data.kind, node.data.prompt, node.data.model, images);
+        output = await generateOutput(node.data.kind, prompt, node.data.model, images);
       }
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
     } catch (e) {

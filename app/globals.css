@@ -312,7 +312,14 @@ body {
   border: 1px solid var(--line); background: var(--surface-2); flex-shrink: 0;
 }
 .pb-source-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
-.pb-sources { display: flex; gap: 8px; padding: 0 4px 12px; }
+.pb-sources { display: flex; gap: 8px; padding: 0 4px 12px; flex-wrap: wrap; }
+.pb-source-text {
+  display: inline-flex; align-items: center; gap: 6px; max-width: 260px;
+  background: var(--blue-soft); border: 1px solid rgba(37,99,235,.25);
+  color: var(--blue-dark); border-radius: 8px; padding: 6px 10px;
+  font-size: 12px; font-weight: 600; white-space: nowrap;
+  overflow: hidden; text-overflow: ellipsis;
+}
 
 /* ---- Prompt bar (bottom, attached to selected node) ---- */
 .prompt-bar {
