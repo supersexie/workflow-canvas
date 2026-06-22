@@ -390,23 +390,38 @@ body {
 }
 .dd-menu button:hover { background: var(--surface-2); color: var(--ink); }
 
-/* ---- Add-node popup menu ---- */
+/* ---- Add-node popup menu (Picsart-style, categorized) ---- */
+.add-menu-backdrop { position: fixed; inset: 0; z-index: 10; }
 .add-menu {
   position: fixed; left: 60px; top: 50%; transform: translateY(-50%);
-  background: var(--surface); border: 1px solid var(--line); border-radius: 12px;
-  padding: 8px; z-index: 11; display: flex; flex-direction: column; gap: 4px;
-  box-shadow: var(--shadow);
+  background: var(--surface); border: 1px solid var(--line); border-radius: 14px;
+  padding: 8px; z-index: 11; display: flex; flex-direction: column; gap: 2px;
+  box-shadow: var(--shadow); min-width: 230px;
 }
+.add-menu-header {
+  font-size: 11px; font-weight: 700; color: var(--muted-2);
+  text-transform: uppercase; letter-spacing: .05em;
+  padding: 10px 12px 4px;
+}
+.add-menu-sep { height: 1px; background: var(--line); margin: 6px 8px; }
 .add-menu button {
-  display: flex; align-items: center; gap: 10px; padding: 8px 12px;
+  display: flex; align-items: center; gap: 12px; padding: 9px 12px;
   background: transparent; border: none; color: var(--ink);
-  border-radius: 6px; cursor: pointer; font-size: 13px; min-width: 160px;
+  border-radius: 8px; cursor: pointer; font-size: 14px; width: 100%;
   text-align: left; font-family: inherit;
 }
 .add-menu button:hover { background: var(--surface-2); }
 .add-menu .ic {
-  width: 22px; height: 22px; border-radius: 6px; background: var(--blue-soft);
-  display: grid; place-items: center; color: var(--blue);
+  width: 28px; height: 28px; border-radius: 7px; background: var(--blue-soft);
+  display: grid; place-items: center; color: var(--blue); flex: 0 0 auto;
+}
+.add-menu-soon { color: var(--muted-2); cursor: not-allowed; }
+.add-menu-soon:hover { background: transparent; }
+.add-menu-soon .ic { background: var(--surface-2); color: var(--muted-2); }
+.add-menu-tag {
+  margin-left: auto; font-size: 10px; font-weight: 700;
+  color: var(--muted-2); background: var(--surface-2);
+  padding: 2px 7px; border-radius: 999px; letter-spacing: .02em;
 }
 
 /* ---- Library (gallery modal) ---- */

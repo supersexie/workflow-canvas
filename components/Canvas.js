@@ -33,6 +33,16 @@ const CARD_ICONS = {
   motion: <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><polygon points="6 3 20 12 6 21 6 3" fill="currentColor" /></svg>,
 };
 
+// Picsart-style "Transformation" operations. Not wired to a backend yet, so
+// these render as disabled "Soon" rows to match the reference layout honestly.
+const XFORM_META = [
+  { key: "upscale", label: "Upscale", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M11 8v6M8 11h6"/></svg> },
+  { key: "enhance", label: "Enhance", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><path d="M12 3l1.9 4.6L18.5 9l-4.6 1.9L12 15l-1.9-4.1L5.5 9l4.6-1.4L12 3zM19 15l.9 2.1L22 18l-2.1.9L19 21l-.9-2.1L16 18l2.1-.9L19 15z"/></svg> },
+  { key: "removebg", label: "Remove Background", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="3" width="18" height="18" rx="2" strokeDasharray="3 3"/><circle cx="9" cy="9" r="2"/><path d="m21 15-5-5L5 21"/></svg> },
+  { key: "animate", label: "Animate", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><circle cx="12" cy="12" r="9"/><polygon points="10 8 16 12 10 16 10 8" fill="currentColor" stroke="none"/></svg> },
+  { key: "extract", label: "Extract Frames", icon: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8"><rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 9h4M3 15h4M17 9h4M17 15h4M9 5v14"/></svg> },
+];
+
 const RAIL_ICONS = {
   cursor: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m3 3 7.07 16.97 2.51-7.39 7.39-2.51L3 3z" /></svg>,
   plus: <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M12 5v14M5 12h14" /></svg>,
@@ -337,14 +347,27 @@ function CanvasInner({ workflowId }) {
       </div>
 
       {addMenuOpen && (
-        <div className="add-menu">
-          {NODE_TYPES_META.map((t) => (
-            <button key={t.kind} onClick={() => addNode(t.kind)}>
-              <span className="ic">{CARD_ICONS[t.kind]}</span>
-              {t.label}
-            </button>
-          ))}
-        </div>
+        <>
+          <div className="add-menu-backdrop" onClick={() => setAddMenuOpen(false)} />
+          <div className="add-menu">
+            <div className="add-menu-header">Content</div>
+            {NODE_TYPES_META.map((t) => (
+              <button key={t.kind} onClick={() => addNode(t.kind)}>
+                <span className="ic">{CARD_ICONS[t.kind]}</span>
+                {t.label}
+              </button>
+            ))}
+            <div className="add-menu-sep" />
+            <div className="add-menu-header">Transformation</div>
+            {XFORM_META.map((x) => (
+              <button key={x.key} className="add-menu-soon" disabled title="Coming soon">
+                <span className="ic">{x.icon}</span>
+                {x.label}
+                <span className="add-menu-tag">Soon</span>
+              </button>
+            ))}
+          </div>
+        </>
       )}
 
       <div style={{ width: "100vw", height: "100vh" }}>
