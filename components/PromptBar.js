@@ -110,6 +110,10 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M4 7V5h16v2M9 19h6M12 5v14" /></svg>
                 Prompt from Text
               </div>
+            ) : s.kind === "video" && s.url ? (
+              <div key={s.id} className="pb-source-thumb">
+                <video src={`${s.url}#t=0.1`} muted playsInline preload="metadata" />
+              </div>
             ) : (
               <div key={s.id} className="pb-source-thumb">
                 {s.url && <img src={s.url} alt="source" />}
