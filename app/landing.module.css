@@ -147,7 +147,7 @@
 
 /* ---------- Auto-scrolling video marquee ---------- */
 .marquee {
-  margin-top: 54px; width: 100%; overflow: hidden;
+  margin-top: 16px; width: 100%; overflow: hidden;
   -webkit-mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
