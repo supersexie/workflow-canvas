@@ -3,6 +3,35 @@ import { useEffect, useState } from "react";
 import { listGenerations } from "@/lib/store";
 
 const KIND_LABEL = { image: "Image", video: "Video", audio: "Audio", text: "Text", motion: "Motion" };
+const KIND_EXT = { image: "jpg", video: "mp4", audio: "mp3" };
+
+function extFor(it) {
+  const m = /\.(jpe?g|png|webp|gif|mp4|webm|mov|mp3|wav|m4a)(?:[?#]|$)/i.exec(it.url || "");
+  if (m) return m[1].toLowerCase();
+  return KIND_EXT[it.kind] || "bin";
+}
+
+async function downloadItem(e, it) {
+  e.preventDefault();
+  e.stopPropagation();
+  const name = `geoflix-${it.kind || "file"}-${Date.now()}.${extFor(it)}`;
+  try {
+    const res = await fetch(it.url);
+    if (!res.ok) throw new Error("fetch failed");
+    const blob = await res.blob();
+    const href = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = href;
+    a.download = name;
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(href), 4000);
+  } catch {
+    // Cross-origin without CORS, etc. — fall back to opening the file.
+    window.open(it.url, "_blank", "noopener");
+  }
+}
 
 export default function Library({ open, onClose }) {
   const [items, setItems] = useState([]);
@@ -67,6 +96,11 @@ export default function Library({ open, onClose }) {
                   )}
                   {(it.kind === "text" || it.kind === "motion") && <div className="lib-textthumb">{KIND_LABEL[it.kind] || it.kind}</div>}
                   <span className="lib-badge">{KIND_LABEL[it.kind] || it.kind}</span>
+                  {(it.kind === "image" || it.kind === "video" || it.kind === "audio") && (
+                    <button className="lib-download" title="Download" onClick={(e) => downloadItem(e, it)}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M7 10l5 5 5-5M12 15V3"/></svg>
+                    </button>
+                  )}
                   <div className="lib-overlay">
                     <div className="lib-overlay-prompt">{it.prompt || "(no prompt)"}</div>
                     <div className="lib-overlay-wf">{it.workflowName}</div>
