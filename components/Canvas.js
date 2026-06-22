@@ -120,7 +120,7 @@ function CanvasInner({ workflowId }) {
   useEffect(() => {
     if (!workflowId) return;
     const wf = getWorkflow(workflowId);
-    if (!wf) { router.replace("/"); return; }
+    if (!wf) { router.replace("/app"); return; }
     setNodes(wf.nodes || []);
     setEdges(wf.edges || []);
     setName(wf.name || "Untitled Workflow");
@@ -328,7 +328,7 @@ function CanvasInner({ workflowId }) {
     <>
       <div className="topbar">
         <div className="title-pill">
-          <button className="back-btn" onClick={() => router.push("/")} title="Back">
+          <button className="back-btn" onClick={() => router.push("/app")} title="Back">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M15 18l-6-6 6-6"/></svg>
           </button>
           <div className="logo">p</div>

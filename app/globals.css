@@ -689,6 +689,15 @@ body {
   outline: none; font-family: inherit;
 }
 
+/* ---- Auth pages (Clerk sign-in / sign-up) ---- */
+.auth-wrap {
+  min-height: 100vh; width: 100%;
+  display: grid; place-items: center; padding: 40px 20px;
+  background:
+    radial-gradient(1000px 400px at 50% -100px, #cfe0ff 0%, rgba(207,224,255,0) 70%),
+    var(--bg);
+}
+
 /* ---- New-workflow name modal ---- */
 .nw-backdrop {
   position: fixed; inset: 0; z-index: 1000;
