@@ -167,6 +167,7 @@
 }
 .mPortrait { width: 169px; }   /* 9:16 */
 .mLandscape { width: 533px; }  /* 16:9 */
+.mVideo { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mTile video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mViews {
   position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
