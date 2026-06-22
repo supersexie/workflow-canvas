@@ -172,7 +172,7 @@
 .tag { font-size: 11px; font-weight: 700; color: #6b7280; background: #eef0f4; padding: 3px 9px; border-radius: 999px; }
 .cardDesc { color: var(--muted); font-size: 15px; line-height: 1.5; margin-top: 8px; }
 .cardArt {
-  margin-top: 18px; height: 150px; border-radius: 14px;
+  margin-top: 18px; aspect-ratio: 16 / 9; border-radius: 14px;
   display: grid; place-items: center; font-size: 46px;
   background: linear-gradient(135deg, #eaf1ff, #f3ecff);
   border: 1px solid #e7ecff; overflow: hidden;
