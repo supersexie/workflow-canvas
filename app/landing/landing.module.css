@@ -213,6 +213,20 @@
 .faqA { padding: 0 24px; max-height: 0; overflow: hidden; transition: max-height .25s ease, padding .25s ease; color: var(--muted); font-size: 15px; line-height: 1.6; }
 .faqOpen .faqA { max-height: 240px; padding: 0 24px 22px; }
 
+/* ---------- Claude MCP ---------- */
+.mcpCard {
+  max-width: 680px; margin: 44px auto 0;
+  background: #fff; border: 1px solid var(--line); border-radius: 18px;
+  padding: 22px 24px; box-shadow: 0 4px 18px rgba(16,24,40,.04);
+}
+.mcpRow {
+  display: flex; align-items: center; gap: 12px;
+  background: #0b1220; border-radius: 12px; padding: 14px 16px;
+}
+.mcpDot { width: 10px; height: 10px; border-radius: 50%; background: #22c55e; flex: 0 0 auto; box-shadow: 0 0 0 4px rgba(34,197,94,.18); }
+.mcpUrl { color: #e6edff; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; font-size: 14px; overflow-x: auto; white-space: nowrap; }
+.mcpHint { color: var(--muted); font-size: 14px; margin: 14px 0 0; }
+
 /* ---------- CTA banner ---------- */
 .ctaBanner {
   max-width: 1240px; margin: 40px auto; padding: 80px 24px;

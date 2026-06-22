@@ -73,6 +73,7 @@ export default function Landing() {
           <div className={s.navLinks}>
             <a href="#tools">Tools</a>
             <a href="#features">Features</a>
+            <a href="#mcp">Claude MCP</a>
             <a href="#faq">FAQs</a>
             <Link href="/">Library</Link>
           </div>
@@ -144,6 +145,23 @@ export default function Landing() {
             <div className={s.node} style={{ bottom: 70, left: 70 }}>🎙️ Audio</div>
             <div className={s.node} style={{ top: 120, right: 50 }}>✍️ Text</div>
           </div>
+        </div>
+      </section>
+
+      {/* CLAUDE MCP */}
+      <section id="mcp" className={`${s.section} ${s.center}`}>
+        <span className={s.badge}>Claude MCP</span>
+        <h2 className={s.h2}>Generate Right Inside Claude</h2>
+        <p className={s.lead}>Add the Geoflix connector to Claude and create images, video, voiceovers, and text from chat — powered by the same backend.</p>
+        <div className={s.mcpCard}>
+          <div className={s.mcpRow}>
+            <span className={s.mcpDot} />
+            <code className={s.mcpUrl}>https://www.geoflix.online/api/mcp?key=YOUR_KEY</code>
+          </div>
+          <p className={s.mcpHint}>Add it as a custom connector in Claude &rarr; Settings &rarr; Connectors.</p>
+        </div>
+        <div style={{ marginTop: 28, display: "flex", justifyContent: "center", gap: 12 }}>
+          <Link href="/" className={s.btn}>Open App <Arrow /></Link>
         </div>
       </section>
 
