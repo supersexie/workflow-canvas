@@ -18,9 +18,9 @@ const PlayLogo = () => (
 const TOOLS = [
   { icon: "🖼️", title: "Image Generation", desc: "Generate stunning images with FLUX, Seedream, and Nano Banana — straight to a public URL.", art: "🖼️" },
   { icon: "🎬", title: "Video Generation", desc: "Text-to-video and image-to-video powered by LTX, Wan, MiniMax Hailuo, and Kling.", art: "🎬" },
-  { icon: "🎙️", title: "AI Voiceover", desc: "Turn any script into natural-sounding narration with one click.", art: "🎙️" },
-  { icon: "✍️", title: "AI Scriptwriter", desc: "Generate captions, copy, and full scripts from a single prompt.", art: "✍️" },
-  { icon: "🤖", title: "AI Assistant", desc: "Describe what you want in plain language — it builds and runs the nodes for you.", art: "🤖" },
+  { icon: "🎙️", title: "AI Voiceover", desc: "Turn any script into natural-sounding narration with one click.", video: "/tools/voiceover.mp4" },
+  { icon: "✍️", title: "AI Scriptwriter", desc: "Generate captions, copy, and full scripts from a single prompt.", video: "/tools/scriptwriter.mp4" },
+  { icon: "🤖", title: "AI Assistant", desc: "Describe what you want in plain language — it builds and runs the nodes for you.", video: "/tools/assistant.mp4" },
   { icon: "🗂️", title: "Library", desc: "Every image, video, and clip you generate, collected in one gallery.", art: "🗂️", tag: "New" },
 ];
 
@@ -127,7 +127,13 @@ export default function Landing() {
             <div key={t.title} className={s.card}>
               <div className={s.cardTitle}>{t.title}{t.tag && <span className={s.tag}>{t.tag}</span>}</div>
               <p className={s.cardDesc}>{t.desc}</p>
-              <div className={s.cardArt}>{t.art}</div>
+              <div className={s.cardArt}>
+                {t.video ? (
+                  <video className={s.cardVideo} src={t.video} autoPlay loop muted playsInline preload="metadata" />
+                ) : (
+                  t.art
+                )}
+              </div>
               <Link href="/app" className={`${s.btn} ${s.cardBtn}`}>Try Now <Arrow /></Link>
             </div>
           ))}
