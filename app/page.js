@@ -17,7 +17,7 @@ const PlayLogo = () => (
 
 const TOOLS = [
   { icon: "🖼️", title: "Image Generation", desc: "Generate stunning images with FLUX, Seedream, and Nano Banana — straight to a public URL.", video: "/tools/image.mp4" },
-  { icon: "🎬", title: "Video Generation", desc: "Text-to-video and image-to-video powered by LTX, Wan, MiniMax Hailuo, and Kling.", art: "🎬" },
+  { icon: "🎬", title: "Video Generation", desc: "Text-to-video and image-to-video powered by LTX, Wan, MiniMax Hailuo, and Kling.", video: "/tools/video.mp4" },
   { icon: "🎙️", title: "AI Voiceover", desc: "Turn any script into natural-sounding narration with one click.", video: "/tools/voiceover.mp4" },
   { icon: "✍️", title: "AI Scriptwriter", desc: "Generate captions, copy, and full scripts from a single prompt.", video: "/tools/scriptwriter.mp4" },
   { icon: "🤖", title: "AI Assistant", desc: "Describe what you want in plain language — it builds and runs the nodes for you.", video: "/tools/assistant.mp4" },
