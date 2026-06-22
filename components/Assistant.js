@@ -49,7 +49,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
               : null,
         },
       ]);
-      if (isDirector) onDirector(data.scenes, videoModel);
+      if (isDirector) onDirector({ scenes: data.scenes, character: data.character }, videoModel);
       else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt }, autoRun);
     } catch (e) {
       setHistory((h) => [...h, { role: "assistant", content: `⚠ ${e.message}` }]);

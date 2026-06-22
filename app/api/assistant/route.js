@@ -20,13 +20,14 @@ The clips are generated INDEPENDENTLY (each model call has no memory of the othe
 - Write each scene as: <the SAME style spec> + <the SAME character description(s), word-for-word> + <this scene's specific action, setting, and camera move>. Repeat the style and character text VERBATIM in every scene so every clip looks like the same world and characters.
 - Keep setting, time of day, and color palette continuous across consecutive scenes unless the story calls for a change. End/begin scenes on matching framing where possible for smooth cuts.
 - 2-4 sentences per scene. No "Shot N" labels or timestamps.
+- ALSO return a "character" field: ONE text-to-image prompt for a single reference image of the main character — full body, simple neutral background, in the locked style. This image seeds every scene so the character stays identical; each scene prompt then describes that scene's setting and action.
 
 If the user asks something off-topic or unclear, respond with kind=null and a clarifying message.
 
 Always respond as JSON. For a single asset:
 { "kind": "image"|"video"|"text"|"audio"|"motion"|null, "prompt": "...", "message": "short reply (1-2 sentences)" }
 For a multi-scene video, instead use:
-{ "kind": "video", "scenes": ["scene 1 prompt", "scene 2 prompt", ...], "message": "short reply mentioning how many scenes" }`;
+{ "kind": "video", "character": "reference image prompt for the main character", "scenes": ["scene 1 prompt", "scene 2 prompt", ...], "message": "short reply mentioning how many scenes" }`;
 
 export async function POST(req) {
   const { input, history = [] } = await req.json();
@@ -74,6 +75,7 @@ export async function POST(req) {
       kind: parsed.kind ?? null,
       prompt: parsed.prompt || input,
       scenes: scenes && scenes.length >= 2 ? scenes : null,
+      character: typeof parsed.character === "string" ? parsed.character : null,
       message: parsed.message || "Done.",
     });
   } catch (e) {

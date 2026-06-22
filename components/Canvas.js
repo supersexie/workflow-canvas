@@ -309,41 +309,72 @@ function CanvasInner({ workflowId }) {
   const setNodeData = (id, patch) =>
     setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, ...patch } } : n)));
 
-  // Director mode: split scenes into parallel video nodes, then stitch into one.
-  const runDirector = async (scenes, model = "LTX Video") => {
+  const addEdgeBetween = (source, target) =>
+    setEdges((es) => [...es, { id: `e_${source}_${target}`, source, target, animated: true }]);
+
+  // Director mode (character-consistent): one reference image → per-scene
+  // staged image (image-to-image) → image-to-video → stitch into one video.
+  const runDirector = async ({ scenes, character }, model = "LTX Video") => {
     const list = (scenes || []).slice(0, 6);
     if (list.length < 2) return;
-    const baseY = 80, gapY = 330;
-    // Create the scene nodes (left column) + a combined node (right).
-    const sceneIds = list.map((p, i) =>
-      addNode("video", { prompt: p, model, aspect: "16:9 · 720p", position: { x: 100, y: baseY + i * gapY } })
-    );
-    const combineId = addNode("video", {
-      prompt: "Combined video",
-      aspect: "16:9 · 720p",
-      position: { x: 760, y: baseY + ((list.length - 1) * gapY) / 2 },
-    });
-    setEdges((es) => [
-      ...es,
-      ...sceneIds.map((sid) => ({ id: `e_${sid}_${combineId}`, source: sid, target: combineId })),
-    ]);
+    const IMG_MODEL = "Flux 2 Pro"; // reliable for text-to-image + image-to-image
+    const colX = { ref: 40, img: 420, vid: 900, out: 1480 };
+    const gapY = 330;
+    const midY = 80 + ((list.length - 1) * gapY) / 2;
+
+    // 1) Reference character image (shared seed for every scene).
+    let refUrl = null;
+    let refId = null;
+    if (character) {
+      refId = addNode("image", { prompt: character, model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.ref, y: midY } });
+      setNodeData(refId, { status: "running", output: null, error: null });
+      try {
+        refUrl = await generateOutput("image", character, IMG_MODEL);
+        setNodeData(refId, { status: "done", output: refUrl });
+      } catch (e) {
+        setNodeData(refId, { status: "error", error: e.message });
+      }
+    }
+
+    // 2) Per scene: stage the character into the scene (image-to-image), then
+    //    animate that staged image (image-to-video). Runs in parallel.
+    const combineId = addNode("video", { prompt: "Combined video", aspect: "16:9 · 720p", position: { x: colX.out, y: midY } });
     setNodeData(combineId, { status: "running" });
 
-    // Generate all scenes in parallel.
+    const vidIds = [];
     const results = await Promise.all(
-      sceneIds.map(async (id, i) => {
-        setNodeData(id, { status: "running", output: null, error: null });
+      list.map(async (scene, i) => {
+        const y = 80 + i * gapY;
+        const vidId = addNode("video", { prompt: scene, model, aspect: "16:9 · 720p", position: { x: colX.vid, y } });
+        vidIds.push(vidId);
+        // Staged scene image (only if we have a reference to seed from).
+        let seed = null;
+        if (refUrl) {
+          const imgId = addNode("image", { prompt: scene, model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.img, y } });
+          addEdgeBetween(refId, imgId);
+          addEdgeBetween(imgId, vidId);
+          setNodeData(imgId, { status: "running" });
+          try {
+            seed = await generateOutput("image", scene, IMG_MODEL, [refUrl]);
+            setNodeData(imgId, { status: "done", output: seed });
+          } catch (e) {
+            setNodeData(imgId, { status: "error", error: e.message });
+          }
+        }
+        addEdgeBetween(vidId, combineId);
+        setNodeData(vidId, { status: "running" });
         try {
-          const url = await generateVideo({ prompt: list[i], model, aspect: "16:9", resolution: "720p", duration: 6 });
-          setNodeData(id, { status: "done", output: url });
-          return url;
+          const clip = await generateVideo({ prompt: scene, model, image: seed || null, aspect: "16:9", resolution: "720p", duration: 6 });
+          setNodeData(vidId, { status: "done", output: clip });
+          return clip;
         } catch (e) {
-          setNodeData(id, { status: "error", error: e.message });
+          setNodeData(vidId, { status: "error", error: e.message });
           return null;
         }
       })
     );
 
+    // 3) Stitch the finished clips into one video.
     const urls = results.filter(Boolean);
     if (urls.length < 2) {
       setNodeData(combineId, { status: "error", error: "Not enough scenes generated to combine" });
@@ -542,7 +573,7 @@ function CanvasInner({ workflowId }) {
           const id = addNode(kind, { prompt });
           if (autoRun) setTimeout(() => runNode(id), 50);
         }}
-        onDirector={(scenes) => runDirector(scenes)}
+        onDirector={(payload, model) => runDirector(payload, model)}
       />
     </>
   );
