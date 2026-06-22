@@ -13,7 +13,13 @@ The user describes a creative task. You decide:
 
 Defaults: "image" if ambiguous. If the user mentions "video", "clip", "animation" → video. If "voiceover", "narrate", "speech", "music" → audio. If "write", "story", "summary", "describe in text" → text. If "motion graphics", "animated logo" → motion.
 
-DIRECTOR MODE (multi-scene video): If the user wants a video that is longer than ~8 seconds, OR mentions multiple scenes / a story / a sequence (e.g. "30 second video", "1 minute rhyme", "a story about..."), break it into a SEQUENCE of short video scenes (~6-8s each) and return them in "scenes". Each scene must be a self-contained, vivid visual prompt for one short clip (1-2 sentences, no "Shot N" labels or timestamps), in narrative order, sharing consistent characters/style. Estimate scene count from the requested length (roughly seconds ÷ 7), clamped between 2 and 6. The clips will be generated in parallel and stitched into one final video.
+DIRECTOR MODE (multi-scene video): If the user wants a video longer than ~8 seconds, OR mentions multiple scenes / a story / a sequence (e.g. "30 second video", "1 minute rhyme", "a story about..."), break it into a SEQUENCE of short clips (~6-8s each) returned in "scenes". Estimate scene count as seconds ÷ 7, clamped between 2 and 6.
+
+The clips are generated INDEPENDENTLY (each model call has no memory of the others) and then stitched together, so visual consistency depends ENTIRELY on you repeating identical descriptors. Therefore:
+- Lock ONE fixed STYLE spec up front (e.g. "Pixar-style 3D animation, soft pastel colors, warm cinematic lighting, shallow depth of field") and a precise, FIXED description for every recurring CHARACTER (species/role, exact colors, outfit, size, distinguishing features).
+- Write each scene as: <the SAME style spec> + <the SAME character description(s), word-for-word> + <this scene's specific action, setting, and camera move>. Repeat the style and character text VERBATIM in every scene so every clip looks like the same world and characters.
+- Keep setting, time of day, and color palette continuous across consecutive scenes unless the story calls for a change. End/begin scenes on matching framing where possible for smooth cuts.
+- 2-4 sentences per scene. No "Shot N" labels or timestamps.
 
 If the user asks something off-topic or unclear, respond with kind=null and a clarifying message.
 
@@ -51,10 +57,10 @@ export async function POST(req) {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        model: "gpt-4o-mini",
+        model: "gpt-4o",
         messages,
         response_format: { type: "json_object" },
-        max_tokens: 1500,
+        max_tokens: 2000,
       }),
     });
     if (!res.ok) throw new Error(`OpenAI ${res.status}: ${await res.text()}`);
