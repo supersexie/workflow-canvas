@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Link from "next/link";
 import s from "./landing.module.css";
 
@@ -40,6 +40,26 @@ const FAQS = [
 export default function Landing() {
   const [open, setOpen] = useState(0);
   const [active, setActive] = useState(0);
+
+  // globals.css locks body { overflow:hidden; height:100% } for the canvas editor.
+  // Release it on the landing page so it can scroll, then restore on unmount.
+  useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+    const prev = {
+      bodyOverflow: body.style.overflow,
+      bodyHeight: body.style.height,
+      htmlHeight: html.style.height,
+    };
+    body.style.overflow = "auto";
+    body.style.height = "auto";
+    html.style.height = "auto";
+    return () => {
+      body.style.overflow = prev.bodyOverflow;
+      body.style.height = prev.bodyHeight;
+      html.style.height = prev.htmlHeight;
+    };
+  }, []);
 
   return (
     <div className={s.page}>
