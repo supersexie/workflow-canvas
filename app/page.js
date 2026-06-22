@@ -128,6 +128,12 @@ export default function Landing() {
           Built for creators who move fast.
         </div>
 
+        <div className={s.center} style={{ marginTop: 80 }}>
+          <span className={s.badge}>Viral Videos Made with Geoflix</span>
+          <h2 className={s.h2}>Top Creators Don&apos;t Start from Scratch</h2>
+          <p className={s.lead}>They use tools to copy what&apos;s already working.</p>
+        </div>
+
         <div className={s.marquee}>
           <div className={s.marqueeTrack}>
             {[...SHOWCASE, ...SHOWCASE].map((t, i) => (
