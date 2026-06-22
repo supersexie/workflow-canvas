@@ -17,7 +17,7 @@ import Assistant from "./Assistant";
 import Library from "./Library";
 import UserMenu from "./UserMenu";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
-import { generateOutput, generateVideo } from "@/lib/run";
+import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
 
 const NODE_TYPES_META = [
@@ -303,6 +303,58 @@ function CanvasInner({ workflowId }) {
     }
   };
 
+  const setNodeData = (id, patch) =>
+    setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, ...patch } } : n)));
+
+  // Director mode: split scenes into parallel video nodes, then stitch into one.
+  const runDirector = async (scenes) => {
+    const list = (scenes || []).slice(0, 6);
+    if (list.length < 2) return;
+    const baseY = 80, gapY = 330;
+    // Create the scene nodes (left column) + a combined node (right).
+    const sceneIds = list.map((p, i) =>
+      addNode("video", { prompt: p, aspect: "16:9 · 720p", position: { x: 100, y: baseY + i * gapY } })
+    );
+    const combineId = addNode("video", {
+      prompt: "Combined video",
+      aspect: "16:9 · 720p",
+      position: { x: 760, y: baseY + ((list.length - 1) * gapY) / 2 },
+    });
+    setEdges((es) => [
+      ...es,
+      ...sceneIds.map((sid) => ({ id: `e_${sid}_${combineId}`, source: sid, target: combineId })),
+    ]);
+    setNodeData(combineId, { status: "running" });
+
+    // Generate all scenes in parallel.
+    const results = await Promise.all(
+      sceneIds.map(async (id, i) => {
+        setNodeData(id, { status: "running", output: null, error: null });
+        try {
+          const url = await generateVideo({ prompt: list[i], model: "LTX Video", aspect: "16:9", resolution: "720p", duration: 6 });
+          setNodeData(id, { status: "done", output: url });
+          return url;
+        } catch (e) {
+          setNodeData(id, { status: "error", error: e.message });
+          return null;
+        }
+      })
+    );
+
+    const urls = results.filter(Boolean);
+    if (urls.length < 2) {
+      setNodeData(combineId, { status: "error", error: "Not enough scenes generated to combine" });
+      return;
+    }
+    try {
+      const finalUrl = await combineVideos(urls, urls.map(() => 5));
+      setNodeData(combineId, { status: "done", output: finalUrl });
+      fitView({ padding: 0.2, duration: 400 });
+    } catch (e) {
+      setNodeData(combineId, { status: "error", error: e.message });
+    }
+  };
+
   // Drop-to-create wiring
   const onConnectStart = useCallback((_, params) => {
     connectingRef.current = params; // { nodeId, handleId, handleType }
@@ -487,6 +539,7 @@ function CanvasInner({ workflowId }) {
           const id = addNode(kind, { prompt });
           if (autoRun) setTimeout(() => runNode(id), 50);
         }}
+        onDirector={(scenes) => runDirector(scenes)}
       />
     </>
   );

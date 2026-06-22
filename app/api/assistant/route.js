@@ -13,14 +13,14 @@ The user describes a creative task. You decide:
 
 Defaults: "image" if ambiguous. If the user mentions "video", "clip", "animation" → video. If "voiceover", "narrate", "speech", "music" → audio. If "write", "story", "summary", "describe in text" → text. If "motion graphics", "animated logo" → motion.
 
+DIRECTOR MODE (multi-scene video): If the user wants a video that is longer than ~8 seconds, OR mentions multiple scenes / a story / a sequence (e.g. "30 second video", "1 minute rhyme", "a story about..."), break it into a SEQUENCE of short video scenes (~6-8s each) and return them in "scenes". Each scene must be a self-contained, vivid visual prompt for one short clip, in narrative order, sharing consistent characters/style. Estimate scene count from the requested length (roughly seconds ÷ 7), clamped between 2 and 6. The clips will be generated in parallel and stitched into one final video.
+
 If the user asks something off-topic or unclear, respond with kind=null and a clarifying message.
 
-Always respond as JSON:
-{
-  "kind": "image" | "video" | "text" | "audio" | "motion" | null,
-  "prompt": "the concrete prompt to feed the model",
-  "message": "short reply to the user (1-2 sentences)"
-}`;
+Always respond as JSON. For a single asset:
+{ "kind": "image"|"video"|"text"|"audio"|"motion"|null, "prompt": "...", "message": "short reply (1-2 sentences)" }
+For a multi-scene video, instead use:
+{ "kind": "video", "scenes": ["scene 1 prompt", "scene 2 prompt", ...], "message": "short reply mentioning how many scenes" }`;
 
 export async function POST(req) {
   const { input, history = [] } = await req.json();
@@ -61,9 +61,13 @@ export async function POST(req) {
     const data = await res.json();
     const raw = data.choices?.[0]?.message?.content || "{}";
     const parsed = JSON.parse(raw);
+    const scenes = Array.isArray(parsed.scenes)
+      ? parsed.scenes.filter((s) => typeof s === "string" && s.trim()).slice(0, 6)
+      : null;
     return NextResponse.json({
       kind: parsed.kind ?? null,
       prompt: parsed.prompt || input,
+      scenes: scenes && scenes.length >= 2 ? scenes : null,
       message: parsed.message || "Done.",
     });
   } catch (e) {

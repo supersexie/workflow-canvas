@@ -1,7 +1,7 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
+export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector }) {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
   const [autoRun, setAutoRun] = useState(true);
@@ -33,11 +33,21 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
+      const isDirector = Array.isArray(data.scenes) && data.scenes.length >= 2;
       setHistory((h) => [
         ...h,
-        { role: "assistant", content: data.message || "Done.", action: data.kind ? { kind: data.kind, prompt: data.prompt } : null },
+        {
+          role: "assistant",
+          content: data.message || "Done.",
+          action: isDirector
+            ? { director: true, count: data.scenes.length }
+            : data.kind
+              ? { kind: data.kind, prompt: data.prompt }
+              : null,
+        },
       ]);
-      if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt }, autoRun);
+      if (isDirector) onDirector(data.scenes);
+      else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt }, autoRun);
     } catch (e) {
       setHistory((h) => [...h, { role: "assistant", content: `⚠ ${e.message}` }]);
     } finally {
@@ -77,7 +87,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
                 {[
                   "Generate an image of a sunset over mountains",
                   "Write a tagline for a coffee brand",
-                  "Make a video of waves crashing",
+                  "Make a 30-second kids rhyme video about colors",
                 ].map((s) => (
                   <button key={s} className="cb-suggestion" onClick={() => setInput(s)}>{s}</button>
                 ))}
@@ -91,7 +101,9 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun }) {
                 {m.content}
                 {m.action && (
                   <div className="cb-chip">
-                    ✦ Created {m.action.kind} node{m.action.prompt ? ` — "${m.action.prompt.slice(0, 50)}${m.action.prompt.length > 50 ? "…" : ""}"` : ""}
+                    {m.action.director
+                      ? `✦ Directing ${m.action.count} scenes → generating in parallel & stitching into one video…`
+                      : `✦ Created ${m.action.kind} node${m.action.prompt ? ` — "${m.action.prompt.slice(0, 50)}${m.action.prompt.length > 50 ? "…" : ""}"` : ""}`}
                   </div>
                 )}
               </div>
