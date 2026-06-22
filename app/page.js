@@ -27,11 +27,13 @@ const TOOLS = [
 // Auto-scrolling showcase tiles — empty placeholders (3 landscape, 3 portrait).
 const SHOWCASE = [
   { ratio: "16:9", views: "54.2M Views", video: "/marquee/l1.mp4" },
-  { ratio: "9:16", views: "12.7M Views" },
+  { ratio: "9:16", views: "12.7M Views", video: "/marquee/p1.mp4" },
   { ratio: "16:9", views: "88.1M Views", video: "/marquee/l2.mp4" },
-  { ratio: "9:16", views: "31.5M Views" },
+  { ratio: "9:16", views: "31.5M Views", video: "/marquee/p2.mp4" },
   { ratio: "16:9", views: "117.3M Views", video: "/marquee/l3.mp4" },
-  { ratio: "9:16", views: "9.4M Views" },
+  { ratio: "9:16", views: "9.4M Views", video: "/marquee/p3.mp4" },
+  { ratio: "16:9", views: "73.6M Views", video: "/marquee/l4.mp4" },
+  { ratio: "16:9", views: "45.9M Views", video: "/marquee/l5.mp4" },
 ];
 
 const FEATURES = [
