@@ -147,12 +147,13 @@
 
 /* ---------- Auto-scrolling video marquee ---------- */
 .marquee {
-  margin-top: 54px; width: 100%; overflow: hidden; padding-top: 14px;
+  margin-top: 54px; width: 100%; overflow: hidden;
   -webkit-mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
   mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
 }
 .marqueeTrack {
   display: flex; gap: 16px; width: max-content;
+  padding-top: 16px; /* room for the views pill to straddle the tile top */
   animation: marquee 80s linear infinite;
 }
 .marquee:hover .marqueeTrack { animation-play-state: paused; }
