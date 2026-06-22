@@ -171,6 +171,15 @@ export default function WorkflowNode({ id, data, selected }) {
               <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4M17 8l-5-5-5 5M12 3v12"/></svg>
             </button>
           </>
+        ) : data.output && kind === "text" ? (
+          <div
+            className="wf-card-text"
+            onPointerDown={(e) => e.stopPropagation()}
+            onWheel={(e) => e.stopPropagation()}
+            onClick={(e) => e.stopPropagation()}
+          >
+            {data.output}
+          </div>
         ) : data.sourceThumb ? (
           <>
             <div className="wf-card-source-tile">
