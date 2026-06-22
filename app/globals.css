@@ -662,3 +662,31 @@ body {
   color: var(--ink); padding: 4px 8px; border-radius: 4px; font-size: 14px;
   outline: none; font-family: inherit;
 }
+
+/* ---- New-workflow name modal ---- */
+.nw-backdrop {
+  position: fixed; inset: 0; z-index: 1000;
+  background: rgba(11,18,32,.35); backdrop-filter: blur(3px);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+}
+.nw-modal {
+  width: 100%; max-width: 440px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  padding: 28px; box-shadow: 0 30px 80px rgba(16,24,40,.20);
+}
+.nw-title { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; color: var(--ink); margin: 0 0 6px; }
+.nw-sub { font-size: 14px; color: var(--muted); margin: 0 0 20px; line-height: 1.5; }
+.nw-input {
+  width: 100%; background: var(--surface-2); border: 1px solid var(--line-2);
+  color: var(--ink); padding: 12px 14px; border-radius: 10px; font-size: 15px;
+  outline: none; font-family: inherit; transition: border-color .15s;
+}
+.nw-input:focus { border-color: var(--blue); }
+.nw-input::placeholder { color: var(--muted-2); }
+.nw-actions { display: flex; justify-content: flex-end; gap: 10px; margin-top: 22px; }
+.nw-cancel {
+  background: transparent; border: 1px solid var(--line-2); color: var(--text);
+  padding: 9px 16px; border-radius: 10px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: inherit;
+}
+.nw-cancel:hover { background: var(--surface-2); }

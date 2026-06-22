@@ -16,6 +16,8 @@ export default function Dashboard() {
   const [items, setItems] = useState([]);
   const [editingId, setEditingId] = useState(null);
   const [draft, setDraft] = useState("");
+  const [creating, setCreating] = useState(false);
+  const [newName, setNewName] = useState("");
 
   useEffect(() => {
     setItems(listWorkflows());
@@ -24,7 +26,12 @@ export default function Dashboard() {
   const refresh = () => setItems(listWorkflows());
 
   const onCreate = () => {
-    const wf = createWorkflow();
+    setNewName("");
+    setCreating(true);
+  };
+
+  const onCreateConfirm = () => {
+    const wf = createWorkflow(newName.trim() || "Untitled Workflow");
     router.push(`/w/${wf.id}`);
   };
 
@@ -122,6 +129,30 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {creating && (
+        <div className="nw-backdrop" onClick={() => setCreating(false)}>
+          <div className="nw-modal" onClick={(e) => e.stopPropagation()}>
+            <h3 className="nw-title">Name your workflow</h3>
+            <p className="nw-sub">Give it a name to get started. You can rename it later.</p>
+            <input
+              className="nw-input"
+              autoFocus
+              placeholder="Untitled Workflow"
+              value={newName}
+              onChange={(e) => setNewName(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") onCreateConfirm();
+                if (e.key === "Escape") setCreating(false);
+              }}
+            />
+            <div className="nw-actions">
+              <button className="nw-cancel" onClick={() => setCreating(false)}>Cancel</button>
+              <button className="primary-btn" onClick={onCreateConfirm}>Create workflow</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
