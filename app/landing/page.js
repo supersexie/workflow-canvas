@@ -61,6 +61,15 @@ export default function Landing() {
     };
   }, []);
 
+  const MCP_URL = "https://www.geoflix.online/api/mcp?key=YOUR_KEY";
+  const [copied, setCopied] = useState(false);
+  const copyMcp = () => {
+    navigator.clipboard?.writeText(MCP_URL).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1600);
+    });
+  };
+
   return (
     <div className={s.page}>
       {/* NAV */}
@@ -150,18 +159,33 @@ export default function Landing() {
 
       {/* CLAUDE MCP */}
       <section id="mcp" className={`${s.section} ${s.center}`}>
-        <span className={s.badge}>Claude MCP</span>
+        <span className={s.badge}>MCP Connector</span>
         <h2 className={s.h2}>Generate Right Inside Claude</h2>
-        <p className={s.lead}>Add the Geoflix connector to Claude and create images, video, voiceovers, and text from chat — powered by the same backend.</p>
-        <div className={s.mcpCard}>
-          <div className={s.mcpRow}>
-            <span className={s.mcpDot} />
-            <code className={s.mcpUrl}>https://www.geoflix.online/api/mcp?key=YOUR_KEY</code>
+        <p className={s.lead}>Connect Geoflix to Claude and generate images, video, voiceovers, and text right from your conversations.</p>
+        <div className={s.mcpSteps}>
+          <div className={s.mcpStep}>
+            <div className={s.mcpStepNum}>1</div>
+            <h3 className={s.mcpStepTitle}>Open Claude settings</h3>
+            <p className={s.mcpStepBody}>Launch Claude Desktop or open claude.ai and go to <b>Settings &rarr; Connectors</b>.</p>
           </div>
-          <p className={s.mcpHint}>Add it as a custom connector in Claude &rarr; Settings &rarr; Connectors.</p>
-        </div>
-        <div style={{ marginTop: 28, display: "flex", justifyContent: "center", gap: 12 }}>
-          <Link href="/" className={s.btn}>Open App <Arrow /></Link>
+          <div className={s.mcpStep}>
+            <div className={s.mcpStepNum}>2</div>
+            <h3 className={s.mcpStepTitle}>Add a custom connector</h3>
+            <p className={s.mcpStepBody}>Name it <b>Geoflix</b> and paste the URL:</p>
+            <div className={s.mcpRow}>
+              <code className={s.mcpUrl}>{MCP_URL}</code>
+              <button className={s.mcpCopy} onClick={copyMcp} title="Copy URL">
+                {copied ? "Copied" : (
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                )}
+              </button>
+            </div>
+          </div>
+          <div className={s.mcpStep}>
+            <div className={s.mcpStepNum}>3</div>
+            <h3 className={s.mcpStepTitle}>Connect &amp; approve</h3>
+            <p className={s.mcpStepBody}>Hit <b>Connect</b>, approve in the popup, and you're set — generate from any chat. No API keys to paste.</p>
+          </div>
         </div>
       </section>
 
