@@ -42,8 +42,10 @@ function parseDataUrl(d) {
 export async function POST(req) {
   const { prompt, model, image, aspect, resolution, duration } = await req.json();
 
-  // ---- fal.ai (Wan) ----
-  const fal = FAL_MODELS[model];
+  // ---- fal.ai ----
+  // Only route to Veo for an explicit Veo model; otherwise default to fal LTX
+  // (an unknown/missing model used to fall through to Veo by accident).
+  const fal = FAL_MODELS[model] || (VEO_MODELS[model] ? null : FAL_MODELS["LTX Video"]);
   if (fal) {
     if (!FAL) return NextResponse.json({ mock: true, output: "Generated video (mock — set FAL_KEY for real fal.ai)" });
     const endpoint = image ? fal.i2v : fal.t2v;

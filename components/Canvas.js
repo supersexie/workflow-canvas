@@ -285,7 +285,7 @@ function CanvasInner({ workflowId }) {
         const dur = parseInt(node.data.duration) || 8;
         output = await generateVideo({
           prompt,
-          model: node.data.model,
+          model: node.data.model || "LTX Video", // match the prompt bar's displayed default (else falls through to Veo)
           image: node.data.sourceThumb || null,
           aspect: aspectRatio,
           resolution,
