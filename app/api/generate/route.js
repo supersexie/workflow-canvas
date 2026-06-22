@@ -16,12 +16,26 @@ const FAL_IMAGE_MAP = {
   "Seedream 4.5": "fal-ai/bytedance/seedream/v4.5/text-to-image",
 };
 
-async function genImageFal(prompt, modelLabel) {
-  const endpoint = FAL_IMAGE_MAP[modelLabel] || "fal-ai/flux-2-pro";
+// Image-to-image / edit endpoints (take prompt + image_urls).
+const FAL_EDIT_MAP = {
+  "Flux 2 Pro": "fal-ai/flux-2-pro",
+  "Flux 2 Max": "fal-ai/flux-2-max",
+  "Nano Banana Pro": "fal-ai/nano-banana-pro/edit",
+  "Seedream 4.5": "fal-ai/bytedance/seedream/v4.5/edit",
+};
+
+async function genImageFal(prompt, modelLabel, images) {
+  const hasImages = Array.isArray(images) && images.length > 0;
+  // Image-to-image when source image(s) are connected; else text-to-image.
+  const endpoint = hasImages
+    ? FAL_EDIT_MAP[modelLabel] || "fal-ai/nano-banana-pro/edit"
+    : FAL_IMAGE_MAP[modelLabel] || "fal-ai/flux-2-pro";
+  const input = { prompt: prompt || "abstract gradient" };
+  if (hasImages) input.image_urls = images;
   const res = await fetch(`https://fal.run/${endpoint}`, {
     method: "POST",
     headers: { Authorization: `Key ${FAL}`, "Content-Type": "application/json" },
-    body: JSON.stringify({ prompt: prompt || "abstract gradient" }),
+    body: JSON.stringify(input),
   });
   if (!res.ok) throw new Error(`fal image ${res.status}: ${(await res.text()).slice(0, 200)}`);
   const data = await res.json();
@@ -108,13 +122,13 @@ function mockFallback(kind, prompt) {
 }
 
 export async function POST(req) {
-  const { kind, prompt, model } = await req.json();
+  const { kind, prompt, model, images } = await req.json();
 
   try {
     let output;
     if (kind === "image") {
       // Prefer fal (public URL); fall back to OpenAI base64; else mock.
-      if (FAL) output = await genImageFal(prompt, model);
+      if (FAL) output = await genImageFal(prompt, model, images);
       else if (KEY) output = await genImage(prompt, model);
       else output = mockFallback(kind, prompt);
     } else if (kind === "text") {

@@ -276,7 +276,11 @@ function CanvasInner({ workflowId }) {
           duration: dur,
         });
       } else {
-        output = await generateOutput(node.data.kind, node.data.prompt, node.data.model);
+        // For image nodes, forward connected source image(s) → image-to-image edit.
+        const images = node.data.kind === "image"
+          ? (sourcesByNode[id] || []).filter((s) => s.kind === "image").map((s) => s.url)
+          : [];
+        output = await generateOutput(node.data.kind, node.data.prompt, node.data.model, images);
       }
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
     } catch (e) {
