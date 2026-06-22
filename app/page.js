@@ -34,7 +34,7 @@ const FEATURES = [
 const FAQS = [
   { q: "What is Geoflix?", a: "Geoflix is a node-based AI creative canvas. You connect Image, Video, Text, and Audio nodes on an infinite canvas to build and run generation workflows visually." },
   { q: "Which models can I use?", a: "Images use FLUX 2 Pro/Max, Nano Banana Pro, and Seedream 4.5. Video uses LTX, Wan 2.2, MiniMax Hailuo, and Kling v2. Text and audio are powered by OpenAI." },
-  { q: "Do I need an account?", a: "No. Geoflix runs in your browser and saves your workflows locally — just open the app and start creating." },
+  { q: "Do I need an account?", a: "Yes — sign up free with email or Google to open the app. Once you're in, your workflows save automatically in your browser." },
   { q: "Can I use Geoflix inside Claude?", a: "Yes. Geoflix ships an MCP connector so Claude can generate media through Geoflix directly from chat." },
   { q: "Is my work saved?", a: "Workflows auto-save to your browser as you edit, and every generation is collected in the Library." },
 ];
