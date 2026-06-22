@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 const VIDEO_MODELS = ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2"];
 
-export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector }) {
+export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage }) {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
   const [autoRun, setAutoRun] = useState(true);
@@ -32,7 +32,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: text, history }),
+        body: JSON.stringify({ input: text, history, context: { hasSelectedImage: !!hasSelectedImage } }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -49,8 +49,8 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
               : null,
         },
       ]);
-      if (isDirector) onDirector({ scenes: data.scenes, character: data.character }, videoModel);
-      else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt }, autoRun);
+      if (isDirector) onDirector({ scenes: data.scenes, character: data.character }, videoModel, data.useSelectedImage);
+      else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt }, autoRun, data.useSelectedImage);
     } catch (e) {
       setHistory((h) => [...h, { role: "assistant", content: `⚠ ${e.message}` }]);
     } finally {

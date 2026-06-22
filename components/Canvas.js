@@ -314,7 +314,7 @@ function CanvasInner({ workflowId }) {
 
   // Director mode (character-consistent): one reference image → per-scene
   // staged image (image-to-image) → image-to-video → stitch into one video.
-  const runDirector = async ({ scenes, character }, model = "LTX Video") => {
+  const runDirector = async ({ scenes, character, seedImage }, model = "LTX Video") => {
     const list = (scenes || []).slice(0, 6);
     if (list.length < 2) return;
     const IMG_MODEL = "Flux 2 Pro"; // reliable for text-to-image + image-to-image
@@ -322,10 +322,11 @@ function CanvasInner({ workflowId }) {
     const gapY = 330;
     const midY = 80 + ((list.length - 1) * gapY) / 2;
 
-    // 1) Reference character image (shared seed for every scene).
-    let refUrl = null;
+    // 1) Reference image (shared seed for every scene). Use the selected image
+    //    if provided ("turn this image into a video"), else generate one.
+    let refUrl = seedImage || null;
     let refId = null;
-    if (character) {
+    if (!refUrl && character) {
       refId = addNode("image", { prompt: character, model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.ref, y: midY } });
       setNodeData(refId, { status: "running", output: null, error: null });
       try {
@@ -351,7 +352,7 @@ function CanvasInner({ workflowId }) {
         let seed = null;
         if (refUrl) {
           const imgId = addNode("image", { prompt: scene, model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.img, y } });
-          addEdgeBetween(refId, imgId);
+          if (refId) addEdgeBetween(refId, imgId);
           addEdgeBetween(imgId, vidId);
           setNodeData(imgId, { status: "running" });
           try {
@@ -420,6 +421,12 @@ function CanvasInner({ workflowId }) {
 
   const selectedNode = nodes.find((n) => n.id === selectedId);
   const selectedSources = selectedId ? (sourcesByNode[selectedId] || []) : [];
+  const selectedImageUrl =
+    selectedNode?.data?.kind === "image" &&
+    typeof selectedNode.data.output === "string" &&
+    /^(https?:|data:|\/api\/)/.test(selectedNode.data.output)
+      ? selectedNode.data.output
+      : null;
 
   if (!loaded) return <div style={{ color: "#5b6472", padding: 32 }}>Loading…</div>;
 
@@ -569,11 +576,20 @@ function CanvasInner({ workflowId }) {
       <Assistant
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
-        onCreateAndMaybeRun={({ kind, prompt }, autoRun) => {
+        hasSelectedImage={!!selectedImageUrl}
+        onCreateAndMaybeRun={({ kind, prompt }, autoRun, useSelected) => {
+          // "turn this image into a video" → seed a video node from the selected image
+          if (kind === "video" && useSelected && selectedImageUrl && selectedId) {
+            const id = addNode("video", { prompt, aspect: "16:9 · 720p", connectFrom: selectedId });
+            if (autoRun) setTimeout(() => runNode(id), 50);
+            return;
+          }
           const id = addNode(kind, { prompt });
           if (autoRun) setTimeout(() => runNode(id), 50);
         }}
-        onDirector={(payload, model) => runDirector(payload, model)}
+        onDirector={(payload, model, useSelected) =>
+          runDirector({ ...payload, seedImage: useSelected ? selectedImageUrl : null }, model)
+        }
       />
     </>
   );
