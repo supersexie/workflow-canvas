@@ -244,7 +244,10 @@ function CanvasInner({ workflowId }) {
       };
     }
     const id = nextId();
-    const node = { id, type: "workflow", position: pos, data: { kind, prompt: options.prompt || "" }, width: W, height: H };
+    const data = { kind, prompt: options.prompt || "" };
+    if (options.model) data.model = options.model;
+    if (options.aspect) data.aspect = options.aspect;
+    const node = { id, type: "workflow", position: pos, data, width: W, height: H };
     setNodes((n) => [...n, node]);
     if (options.connectFrom) {
       setEdges((e) => addEdge({ source: options.connectFrom, target: id, animated: true }, e));
@@ -307,13 +310,13 @@ function CanvasInner({ workflowId }) {
     setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, ...patch } } : n)));
 
   // Director mode: split scenes into parallel video nodes, then stitch into one.
-  const runDirector = async (scenes) => {
+  const runDirector = async (scenes, model = "LTX Video") => {
     const list = (scenes || []).slice(0, 6);
     if (list.length < 2) return;
     const baseY = 80, gapY = 330;
     // Create the scene nodes (left column) + a combined node (right).
     const sceneIds = list.map((p, i) =>
-      addNode("video", { prompt: p, aspect: "16:9 · 720p", position: { x: 100, y: baseY + i * gapY } })
+      addNode("video", { prompt: p, model, aspect: "16:9 · 720p", position: { x: 100, y: baseY + i * gapY } })
     );
     const combineId = addNode("video", {
       prompt: "Combined video",
@@ -331,7 +334,7 @@ function CanvasInner({ workflowId }) {
       sceneIds.map(async (id, i) => {
         setNodeData(id, { status: "running", output: null, error: null });
         try {
-          const url = await generateVideo({ prompt: list[i], model: "LTX Video", aspect: "16:9", resolution: "720p", duration: 6 });
+          const url = await generateVideo({ prompt: list[i], model, aspect: "16:9", resolution: "720p", duration: 6 });
           setNodeData(id, { status: "done", output: url });
           return url;
         } catch (e) {

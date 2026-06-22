@@ -589,7 +589,13 @@ body {
   border-top: 1px solid var(--line); padding: 12px 14px;
   display: flex; flex-direction: column; gap: 8px;
 }
-.cb-autorun-row { display: flex; }
+.cb-autorun-row { display: flex; align-items: center; gap: 8px; }
+.cb-model {
+  background: var(--surface-2); border: 1px solid var(--line); color: var(--text);
+  border-radius: 7px; padding: 5px 8px; font-size: 11.5px; font-family: inherit;
+  cursor: pointer; outline: none; margin-left: auto;
+}
+.cb-model:focus { border-color: var(--blue); }
 .cb-autorun {
   background: var(--surface-2); border: 1px solid var(--line); color: var(--muted);
   border-radius: 7px; padding: 5px 10px; font-size: 11.5px; cursor: pointer; font-family: inherit;
