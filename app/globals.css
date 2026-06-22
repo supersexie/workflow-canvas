@@ -148,30 +148,33 @@ body {
 /* ---- React Flow ---- */
 .react-flow { background: var(--bg); }
 .react-flow__background { background-color: var(--bg); }
-.react-flow__handle {
-  background: var(--surface); width: 18px; height: 18px;
+/* scoped under .react-flow to outrank @xyflow's own .react-flow__handle rules */
+.react-flow .react-flow__handle {
+  background: var(--surface); width: 20px; height: 20px;
   border: 1.5px solid var(--line-2); border-radius: 50%;
-  opacity: 0.9; transition: transform .12s, border-color .15s, background .15s, opacity .15s;
+  opacity: 0.9; transition: transform .14s ease, border-color .15s, background .15s, opacity .15s, box-shadow .15s;
 }
-.react-flow__handle::after {
+.react-flow .react-flow__handle::after {
   content: ""; position: absolute; inset: 0; pointer-events: none;
   background-image:
     linear-gradient(currentColor, currentColor),
     linear-gradient(currentColor, currentColor);
-  background-size: 8px 1.5px, 1.5px 8px;
+  background-size: 9px 1.6px, 1.6px 9px;
   background-position: center;
   background-repeat: no-repeat;
   color: var(--muted);
 }
 .react-flow__node:hover .react-flow__handle,
 .react-flow__node.selected .react-flow__handle { opacity: 1; }
-.react-flow__handle:hover {
+.react-flow .react-flow__handle:hover {
   border-color: var(--blue); background: var(--blue-soft);
-  transform: translate(-50%, -50%) scale(1.2);
+  box-shadow: 0 0 0 6px rgba(37, 99, 235, 0.12);
+  transform: translate(-50%, -50%) scale(2.4);
+  z-index: 20;
 }
-.react-flow__handle.source:hover { transform: translate(0, -50%) scale(1.2); }
-.react-flow__handle.target:hover { transform: translate(-100%, -50%) scale(1.2); }
-.react-flow__handle:hover::after { color: var(--blue); }
+.react-flow .react-flow__handle.source:hover { transform: translate(0, -50%) scale(2.4); }
+.react-flow .react-flow__handle.target:hover { transform: translate(-100%, -50%) scale(2.4); }
+.react-flow .react-flow__handle:hover::after { color: var(--blue); }
 .react-flow__edge-path { stroke: var(--faint); stroke-width: 1.5; }
 .react-flow__edge.selected .react-flow__edge-path { stroke: var(--blue); }
 .react-flow__connectionline path { stroke: var(--blue); stroke-width: 1.5; stroke-dasharray: 4 4; }
