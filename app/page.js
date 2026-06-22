@@ -101,7 +101,7 @@ export default function Landing() {
 
       {/* HERO */}
       <header className={s.hero}>
-        <span className={s.badge}><span className={s.accent}>New:</span> AI ad generator is live! <span className={s.accent}>Try now &rarr;</span></span>
+        <span className={s.badge}><span className={s.accent}>New:</span> AI Assistant is live! &rarr;</span>
         <h1 className={s.h1}>
           The Easiest Way to Make<br />Viral Videos
         </h1>
