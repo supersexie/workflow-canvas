@@ -8,7 +8,26 @@ export default function Library({ open, onClose }) {
   const [items, setItems] = useState([]);
 
   useEffect(() => {
-    if (open) setItems(listGenerations());
+    if (!open) return;
+    const local = listGenerations();
+    setItems(local);
+    // Merge in server-side (Claude MCP) generations, deduped by url.
+    let cancelled = false;
+    fetch("/api/generations")
+      .then((r) => (r.ok ? r.json() : { items: [] }))
+      .then(({ items: server }) => {
+        if (cancelled || !Array.isArray(server) || server.length === 0) return;
+        const seen = new Set(local.map((g) => g.url));
+        const extra = server
+          .filter((g) => g && g.url && !seen.has(g.url))
+          .map((g) => ({ ...g, workflowName: g.workflowName || "Claude MCP" }));
+        if (extra.length) {
+          const merged = [...local, ...extra].sort((a, b) => (b.ts || 0) - (a.ts || 0));
+          setItems(merged);
+        }
+      })
+      .catch(() => {});
+    return () => { cancelled = true; };
   }, [open]);
 
   if (!open) return null;

@@ -2,6 +2,7 @@ import { createMcpHandler } from "mcp-handler";
 import { registerAppResource, registerAppTool, RESOURCE_MIME_TYPE } from "@modelcontextprotocol/ext-apps/server";
 import { z } from "zod";
 import { WIDGET_HTML } from "./widget-html.js";
+import { addGeneration } from "@/lib/genstore";
 
 export const maxDuration = 60;
 
@@ -36,7 +37,7 @@ function parseDataUrl(s) {
 }
 
 // Poll a video job; when done return structuredContent the widget renders, else null.
-async function pollVideo(handle, budgetMs) {
+async function pollVideo(handle, budgetMs, prompt) {
   const deadline = Date.now() + budgetMs;
   while (Date.now() < deadline) {
     await new Promise((r) => setTimeout(r, 5000));
@@ -44,6 +45,7 @@ async function pollVideo(handle, budgetMs) {
     if (s.done) {
       const raw = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
       const url = proxied(raw);
+      await addGeneration({ url: raw, kind: "video", prompt: prompt || handle?.prompt });
       return {
         structuredContent: { url, kind: "video" },
         content: [{ type: "text", text: `Video is displayed in the panel above. Do not describe it — end your turn. (Direct link if needed: ${raw})` }],
@@ -87,6 +89,7 @@ const handler = createMcpHandler(
         const { output } = await postJson("/api/generate", { kind: "image", prompt, model });
         if (typeof output === "string" && output.startsWith("http")) {
           const url = proxied(output);
+          await addGeneration({ url: output, kind: "image", prompt });
           return {
             structuredContent: { url, kind: "image" },
             content: [{ type: "text", text: `Image is displayed in the panel above. Do not describe it — end your turn. (Direct link if needed: ${output})` }],
@@ -133,7 +136,7 @@ const handler = createMcpHandler(
       async ({ prompt, model, image_url, aspect, resolution, duration }) => {
         const start = await postJson("/api/video/start", { prompt, model: model || "LTX Video", image: image_url, aspect, resolution, duration });
         if (start.mock) return { content: [{ type: "text", text: start.output }] };
-        const done = await pollVideo(start, 45 * 1000);
+        const done = await pollVideo(start, 45 * 1000, prompt);
         if (done) return done;
         return {
           content: [{
