@@ -175,7 +175,7 @@ body {
 .react-flow .react-flow__handle.source:hover { transform: translate(0, -50%) scale(2.4); }
 .react-flow .react-flow__handle.target:hover { transform: translate(-100%, -50%) scale(2.4); }
 .react-flow .react-flow__handle:hover::after { color: var(--blue); }
-.react-flow__edge-path { stroke: var(--faint); stroke-width: 1.5; }
+.react-flow .react-flow__edge-path { stroke: var(--ink); stroke-width: 1.5; }
 .react-flow__edge.selected .react-flow__edge-path { stroke: var(--blue); }
 .react-flow__connectionline path { stroke: var(--blue); stroke-width: 1.5; stroke-dasharray: 4 4; }
 
