@@ -20,7 +20,7 @@ export async function POST(req) {
       const s = await st.json();
       if (s.status !== "COMPLETED") return NextResponse.json({ done: false });
       const r = await fetch(responseUrl, { headers: { Authorization: `Key ${FAL}` } });
-      if (!r.ok) throw new Error(`fal result ${r.status}`);
+      if (!r.ok) throw new Error(`fal result ${r.status}: ${(await r.text()).slice(0, 400)}`);
       const result = await r.json();
       const url = result.video?.url || result.videos?.[0]?.url;
       if (!url) throw new Error("No video URL in fal result");
