@@ -130,7 +130,7 @@ export default function Landing() {
 
         <div className={s.center} style={{ marginTop: 80 }}>
           <span className={s.badge}>Viral Videos Made with Geoflix</span>
-          <h2 className={s.h2}>Top Creators Don&apos;t Start from Scratch</h2>
+          <h2 className={s.showcaseHead}>Top Creators Don&apos;t Start from Scratch</h2>
           <p className={s.lead}>They use tools to copy what&apos;s already working.</p>
         </div>
 
