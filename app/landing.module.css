@@ -153,7 +153,7 @@
 }
 .marqueeTrack {
   display: flex; gap: 16px; width: max-content;
-  padding-top: 30px; /* generous room so the views pill never clips */
+  padding-top: 50px; /* room for the views pill to float fully above the card */
   animation: marquee 80s linear infinite;
 }
 .marquee:hover .marqueeTrack { animation-play-state: paused; }
@@ -169,7 +169,7 @@
 .mLandscape { width: 533px; }  /* 16:9 */
 .mTile video { width: 100%; height: 100%; object-fit: cover; display: block; }
 .mViews {
-  position: absolute; top: -11px; left: 50%; transform: translateX(-50%);
+  position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
   z-index: 3; white-space: nowrap;
   background: #ff3b30; color: #fff; font-size: 11px; font-weight: 700;
   padding: 4px 11px; border-radius: 8px;
