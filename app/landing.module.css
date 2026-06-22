@@ -145,6 +145,38 @@
 }
 .avatars span:first-child { margin-left: 0; }
 
+/* ---------- Auto-scrolling video marquee ---------- */
+.marquee {
+  margin-top: 54px; width: 100%; overflow: hidden;
+  -webkit-mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+  mask: linear-gradient(90deg, transparent, #000 6%, #000 94%, transparent);
+}
+.marqueeTrack {
+  display: flex; gap: 16px; width: max-content;
+  animation: marquee 80s linear infinite;
+}
+.marquee:hover .marqueeTrack { animation-play-state: paused; }
+@keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+.mTile {
+  position: relative; flex: 0 0 auto; height: 300px;
+  border-radius: 18px; overflow: hidden; background: #0b1220;
+  box-shadow: 0 14px 34px rgba(16, 24, 40, 0.12);
+}
+.mPortrait { width: 169px; }   /* 9:16 */
+.mLandscape { width: 533px; }  /* 16:9 */
+.mTile video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mBadge {
+  position: absolute; top: 10px; left: 10px; z-index: 2;
+  font-size: 11px; font-weight: 600; color: #fff;
+  background: rgba(11, 18, 32, 0.55); backdrop-filter: blur(4px);
+  padding: 3px 9px; border-radius: 999px;
+}
+.mCap {
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 12px 10px;
+  background: linear-gradient(transparent, rgba(11, 18, 32, 0.82));
+  color: #fff; font-size: 13px; font-weight: 600; text-align: left;
+}
+
 /* ---------- generic section ---------- */
 .section { max-width: 1240px; margin: 0 auto; padding: 96px 24px; }
 .center { text-align: center; }

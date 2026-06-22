@@ -24,6 +24,15 @@ const TOOLS = [
   { icon: "🔗", title: "Genmax Flow", desc: "Build node-based pipelines on an infinite canvas — connect image, video, text, and audio nodes into one workflow.", art: "🔗", tag: "New" },
 ];
 
+// Auto-scrolling showcase tiles (mixed 16:9 / 9:16), reusing the demo clips.
+const SHOWCASE = [
+  { src: "/tools/video.mp4", ratio: "9:16", cap: "Video · Kling" },
+  { src: "/tools/image.mp4", ratio: "16:9", cap: "Image · Flux 2" },
+  { src: "/tools/assistant.mp4", ratio: "9:16", cap: "AI Assistant" },
+  { src: "/tools/voiceover.mp4", ratio: "16:9", cap: "AI Voiceover" },
+  { src: "/tools/scriptwriter.mp4", ratio: "9:16", cap: "AI Scriptwriter" },
+];
+
 const FEATURES = [
   { h: "Node-Based Canvas", p: "Build creative workflows on an infinite canvas. Drag from any node to connect Image → Video, Text → Audio, and more." },
   { h: "Connect & Propagate", p: "An image output flows downstream as the source for a video node automatically — no copy-pasting URLs." },
@@ -114,6 +123,18 @@ export default function Landing() {
         <div className={s.proof}>
           <div className={s.avatars}><span>🎨</span><span>🎬</span><span>🤖</span><span>✨</span></div>
           Built for creators who move fast.
+        </div>
+
+        <div className={s.marquee}>
+          <div className={s.marqueeTrack}>
+            {[...SHOWCASE, ...SHOWCASE, ...SHOWCASE, ...SHOWCASE].map((t, i) => (
+              <div key={i} className={`${s.mTile} ${t.ratio === "9:16" ? s.mPortrait : s.mLandscape}`}>
+                <video src={t.src} autoPlay loop muted playsInline preload="metadata" />
+                <span className={s.mBadge}>✦ Made with Geoflix</span>
+                <div className={s.mCap}>{t.cap}</div>
+              </div>
+            ))}
+          </div>
         </div>
       </header>
 
