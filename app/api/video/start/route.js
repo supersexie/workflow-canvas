@@ -12,13 +12,17 @@ const VEO_MODELS = {
 };
 
 const FAL_MODELS = {
+  // `ar: true` => endpoint requires an explicit aspect_ratio (it 422s on the
+  // default "auto" when the input image resolves to an unsupported size).
   "LTX Video": {
     t2v: "fal-ai/ltx-video",
     i2v: "fal-ai/ltx-video/image-to-video",
+    ar: true,
   },
   "Wan 2.2": {
     t2v: "fal-ai/wan/v2.2-a14b/text-to-video",
     i2v: "fal-ai/wan/v2.2-a14b/image-to-video",
+    ar: true,
   },
   "MiniMax Hailuo": {
     t2v: "fal-ai/minimax/hailuo-02/standard/text-to-video",
@@ -45,10 +49,10 @@ export async function POST(req) {
     const endpoint = image ? fal.i2v : fal.t2v;
     const input = { prompt: prompt || "a cinematic scene, smooth camera motion" };
     if (image) input.image_url = image; // fal accepts data URIs
-    // LTX i2v defaults aspect_ratio to "auto", which derives the output size
-    // from the input image and 422s when that size isn't a supported preset.
-    // Pass an explicit ratio (one of 16:9 / 9:16 / 1:1).
-    if (model === "LTX Video") {
+    // Some fal endpoints default aspect_ratio to "auto", deriving the output
+    // size from the input image and 422-ing on unsupported sizes. Pass an
+    // explicit ratio (one of 16:9 / 9:16 / 1:1) for models that need it.
+    if (fal.ar) {
       input.aspect_ratio = aspect === "9:16" || aspect === "1:1" ? aspect : "16:9";
     }
     try {
