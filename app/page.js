@@ -137,9 +137,11 @@ export default function Landing() {
         <div className={s.marquee}>
           <div className={s.marqueeTrack}>
             {[...SHOWCASE, ...SHOWCASE].map((t, i) => (
-              <div key={i} className={`${s.mTile} ${t.ratio === "9:16" ? s.mPortrait : s.mLandscape}`}>
-                {t.video && <video className={s.mVideo} src={t.video} autoPlay loop muted playsInline preload="metadata" />}
+              <div key={i} className={`${s.mTileWrap} ${t.ratio === "9:16" ? s.mPortrait : s.mLandscape}`}>
                 <span className={s.mViews}>{t.views}</span>
+                <div className={s.mTile}>
+                  {t.video && <video className={s.mVideo} src={t.video} autoPlay loop muted playsInline preload="metadata" />}
+                </div>
               </div>
             ))}
           </div>
