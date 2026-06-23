@@ -11,11 +11,11 @@ html,body{margin:0;padding:0;background:transparent}
 (function(){
   var root=document.getElementById('root'), logEl=document.getElementById('log');
   var lines=[]; function log(s){ lines.push(s); if(logEl) logEl.textContent=lines.slice(-12).join('\n'); }
-  var done=false;
+  var done=false, lastH=0;
   function reportSize(){
-    var h=Math.ceil(document.documentElement.scrollHeight||document.body.scrollHeight);
-    var w=Math.ceil(document.documentElement.scrollWidth||document.body.scrollWidth);
-    if(h>0) send({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{width:w,height:h}});
+    var h=Math.ceil(document.documentElement.scrollHeight||document.body.scrollHeight||0);
+    var w=Math.ceil(document.documentElement.scrollWidth||document.body.scrollWidth||0);
+    if(h>0 && h!==lastH){ lastH=h; send({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{width:w,height:h}}); }
   }
   function render(url,kind){
     if(done) return; done=true;
@@ -24,8 +24,9 @@ html,body{margin:0;padding:0;background:transparent}
     if(kind==='video'){ el.controls=el.autoplay=el.loop=el.muted=el.playsInline=true; el.addEventListener('loadedmetadata',reportSize); }
     else { el.alt='generated'; el.addEventListener('load',reportSize); }
     root.innerHTML=''; root.appendChild(el);
-    // also report after layout settles (covers cached media / late layout)
-    setTimeout(reportSize,80); setTimeout(reportSize,400);
+    // Report repeatedly until the host applies the size (covers cache/late layout).
+    if(window.ResizeObserver){ try{ new ResizeObserver(reportSize).observe(document.documentElement); }catch(e){} }
+    [60,200,500,1000,2000].forEach(function(t){ setTimeout(reportSize,t); });
   }
   // Find a renderable media url (data: URI, http(s), or a {url}/{image} field) anywhere in the message.
   function findMedia(o,d){
