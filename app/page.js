@@ -26,19 +26,19 @@ const TOOLS = [
 
 // Auto-scrolling showcase tiles — empty placeholders (3 landscape, 3 portrait).
 const SHOWCASE = [
-  { ratio: "16:9", views: "54.2M Views", video: "/marquee/l1.mp4", creator: "Amply Awesome", color: "#3b82f6", title: "This Robot Is Not Human" },
-  { ratio: "9:16", views: "12.7M Views", video: "/marquee/p1.mp4", creator: "Pushing Positivity", color: "#2563eb", title: "Ashton Hall's Morning Routine Explained" },
-  { ratio: "16:9", views: "88.1M Views", video: "/marquee/l2.mp4", creator: "Slam Dunk", color: "#f59e0b", title: "Primitive Survival Videos Are Fake" },
-  { ratio: "9:16", views: "31.5M Views", video: "/marquee/p2.mp4", creator: "Discovery Dose", color: "#10b981", title: "This Wood is Worth More Than Gold" },
-  { ratio: "16:9", views: "117.3M Views", video: "/marquee/l3.mp4", creator: "Amply Awesome", color: "#3b82f6", title: "This Class Confused Their Professor" },
-  { ratio: "9:16", views: "9.4M Views", video: "/marquee/p3.mp4", creator: "Flexy", color: "#8b5cf6", title: "Never Underestimate Your Son!" },
-  { ratio: "9:16", views: "62.8M Views", video: "/marquee/p4.mp4", creator: "Daily Dose", color: "#ef4444", title: "Why Kai Cenat Went Viral" },
-  { ratio: "16:9", views: "73.6M Views", video: "/marquee/l4.mp4", creator: "Mind Blown", color: "#0ea5e9", title: "The Science Behind This Trick" },
-  { ratio: "9:16", views: "27.4M Views", video: "/marquee/p5.mp4", creator: "Hype House", color: "#ec4899", title: "He Didn't See This Coming" },
-  { ratio: "16:9", views: "45.9M Views", video: "/marquee/l5.mp4", creator: "Top Tier", color: "#6366f1", title: "Inside The World's Fastest Car" },
-  { ratio: "9:16", views: "8.9M Views", video: "/marquee/p6.mp4", creator: "Pushing Positivity", color: "#2563eb", title: "The Routine That Changed Everything" },
-  { ratio: "9:16", views: "51.2M Views", video: "/marquee/p7.mp4", creator: "Discovery Dose", color: "#10b981", title: "You Won't Believe What's Inside" },
-  { ratio: "9:16", views: "19.6M Views", video: "/marquee/p8.mp4", creator: "Flexy", color: "#8b5cf6", title: "How He Built This From Nothing" },
+  { ratio: "16:9", views: "54.2M Views", video: "/marquee/l1.mp4" },
+  { ratio: "9:16", views: "12.7M Views", video: "/marquee/p1.mp4" },
+  { ratio: "16:9", views: "88.1M Views", video: "/marquee/l2.mp4" },
+  { ratio: "9:16", views: "31.5M Views", video: "/marquee/p2.mp4" },
+  { ratio: "16:9", views: "117.3M Views", video: "/marquee/l3.mp4" },
+  { ratio: "9:16", views: "9.4M Views", video: "/marquee/p3.mp4" },
+  { ratio: "9:16", views: "62.8M Views", video: "/marquee/p4.mp4" },
+  { ratio: "16:9", views: "73.6M Views", video: "/marquee/l4.mp4" },
+  { ratio: "9:16", views: "27.4M Views", video: "/marquee/p5.mp4" },
+  { ratio: "16:9", views: "45.9M Views", video: "/marquee/l5.mp4" },
+  { ratio: "9:16", views: "8.9M Views", video: "/marquee/p6.mp4" },
+  { ratio: "9:16", views: "51.2M Views", video: "/marquee/p7.mp4" },
+  { ratio: "9:16", views: "19.6M Views", video: "/marquee/p8.mp4" },
 ];
 
 const FEATURES = [
@@ -146,14 +146,6 @@ export default function Landing() {
                 <span className={s.mViews}>{t.views}</span>
                 <div className={s.mTile}>
                   {t.video && <video className={s.mVideo} src={t.video} autoPlay loop muted playsInline preload="metadata" />}
-                  <div className={s.mCap}>
-                    <div className={s.mCreator}>
-                      <span className={s.mAvatar} style={{ background: t.color }}>{t.creator.charAt(0)}</span>
-                      <span className={s.mName}>{t.creator}</span>
-                      <svg className={s.mVerified} viewBox="0 0 24 24" aria-hidden="true"><path fill="#3897f0" d="M12 2l2.4 1.8 3-.3 1 2.8 2.6 1.5-.9 2.9.9 2.9-2.6 1.5-1 2.8-3-.3L12 22l-2.4-1.8-3 .3-1-2.8L3 16.5l.9-2.9L3 10.7l2.6-1.5 1-2.8 3 .3z"/><path fill="#fff" d="M10.6 14.6l-2.2-2.2 1.1-1.1 1.1 1.1 3-3 1.1 1.1z"/></svg>
-                    </div>
-                    <div className={s.mTitle}>{t.title}</div>
-                  </div>
                 </div>
               </div>
             ))}
