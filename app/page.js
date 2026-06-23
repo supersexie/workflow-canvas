@@ -15,6 +15,20 @@ const PlayLogo = () => (
   <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
 );
 
+const ClaudeMark = () => (
+  <svg viewBox="0 0 24 24" width="100%" height="100%" fill="currentColor" aria-hidden="true">
+    {Array.from({ length: 12 }).map((_, i) => (
+      <rect key={i} x="11.1" y="2.6" width="1.8" height="7.2" rx="0.9" transform={`rotate(${i * 30} 12 12)`} />
+    ))}
+  </svg>
+);
+
+const MCP_FEATURES = [
+  { h: "Generate without leaving chat", p: "Ask Claude for an image, video, voiceover, or script and it runs Geoflix for you — no tab-switching." },
+  { h: "Every model, one prompt", p: "FLUX, Seedream, Kling, Veo and LTX — Claude routes to the right model automatically." },
+  { h: "Media renders inline", p: "Generated images and video play right inside the conversation, ready to drop into your workflow." },
+];
+
 const TOOLS = [
   { icon: "🖼️", title: "Image Generation", desc: "Generate stunning images with FLUX, Seedream, and Nano Banana — straight to a public URL.", img: "/tools/image-card.jpg" },
   { icon: "🎬", title: "Video Generation", desc: "Text-to-video and image-to-video powered by LTX, Wan, MiniMax Hailuo, and Kling.", video: "/tools/video-card.mp4" },
@@ -229,34 +243,64 @@ export default function Landing() {
       </section>
 
       {/* CLAUDE MCP */}
-      <section id="mcp" className={`${s.section} ${s.center}`}>
-        <span className={s.badge}>MCP Connector</span>
-        <h2 className={s.h2}>Generate Right Inside Claude</h2>
-        <p className={s.lead}>Connect Geoflix to Claude and generate images, video, voiceovers, and text right from your conversations.</p>
-        <div className={s.mcpSteps}>
-          <div className={s.mcpStep}>
-            <div className={s.mcpStepNum}>1</div>
-            <h3 className={s.mcpStepTitle}>Open Claude settings</h3>
-            <p className={s.mcpStepBody}>Launch Claude Desktop or open claude.ai and go to <b>Settings &rarr; Connectors</b>.</p>
-          </div>
-          <div className={s.mcpStep}>
-            <div className={s.mcpStepNum}>2</div>
-            <h3 className={s.mcpStepTitle}>Add a custom connector</h3>
-            <p className={s.mcpStepBody}>Name it <b>Geoflix</b> and paste the URL:</p>
-            <div className={s.mcpRow}>
-              <code className={s.mcpUrl}>{MCP_URL}</code>
-              <button className={s.mcpCopy} onClick={copyMcp} title="Copy URL">
-                {copied ? "Copied" : (
-                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
-                )}
-              </button>
+      <section id="mcp" className={s.section}>
+        <div className={s.center}>
+          <span className={s.badge}>MCP Connector · Claude</span>
+          <h2 className={s.h2}>Turn Claude Into Your Creative Engine</h2>
+          <p className={s.lead}>Connect Geoflix to Claude and generate images, video, voiceovers, and scripts right from your conversations.</p>
+        </div>
+
+        <div className={s.mcpShow}>
+          {/* mock Claude chat */}
+          <div className={s.chat}>
+            <div className={s.chatBar}>
+              <span className={s.chatDot} /><span className={s.chatDot} /><span className={s.chatDot} />
+              <span className={s.chatLabel}>CLAUDE · GEOFLIX CONNECTOR</span>
+            </div>
+            <div className={s.chatBody}>
+              <div className={s.chatUser}>Make a 4-clip cartoon short for my kids channel — bright, wholesome, 9:16.</div>
+              <div className={s.chatAsst}>
+                <span className={s.chatMark}><ClaudeMark /></span>
+                <span className={s.chatAsstText}>On it. Spinning up 4 scenes — mixing characters, color, and motion.</span>
+              </div>
+              <div className={s.chatGrid}>
+                {["/marquee/p1.mp4", "/marquee/p3.mp4", "/marquee/p4.mp4", "/marquee/p2.mp4"].map((src) => (
+                  <video key={src} className={s.chatTile} src={src} autoPlay loop muted playsInline preload="metadata" />
+                ))}
+              </div>
+              <div className={s.chatFoot}>4 CLIPS · 1080P · ~42S</div>
             </div>
           </div>
-          <div className={s.mcpStep}>
-            <div className={s.mcpStepNum}>3</div>
-            <h3 className={s.mcpStepTitle}>Connect &amp; approve</h3>
-            <p className={s.mcpStepBody}>Hit <b>Connect</b>, approve in the popup, and you're set — generate from any chat. No API keys to paste.</p>
+
+          {/* feature cards */}
+          <div className={s.mcpFeats}>
+            {MCP_FEATURES.map((f, i) => (
+              <div key={f.h} className={s.mcpFeat}>
+                <span className={s.mcpFeatNum}>0{i + 1}</span>
+                <div>
+                  <h3 className={s.mcpFeatH}>{f.h}</h3>
+                  <p className={s.mcpFeatP}>{f.p}</p>
+                </div>
+              </div>
+            ))}
           </div>
+        </div>
+
+        {/* CTA */}
+        <div className={s.mcpCta}>
+          <div className={s.mcpCtaRow}>
+            <button className={`${s.btn} ${s.btnLg}`} onClick={copyMcp}>{copied ? "Copied!" : "Connect Claude"} <Arrow /></button>
+            <a className={s.mcpCtaSec} href="#faq">See how it works</a>
+          </div>
+          <div className={s.mcpRow}>
+            <code className={s.mcpUrl}>{MCP_URL}</code>
+            <button className={s.mcpCopy} onClick={copyMcp} title="Copy URL">
+              {copied ? "Copied" : (
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+              )}
+            </button>
+          </div>
+          <div className={s.mcpFine}>Add as a custom connector in Claude → Settings → Connectors. Works with <b>Claude Desktop</b>, <b>claude.ai</b> &amp; <b>Cursor</b> · 5-minute setup.</div>
         </div>
       </section>
 

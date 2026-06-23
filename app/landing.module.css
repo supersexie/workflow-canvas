@@ -410,6 +410,68 @@
 .btnOutline { background: #fff; color: var(--ink); border: 1.5px solid var(--line); }
 .btnOutline:hover { background: #f1f5ff; color: var(--blue); border-color: #c7d7ff; }
 
+/* ---------- Claude MCP showcase ---------- */
+.mcpShow {
+  display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px;
+  max-width: 1120px; margin: 48px auto 0; text-align: left; align-items: start;
+}
+.chat {
+  background: #1b1b19; border: 1px solid #2c2c28; border-radius: 18px;
+  overflow: hidden; box-shadow: 0 24px 60px rgba(16, 24, 40, 0.22);
+}
+.chatBar {
+  display: flex; align-items: center; gap: 7px;
+  padding: 12px 16px; border-bottom: 1px solid #2c2c28; background: #161614;
+}
+.chatDot { width: 11px; height: 11px; border-radius: 50%; background: #3a3a36; }
+.chatDot:nth-child(1) { background: #ff5f57; }
+.chatDot:nth-child(2) { background: #febc2e; }
+.chatDot:nth-child(3) { background: #28c840; }
+.chatLabel {
+  margin-left: auto; font-size: 11px; letter-spacing: 0.08em;
+  color: #8a8a82; font-weight: 600; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+.chatBody { padding: 18px; display: flex; flex-direction: column; gap: 14px; }
+.chatUser {
+  align-self: flex-end; max-width: 88%;
+  background: #2a2a27; color: #ececea; border-radius: 14px 14px 4px 14px;
+  padding: 12px 15px; font-size: 14.5px; line-height: 1.5;
+}
+.chatAsst { display: flex; gap: 10px; align-items: flex-start; }
+.chatMark {
+  flex: 0 0 auto; width: 28px; height: 28px; border-radius: 7px;
+  background: #d97757; color: #fff; display: grid; place-items: center; padding: 6px;
+}
+.chatAsstText { color: #d6d6d2; font-size: 14.5px; line-height: 1.5; padding-top: 3px; }
+.chatGrid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.chatTile {
+  width: 100%; aspect-ratio: 9 / 16; object-fit: cover;
+  border-radius: 10px; display: block; background: #000;
+}
+.chatFoot {
+  font-size: 11px; letter-spacing: 0.08em; color: #7a7a72;
+  font-weight: 600; font-family: ui-monospace, "SF Mono", Menlo, monospace;
+}
+.mcpFeats { display: flex; flex-direction: column; gap: 16px; }
+.mcpFeat {
+  display: flex; gap: 14px; align-items: flex-start;
+  background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  padding: 22px; box-shadow: 0 4px 18px rgba(16, 24, 40, 0.04);
+}
+.mcpFeatNum {
+  flex: 0 0 auto; font-size: 13px; font-weight: 800; color: var(--blue);
+  font-family: ui-monospace, "SF Mono", Menlo, monospace; padding-top: 3px;
+}
+.mcpFeatH { font-size: 18px; font-weight: 700; margin: 0 0 6px; }
+.mcpFeatP { color: var(--muted); font-size: 14.5px; line-height: 1.55; margin: 0; }
+.mcpCta { display: flex; flex-direction: column; align-items: center; gap: 18px; margin-top: 44px; }
+.mcpCtaRow { display: flex; align-items: center; gap: 20px; }
+.mcpCtaSec { color: var(--muted); font-weight: 600; font-size: 15px; text-decoration: none; }
+.mcpCtaSec:hover { color: var(--ink); }
+.mcpCta .mcpRow { max-width: 520px; width: 100%; margin-top: 0; }
+.mcpFine { color: var(--muted); font-size: 13.5px; text-align: center; max-width: 560px; line-height: 1.5; }
+.mcpFine b { color: var(--ink); font-weight: 600; }
+
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
   .navLinks { display: none; }
@@ -420,4 +482,6 @@
   .section { padding: 64px 24px; }
   .priceGrid { grid-template-columns: minmax(0, 1fr); max-width: 420px; }
   .priceCardPop { transform: none; }
+  .mcpShow { grid-template-columns: 1fr; }
+  .mcpCtaRow { flex-direction: column; gap: 12px; }
 }
