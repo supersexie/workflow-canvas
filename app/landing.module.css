@@ -224,11 +224,11 @@
 
 /* ---------- tools grid ---------- */
 .grid {
-  display: grid; gap: 22px;
-  grid-template-columns: repeat(3, 1fr);
+  display: flex; flex-wrap: wrap; justify-content: center; gap: 22px;
   margin-top: 56px;
 }
 .card {
+  flex: 0 1 calc((100% - 44px) / 3); min-width: 0;
   background: #fff; border: 1px solid var(--line);
   border-radius: 20px; padding: 26px;
   display: flex; flex-direction: column;
@@ -407,7 +407,7 @@
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
   .navLinks { display: none; }
-  .grid { grid-template-columns: 1fr; }
+  .card { flex-basis: 100%; }
   .mcpSteps { grid-template-columns: minmax(0, 1fr); }
   .features { grid-template-columns: 1fr; gap: 32px; }
   .footTop { grid-template-columns: 1fr; }
