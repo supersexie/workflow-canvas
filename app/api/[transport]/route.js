@@ -6,7 +6,7 @@ import { addGeneration } from "@/lib/genstore";
 
 export const maxDuration = 60;
 
-const UI_URI = "ui://geoflix/media.html";
+const UI_URI = "ui://geoflix/media-v2.html";
 
 const BASE = (
   process.env.GEOFLIX_BASE_URL ||

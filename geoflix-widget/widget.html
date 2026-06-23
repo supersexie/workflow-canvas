@@ -56,7 +56,7 @@ html,body{margin:0;padding:0;background:transparent}
     send({jsonrpc:'2.0',id:++idc,method:'ui/initialize',params:{
       protocolVersion:'2026-01-26',
       appInfo:{name:'geoflix',version:'1.0.0'},
-      appCapabilities:{}
+      appCapabilities:{availableDisplayModes:['inline']}
     }});
     log('init');
   }
