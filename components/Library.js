@@ -14,7 +14,7 @@ function extFor(it) {
 async function downloadItem(e, it) {
   e.preventDefault();
   e.stopPropagation();
-  const name = `geoflix-${it.kind || "file"}-${Date.now()}.${extFor(it)}`;
+  const name = `genmax-${it.kind || "file"}-${Date.now()}.${extFor(it)}`;
   try {
     const res = await fetch(it.url);
     if (!res.ok) throw new Error("fetch failed");

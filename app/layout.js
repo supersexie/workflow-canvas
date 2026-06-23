@@ -3,7 +3,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata = {
-  title: "Geoflix — The Node-Based Canvas for AI Creation",
+  title: "Genmax — The Node-Based Canvas for AI Creation",
   description: "Generate images, video, voiceovers, and scripts on one infinite canvas.",
 };
 

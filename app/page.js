@@ -24,7 +24,7 @@ const ClaudeMark = () => (
 );
 
 const MCP_FEATURES = [
-  { h: "Generate without leaving chat", p: "Ask Claude for an image, video, voiceover, or script and it runs Geoflix for you — no tab-switching." },
+  { h: "Generate without leaving chat", p: "Ask Claude for an image, video, voiceover, or script and it runs Genmax for you — no tab-switching." },
   { h: "Every model, one prompt", p: "FLUX, Seedream, Kling, Veo and LTX — Claude routes to the right model automatically." },
   { h: "Media renders inline", p: "Generated images and video play right inside the conversation, ready to drop into your workflow." },
 ];
@@ -69,14 +69,14 @@ const FEATURES = [
   { h: "Node-Based Canvas", p: "Build creative workflows on an infinite canvas. Drag from any node to connect Image → Video, Text → Audio, and more." },
   { h: "Connect & Propagate", p: "An image output flows downstream as the source for a video node automatically — no copy-pasting URLs." },
   { h: "Multi-Model, One Place", p: "Switch between FLUX, Seedream, Kling, MiniMax and others from a single prompt bar per node." },
-  { h: "Use in Claude", p: "The Geoflix MCP connector lets Claude generate images, video, audio and text through the same backend." },
+  { h: "Use in Claude", p: "The Genmax MCP connector lets Claude generate images, video, audio and text through the same backend." },
 ];
 
 const FAQS = [
-  { q: "What is Geoflix?", a: "Geoflix is a node-based AI creative canvas. You connect Image, Video, Text, and Audio nodes on an infinite canvas to build and run generation workflows visually." },
+  { q: "What is Genmax?", a: "Genmax is a node-based AI creative canvas. You connect Image, Video, Text, and Audio nodes on an infinite canvas to build and run generation workflows visually." },
   { q: "Which models can I use?", a: "Images use FLUX 2 Pro/Max, Nano Banana Pro, and Seedream 4.5. Video uses LTX, Wan 2.2, MiniMax Hailuo, and Kling v2. Text and audio are powered by OpenAI." },
   { q: "Do I need an account?", a: "Yes — sign up free with email or Google to open the app. Once you're in, your workflows save automatically in your browser." },
-  { q: "Can I use Geoflix inside Claude?", a: "Yes. Geoflix ships an MCP connector so Claude can generate media through Geoflix directly from chat." },
+  { q: "Can I use Genmax inside Claude?", a: "Yes. Genmax ships an MCP connector so Claude can generate media through Genmax directly from chat." },
   { q: "Is my work saved?", a: "Workflows auto-save to your browser as you edit, and every generation is collected in the Library." },
 ];
 
@@ -124,7 +124,7 @@ export default function Landing() {
         <nav className={s.nav}>
           <div className={s.brand}>
             <span className={s.logoIcon}><PlayLogo /></span>
-            <b>Geoflix</b> <span>Studio</span>
+            <b>Genmax</b> <span>Studio</span>
           </div>
           <div className={s.navLinks}>
             <a href="#tools">Tools</a>
@@ -164,7 +164,7 @@ export default function Landing() {
         </div>
 
         <div className={s.center} style={{ marginTop: 80 }}>
-          <span className={s.badge}>Viral Videos Made with Geoflix</span>
+          <span className={s.badge}>Viral Videos Made with Genmax</span>
           <h2 className={s.showcaseHead}>Top Creators Don&apos;t Start from Scratch</h2>
           <p className={s.lead}>They use tools to copy what&apos;s already working.</p>
         </div>
@@ -247,7 +247,7 @@ export default function Landing() {
         <div className={s.center}>
           <span className={s.badge}>MCP Connector · Claude</span>
           <h2 className={s.h2}>Turn <img className={s.claudeMark} src="/claude-mark.png" alt="Claude" /> Claude Into Your Creative Engine</h2>
-          <p className={s.lead}>Connect Geoflix to Claude and generate images, video, voiceovers, and scripts right from your conversations.</p>
+          <p className={s.lead}>Connect Genmax to Claude and generate images, video, voiceovers, and scripts right from your conversations.</p>
         </div>
 
         <div className={s.mcpShow}>
@@ -308,7 +308,7 @@ export default function Landing() {
       <section id="faq" className={`${s.section} ${s.center}`}>
         <span className={s.badge}>FAQs</span>
         <h2 className={s.h2}>Frequently Asked Questions</h2>
-        <p className={s.lead}>Everything you need to know about Geoflix.</p>
+        <p className={s.lead}>Everything you need to know about Genmax.</p>
         <div className={s.faq}>
           {FAQS.map((f, i) => (
             <div key={f.q} className={`${s.faqItem} ${open === i ? s.faqOpen : ""}`}>
@@ -326,9 +326,9 @@ export default function Landing() {
       <section className={s.ctaBanner}>
         <div className={s.ctaPattern} />
         <div className={s.ctaInner}>
-          <div className={s.ctaKicker}>Geoflix Studio</div>
+          <div className={s.ctaKicker}>Genmax Studio</div>
           <h2 className={s.h2}>Launch Your Canvas Today!</h2>
-          <p className={s.lead}>Join creators turning prompts into finished media with Geoflix.</p>
+          <p className={s.lead}>Join creators turning prompts into finished media with Genmax.</p>
           <div style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
             <Link href="/app" className={`${s.btn} ${s.btnLg} ${s.btnWhite}`}>Start Creating <Arrow /></Link>
           </div>
@@ -341,7 +341,7 @@ export default function Landing() {
           <div>
             <div className={s.brand}>
               <span className={s.logoIcon}><PlayLogo /></span>
-              <b>Geoflix</b> <span>Studio</span>
+              <b>Genmax</b> <span>Studio</span>
             </div>
             <p className={s.footBlurb}>The node-based AI creative canvas. Generate and connect images, video, audio, and text on one canvas.</p>
           </div>
@@ -358,7 +358,7 @@ export default function Landing() {
             <Link href="/app">Open App</Link>
           </div>
         </div>
-        <div className={s.footBar}>Geoflix. All rights reserved. © 2026</div>
+        <div className={s.footBar}>Genmax. All rights reserved. © 2026</div>
       </footer>
     </div>
   );

@@ -68,8 +68,8 @@ const PLANS = [
 ];
 
 const PRICE_FAQS = [
-  { q: "What are Geoflix credits and how do they work?", a: "Every generation — an image, a video clip, a voiceover, or a script — uses credits from your monthly balance. Heavier jobs (longer video, premium models) cost more. Credits refresh at the start of each billing cycle." },
-  { q: "Can I monetize content made with Geoflix?", a: "Yes. Everything you generate on a paid plan is yours to use commercially — post it, sell it, and monetize it on any platform." },
+  { q: "What are Genmax credits and how do they work?", a: "Every generation — an image, a video clip, a voiceover, or a script — uses credits from your monthly balance. Heavier jobs (longer video, premium models) cost more. Credits refresh at the start of each billing cycle." },
+  { q: "Can I monetize content made with Genmax?", a: "Yes. Everything you generate on a paid plan is yours to use commercially — post it, sell it, and monetize it on any platform." },
   { q: "Can I use my own media?", a: "Absolutely. Upload your own images to seed image-to-image and image-to-video generations, or bring your own scripts for voiceovers." },
   { q: "Can I switch or cancel anytime?", a: "Yes — upgrade, downgrade, or cancel from your account at any time. There are no cancellation fees, and annual plans are prorated." },
   { q: "Do you offer a free plan?", a: "You can sign up free and explore the canvas. Generating real AI media requires a paid plan so we can cover model costs." },
@@ -104,7 +104,7 @@ export default function Pricing() {
         <nav className={s.nav}>
           <Link href="/" className={s.brand} style={{ textDecoration: "none", color: "inherit" }}>
             <span className={s.logoIcon}><PlayLogo /></span>
-            <b>Geoflix</b> <span>Studio</span>
+            <b>Genmax</b> <span>Studio</span>
           </Link>
           <div className={s.navLinks}>
             <Link href="/#tools">Tools</Link>
@@ -184,9 +184,9 @@ export default function Pricing() {
       <section className={s.ctaBanner}>
         <div className={s.ctaPattern} />
         <div className={s.ctaInner}>
-          <div className={s.ctaKicker}>Geoflix Studio</div>
+          <div className={s.ctaKicker}>Genmax Studio</div>
           <h2 className={s.h2}>Launch Your Channel Today!</h2>
-          <p className={s.lead}>Join thousands of creators who are already making viral videos with Geoflix.</p>
+          <p className={s.lead}>Join thousands of creators who are already making viral videos with Genmax.</p>
           <div style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
             <Link href={signUpHref} className={`${s.btn} ${s.btnLg} ${s.btnWhite}`}>Start Creating <Arrow /></Link>
           </div>
@@ -199,7 +199,7 @@ export default function Pricing() {
           <div>
             <div className={s.brand}>
               <span className={s.logoIcon}><PlayLogo /></span>
-              <b>Geoflix</b> <span>Studio</span>
+              <b>Genmax</b> <span>Studio</span>
             </div>
             <p className={s.footBlurb}>The node-based AI creative canvas. Generate and connect images, video, audio, and text on one canvas.</p>
           </div>
@@ -216,7 +216,7 @@ export default function Pricing() {
             <Link href="/app">Open App</Link>
           </div>
         </div>
-        <div className={s.footBar}>Geoflix. All rights reserved. © 2026</div>
+        <div className={s.footBar}>Genmax. All rights reserved. © 2026</div>
       </footer>
     </div>
   );
