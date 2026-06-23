@@ -16,7 +16,7 @@ const PlayLogo = () => (
 );
 
 const TOOLS = [
-  { icon: "🖼️", title: "Image Generation", desc: "Generate stunning images with FLUX, Seedream, and Nano Banana — straight to a public URL.", video: "/tools/image.mp4" },
+  { icon: "🖼️", title: "Image Generation", desc: "Generate stunning images with FLUX, Seedream, and Nano Banana — straight to a public URL.", img: "/tools/image-card.jpg" },
   { icon: "🎬", title: "Video Generation", desc: "Text-to-video and image-to-video powered by LTX, Wan, MiniMax Hailuo, and Kling.", video: "/tools/video.mp4" },
   { icon: "🎙️", title: "AI Voiceover", desc: "Turn any script into natural-sounding narration with one click.", video: "/tools/voiceover.mp4" },
   { icon: "✍️", title: "AI Scriptwriter", desc: "Generate captions, copy, and full scripts from a single prompt.", video: "/tools/scriptwriter.mp4" },
@@ -184,7 +184,9 @@ export default function Landing() {
               <div className={s.cardTitle}>{t.title}{t.tag && <span className={s.tag}>{t.tag}</span>}</div>
               <p className={s.cardDesc}>{t.desc}</p>
               <div className={s.cardArt}>
-                {t.video ? (
+                {t.img ? (
+                  <img className={s.cardVideo} src={t.img} alt={t.title} loading="lazy" />
+                ) : t.video ? (
                   <video className={s.cardVideo} src={t.video} autoPlay loop muted playsInline preload="metadata" />
                 ) : (
                   t.art
