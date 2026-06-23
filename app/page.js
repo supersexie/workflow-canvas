@@ -39,6 +39,15 @@ const SHOWCASE = [
   { ratio: "9:16", views: "8.9M Views", video: "/marquee/p6.mp4" },
   { ratio: "9:16", views: "51.2M Views", video: "/marquee/p7.mp4" },
   { ratio: "9:16", views: "19.6M Views", video: "/marquee/p8.mp4" },
+  { ratio: "9:16", views: "34.8M Views", video: "/marquee/p9.mp4" },
+  { ratio: "9:16", views: "11.2M Views", video: "/marquee/p10.mp4" },
+  { ratio: "16:9", views: "92.5M Views", video: "/marquee/l6.mp4" },
+  { ratio: "9:16", views: "47.1M Views", video: "/marquee/p11.mp4" },
+  { ratio: "9:16", views: "23.9M Views", video: "/marquee/p12.mp4" },
+  { ratio: "9:16", views: "68.4M Views", video: "/marquee/p13.mp4" },
+  { ratio: "9:16", views: "15.6M Views", video: "/marquee/p14.mp4" },
+  { ratio: "9:16", views: "39.7M Views", video: "/marquee/p15.mp4" },
+  { ratio: "9:16", views: "57.3M Views", video: "/marquee/p16.mp4" },
 ];
 
 const FEATURES = [
