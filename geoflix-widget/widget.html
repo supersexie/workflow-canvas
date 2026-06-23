@@ -12,11 +12,20 @@ html,body{margin:0;padding:0;background:transparent}
   var root=document.getElementById('root'), logEl=document.getElementById('log');
   var lines=[]; function log(s){ lines.push(s); if(logEl) logEl.textContent=lines.slice(-12).join('\n'); }
   var done=false;
+  function reportSize(){
+    var h=Math.ceil(document.documentElement.scrollHeight||document.body.scrollHeight);
+    var w=Math.ceil(document.documentElement.scrollWidth||document.body.scrollWidth);
+    if(h>0) send({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{width:w,height:h}});
+  }
   function render(url,kind){
     if(done) return; done=true;
-    root.innerHTML = (kind==='video')
-      ? '<video src="'+url+'" controls autoplay loop muted playsinline></video>'
-      : '<img src="'+url+'" alt="generated">';
+    var el=document.createElement(kind==='video'?'video':'img');
+    el.src=url;
+    if(kind==='video'){ el.controls=el.autoplay=el.loop=el.muted=el.playsInline=true; el.addEventListener('loadedmetadata',reportSize); }
+    else { el.alt='generated'; el.addEventListener('load',reportSize); }
+    root.innerHTML=''; root.appendChild(el);
+    // also report after layout settles (covers cached media / late layout)
+    setTimeout(reportSize,80); setTimeout(reportSize,400);
   }
   // Find a renderable media url (data: URI, http(s), or a {url}/{image} field) anywhere in the message.
   function findMedia(o,d){
