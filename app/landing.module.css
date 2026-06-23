@@ -411,6 +411,11 @@
 .btnOutline:hover { background: #f1f5ff; color: var(--blue); border-color: #c7d7ff; }
 
 /* ---------- Claude MCP showcase ---------- */
+.claudeMark {
+  display: inline-block; vertical-align: -0.14em;
+  width: 0.92em; height: 0.92em; border-radius: 0.22em;
+  margin: 0 0.12em; object-fit: contain;
+}
 .mcpShow {
   display: grid; grid-template-columns: 1.5fr 1fr; gap: 24px;
   max-width: 1120px; margin: 48px auto 0; text-align: left; align-items: start;

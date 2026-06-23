@@ -246,7 +246,7 @@ export default function Landing() {
       <section id="mcp" className={s.section}>
         <div className={s.center}>
           <span className={s.badge}>MCP Connector · Claude</span>
-          <h2 className={s.h2}>Turn Claude Into Your Creative Engine</h2>
+          <h2 className={s.h2}>Turn <img className={s.claudeMark} src="/claude-mark.png" alt="Claude" /> Claude Into Your Creative Engine</h2>
           <p className={s.lead}>Connect Geoflix to Claude and generate images, video, voiceovers, and scripts right from your conversations.</p>
         </div>
 
