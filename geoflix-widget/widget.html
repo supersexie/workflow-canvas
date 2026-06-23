@@ -11,11 +11,21 @@ html,body{margin:0;padding:0;background:transparent}
 (function(){
   var root=document.getElementById('root'), logEl=document.getElementById('log');
   var lines=[]; function log(s){ lines.push(s); if(logEl) logEl.textContent=lines.slice(-12).join('\n'); }
-  var done=false, lastH=0;
+  var done=false, lastH=0, pend=false;
+  // Measure exactly like the official MCP-Apps SDK: force max-content height,
+  // read the natural height, restore. scrollHeight returns the clamped iframe
+  // height, which made us report the wrong size.
   function reportSize(){
-    var h=Math.ceil(document.documentElement.scrollHeight||document.body.scrollHeight||0);
-    var w=Math.ceil(document.documentElement.scrollWidth||document.body.scrollWidth||0);
-    if(h>0 && h!==lastH){ lastH=h; send({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{width:w,height:h}}); }
+    if(pend) return; pend=true;
+    requestAnimationFrame(function(){
+      pend=false;
+      var J=document.documentElement, prev=J.style.height;
+      J.style.height="max-content";
+      var h=Math.ceil(J.getBoundingClientRect().height);
+      J.style.height=prev;
+      var w=Math.ceil(window.innerWidth);
+      if(h>0 && h!==lastH){ lastH=h; send({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{width:w,height:h}}); }
+    });
   }
   function render(url,kind){
     if(done) return; done=true;
@@ -25,7 +35,7 @@ html,body{margin:0;padding:0;background:transparent}
     else { el.alt='generated'; el.addEventListener('load',reportSize); }
     root.innerHTML=''; root.appendChild(el);
     // Report repeatedly until the host applies the size (covers cache/late layout).
-    if(window.ResizeObserver){ try{ new ResizeObserver(reportSize).observe(document.documentElement); }catch(e){} }
+    if(window.ResizeObserver){ try{ var ro=new ResizeObserver(reportSize); ro.observe(document.documentElement); ro.observe(document.body); }catch(e){} }
     [60,200,500,1000,2000].forEach(function(t){ setTimeout(reportSize,t); });
   }
   // Find a renderable media url (data: URI, http(s), or a {url}/{image} field) anywhere in the message.
