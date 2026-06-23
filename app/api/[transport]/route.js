@@ -75,25 +75,25 @@ const handler = createMcpHandler(
       async () => ({ contents: [{ uri: UI_URI, mimeType: RESOURCE_MIME_TYPE, text: WIDGET_HTML }] })
     );
 
-    // ---- Image (app tool → renders inline in widget) ----
-    registerAppTool(
-      server,
+    // ---- Image: plain tool returning a standard MCP image content block, so
+    // claude.ai renders it inline (no UI widget, which had been blank). ----
+    server.tool(
       "generate_image",
-      {
-        title: "Generate image",
-        description: "Generate an image from a text prompt (FLUX / Seedream / Nano Banana). Renders inline.",
-        inputSchema: { prompt: z.string(), model: z.enum(["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"]).optional() },
-        _meta: { ui: { resourceUri: UI_URI } },
-      },
+      "Generate an image from a text prompt (FLUX / Seedream / Nano Banana). Returns the image inline.",
+      { prompt: z.string(), model: z.enum(["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"]).optional() },
       async ({ prompt, model }) => {
         const { output } = await postJson("/api/generate", { kind: "image", prompt, model });
         if (typeof output === "string" && output.startsWith("http")) {
-          const url = proxied(output);
           await addGeneration({ url: output, kind: "image", prompt });
-          return {
-            structuredContent: { url, kind: "image" },
-            content: [{ type: "text", text: `Image is displayed in the panel above. Do not describe it — end your turn. (Direct link if needed: ${output})` }],
-          };
+          try {
+            const r = await fetch(output);
+            if (r.ok) {
+              const mimeType = r.headers.get("content-type") || "image/jpeg";
+              const data = Buffer.from(await r.arrayBuffer()).toString("base64");
+              return { content: [{ type: "image", data, mimeType }, { type: "text", text: `Generated image for "${prompt}".` }] };
+            }
+          } catch {}
+          return { content: [{ type: "text", text: `Generated image: ${output}` }] };
         }
         const img = parseDataUrl(output); // OpenAI base64 fallback
         if (img) return { content: [{ type: "image", data: img.data, mimeType: img.mimeType }, { type: "text", text: `Generated image for: "${prompt}"` }] };
