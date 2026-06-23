@@ -116,12 +116,12 @@
     linear-gradient(180deg, #eef4ff 0%, #f3f6fb 100%);
 }
 .h1 {
-  font-size: clamp(44px, 5vw, 76px);
-  line-height: 1.04;
-  letter-spacing: -0.03em;
-  font-weight: 700;
+  font-size: clamp(56px, 7vw, 104px);
+  line-height: 1.0;
+  letter-spacing: -0.035em;
+  font-weight: 800;
   margin: 28px auto 0;
-  max-width: 1000px;
+  max-width: 1100px;
 }
 .h1 .grad {
   background: linear-gradient(90deg, #2563eb, #7c3aed);
