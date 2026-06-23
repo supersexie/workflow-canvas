@@ -140,7 +140,12 @@ export default function Landing() {
           <Link href="/app" className={`${s.btn} ${s.btnLg}`}>Start Creating <Arrow /></Link>
         </div>
         <div className={s.proof}>
-          <div className={s.avatars}><span>🎨</span><span>🎬</span><span>🤖</span><span>✨</span></div>
+          <div className={s.avatars}>
+            <img className={s.avatarImg} src="/avatars/a1.jpg" alt="Creator" />
+            <img className={s.avatarImg} src="/avatars/a2.jpg" alt="Creator" />
+            <img className={s.avatarImg} src="/avatars/a3.jpg" alt="Creator" />
+            <img className={s.avatarImg} src="/avatars/a4.png" alt="Creator" />
+          </div>
           Built for creators who move fast.
         </div>
 
