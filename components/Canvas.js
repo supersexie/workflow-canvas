@@ -296,7 +296,7 @@ function CanvasInner({ workflowId }) {
         const images = node.data.kind === "image"
           ? srcs.filter((s) => s.kind === "image" && s.url).map((s) => s.url)
           : [];
-        output = await generateOutput(node.data.kind, prompt, node.data.model, images);
+        output = await generateOutput(node.data.kind, prompt, node.data.model, images, { voice: node.data.voice });
       }
       setNodes((ns) => ns.map((n) => (n.id === id ? { ...n, data: { ...n.data, status: "done", output } } : n)));
     } catch (e) {

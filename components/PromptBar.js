@@ -1,13 +1,17 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const MODELS = {
   image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"],
   video: ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2", "Veo 3.1 Fast", "Veo 3.1"],
   text: ["GPT-5.1", "Claude Opus 4.7", "Gemini 2.5 Pro"],
-  audio: ["ElevenLabs", "OpenAI TTS", "Suno v4"],
+  // Audio doesn't use a model chip — the voice IS the choice. Backend
+  // routes to ElevenLabs / OpenAI automatically.
   motion: ["Motion Pro", "After Effects AI"],
 };
+
+// Cached so we don't refetch on every selection change.
+let _voicesCache = null;
 
 const ASPECTS = {
   image: ["1:1 · 1080p", "16:9 · 1080p", "9:16 · 1080p", "4:3 · 1024p"],
@@ -16,7 +20,6 @@ const ASPECTS = {
 };
 
 const DURATIONS = ["4s", "6s", "8s", "10s", "30s", "45s", "60s"];
-const VOICES = ["James – Husky & Engaging", "Aria – Warm & Bright", "Nova – Crisp Narrator"];
 
 const MODEL_ICON = {
   image: <svg width="12" height="12" viewBox="0 0 24 24" fill="#f59e0b"><polygon points="12 2 2 22 22 22 12 2" /></svg>,
@@ -42,9 +45,11 @@ function Dropdown({ open, options, onPick, onClose }) {
     <>
       <div className="dd-backdrop" onClick={onClose} />
       <div className="dd-menu">
-        {options.map((o) => (
-          <button key={o} onClick={() => { onPick(o); onClose(); }}>{o}</button>
-        ))}
+        {options.map((o) => {
+          const value = typeof o === "string" ? o : o.value;
+          const label = typeof o === "string" ? o : o.label;
+          return <button key={value} onClick={() => { onPick(value); onClose(); }}>{label}</button>;
+        })}
       </div>
     </>
   );
@@ -52,8 +57,23 @@ function Dropdown({ open, options, onPick, onClose }) {
 
 export default function PromptBar({ node, sources = [], onChange, onRun, running }) {
   const [openMenu, setOpenMenu] = useState(null);
+  const [voices, setVoices] = useState(_voicesCache || []);
+
+  const kind = node?.data?.kind;
+  const isAudio = kind === "audio";
+
+  // Fetch voices once the first time an audio node is selected.
+  useEffect(() => {
+    if (!isAudio || _voicesCache) return;
+    let cancelled = false;
+    fetch("/api/audio/voices")
+      .then((r) => (r.ok ? r.json() : { voices: [] }))
+      .then(({ voices }) => { if (!cancelled && voices) { _voicesCache = voices; setVoices(voices); } })
+      .catch(() => {});
+    return () => { cancelled = true; };
+  }, [isAudio]);
+
   if (!node) return null;
-  const { kind } = node.data;
   const data = node.data;
 
   const set = (patch) => onChange(node.id, { ...data, ...patch });
@@ -61,11 +81,13 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
 
   const modelList = MODELS[kind] || [];
   const aspectList = ASPECTS[kind] || null;
-  const isAudio = kind === "audio";
   const isVideo = kind === "video";
   const hasSources = sources.length > 0;
+  const currentVoiceLabel = voices.find((v) => v.value === data.voice)?.label
+    || voices[0]?.label
+    || (isAudio ? "Loading voices…" : "");
   const placeholder = isAudio
-    ? "Prompt not available for this node"
+    ? "Type what to speak…"
     : hasSources
       ? "Describe your next edit..."
       : "Describe what you want…";
@@ -94,7 +116,6 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
             const end = el.selectionEnd ?? start;
             set({ prompt: cur.slice(0, start) + text + cur.slice(end) });
           }}
-          disabled={isAudio}
         />
         <span className="pb-tab">Tab</span>
         <button className="pb-window" title="Detach">
@@ -133,10 +154,12 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
               </span>
             </div>
           )}
-          <div className="chip-wrap">
-            <Chip icon={MODEL_ICON[kind]} label={data.model || modelList[0]} onClick={() => toggle("model")} />
-            <Dropdown open={openMenu === "model"} options={modelList} onPick={(v) => set({ model: v })} onClose={() => setOpenMenu(null)} />
-          </div>
+          {!isAudio && modelList.length > 0 && (
+            <div className="chip-wrap">
+              <Chip icon={MODEL_ICON[kind]} label={data.model || modelList[0]} onClick={() => toggle("model")} />
+              <Dropdown open={openMenu === "model"} options={modelList} onPick={(v) => set({ model: v })} onClose={() => setOpenMenu(null)} />
+            </div>
+          )}
           {aspectList && (
             <div className="chip-wrap">
               <Chip
@@ -167,10 +190,10 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
             <div className="chip-wrap">
               <Chip
                 icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#ec4899" strokeWidth="2"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M5 12a7 7 0 0 0 14 0M12 19v3"/></svg>}
-                label={data.voice || VOICES[0]}
+                label={currentVoiceLabel}
                 onClick={() => toggle("voice")}
               />
-              <Dropdown open={openMenu === "voice"} options={VOICES} onPick={(v) => set({ voice: v })} onClose={() => setOpenMenu(null)} />
+              <Dropdown open={openMenu === "voice"} options={voices} onPick={(v) => set({ voice: v })} onClose={() => setOpenMenu(null)} />
             </div>
           )}
           {kind !== "text" && (

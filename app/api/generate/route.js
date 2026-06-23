@@ -5,7 +5,10 @@ export const maxDuration = 60;
 
 const KEY = process.env.OPENAI_API_KEY;
 const FAL = process.env.FAL_KEY;
+const ELEVEN = process.env.ELEVENLABS_API_KEY;
 const OAI = "https://api.openai.com/v1";
+
+const OPENAI_TTS_VOICES = new Set(["alloy","echo","fable","onyx","nova","shimmer"]);
 
 // fal image endpoints — return a public fal.media URL (small payload, renders in Claude + no localStorage bloat).
 // These all return a public fal.media URL (gpt-image returns base64, so it's not used here).
@@ -95,14 +98,15 @@ async function genText(prompt) {
   return data.choices?.[0]?.message?.content || "";
 }
 
-async function genAudio(prompt) {
+async function genAudioOpenAI(prompt, voice) {
+  const v = OPENAI_TTS_VOICES.has(voice) ? voice : "alloy";
   const res = await oai(
     "/audio/speech",
     {
       method: "POST",
       body: JSON.stringify({
         model: "tts-1",
-        voice: "alloy",
+        voice: v,
         input: prompt || "Hello, this is a test.",
         response_format: "mp3",
       }),
@@ -111,6 +115,36 @@ async function genAudio(prompt) {
   );
   const buf = Buffer.from(await res.arrayBuffer());
   return `data:audio/mpeg;base64,${buf.toString("base64")}`;
+}
+
+async function genAudioElevenLabs(prompt, voiceId) {
+  // Default to "Rachel" (a stable, publicly known stock voice_id) if none specified.
+  const id = voiceId || "21m00Tcm4TlvDq8ikWAM";
+  const res = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${id}`, {
+    method: "POST",
+    headers: {
+      "xi-api-key": ELEVEN,
+      "Content-Type": "application/json",
+      "Accept": "audio/mpeg",
+    },
+    body: JSON.stringify({
+      text: prompt || "Hello, this is a test.",
+      model_id: "eleven_multilingual_v2",
+      voice_settings: { stability: 0.5, similarity_boost: 0.75 },
+    }),
+  });
+  if (!res.ok) throw new Error(`ElevenLabs ${res.status}: ${(await res.text()).slice(0, 300)}`);
+  const buf = Buffer.from(await res.arrayBuffer());
+  return `data:audio/mpeg;base64,${buf.toString("base64")}`;
+}
+
+async function genAudio(prompt, voice) {
+  // Use ElevenLabs when configured AND the chosen voice isn't an OpenAI stock voice.
+  // (The dropdown stores either an ElevenLabs voice_id or one of OpenAI's six names.)
+  const isOpenAIVoice = voice && OPENAI_TTS_VOICES.has(voice);
+  if (ELEVEN && !isOpenAIVoice) return genAudioElevenLabs(prompt, voice);
+  if (KEY) return genAudioOpenAI(prompt, voice);
+  throw new Error("No audio provider configured (set ELEVENLABS_API_KEY or OPENAI_API_KEY).");
 }
 
 function mockFallback(kind, prompt) {
@@ -122,7 +156,7 @@ function mockFallback(kind, prompt) {
 }
 
 export async function POST(req) {
-  const { kind, prompt, model, images } = await req.json();
+  const { kind, prompt, model, images, voice } = await req.json();
 
   try {
     let output;
@@ -134,7 +168,7 @@ export async function POST(req) {
     } else if (kind === "text") {
       output = KEY ? await genText(prompt) : mockFallback(kind, prompt);
     } else if (kind === "audio") {
-      output = KEY ? await genAudio(prompt) : mockFallback(kind, prompt);
+      output = (ELEVEN || KEY) ? await genAudio(prompt, voice) : mockFallback(kind, prompt);
     } else {
       output = mockFallback(kind, prompt);
     }
