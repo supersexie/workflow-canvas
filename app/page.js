@@ -124,7 +124,7 @@ export default function Landing() {
         <nav className={s.nav}>
           <div className={s.brand}>
             <span className={s.logoIcon}><PlayLogo /></span>
-            <b>Genmax</b> <span>Studio</span>
+            <b>Genmax</b>
           </div>
           <div className={s.navLinks}>
             <a href="#tools">Tools</a>
@@ -326,7 +326,7 @@ export default function Landing() {
       <section className={s.ctaBanner}>
         <div className={s.ctaPattern} />
         <div className={s.ctaInner}>
-          <div className={s.ctaKicker}>Genmax Studio</div>
+          <div className={s.ctaKicker}>Genmax</div>
           <h2 className={s.h2}>Launch Your Canvas Today!</h2>
           <p className={s.lead}>Join creators turning prompts into finished media with Genmax.</p>
           <div style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
@@ -341,7 +341,7 @@ export default function Landing() {
           <div>
             <div className={s.brand}>
               <span className={s.logoIcon}><PlayLogo /></span>
-              <b>Genmax</b> <span>Studio</span>
+              <b>Genmax</b>
             </div>
             <p className={s.footBlurb}>The node-based AI creative canvas. Generate and connect images, video, audio, and text on one canvas.</p>
           </div>

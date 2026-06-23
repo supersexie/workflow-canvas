@@ -104,7 +104,7 @@ export default function Pricing() {
         <nav className={s.nav}>
           <Link href="/" className={s.brand} style={{ textDecoration: "none", color: "inherit" }}>
             <span className={s.logoIcon}><PlayLogo /></span>
-            <b>Genmax</b> <span>Studio</span>
+            <b>Genmax</b>
           </Link>
           <div className={s.navLinks}>
             <Link href="/#tools">Tools</Link>
@@ -184,7 +184,7 @@ export default function Pricing() {
       <section className={s.ctaBanner}>
         <div className={s.ctaPattern} />
         <div className={s.ctaInner}>
-          <div className={s.ctaKicker}>Genmax Studio</div>
+          <div className={s.ctaKicker}>Genmax</div>
           <h2 className={s.h2}>Launch Your Channel Today!</h2>
           <p className={s.lead}>Join thousands of creators who are already making viral videos with Genmax.</p>
           <div style={{ marginTop: 30, display: "flex", justifyContent: "center" }}>
@@ -199,7 +199,7 @@ export default function Pricing() {
           <div>
             <div className={s.brand}>
               <span className={s.logoIcon}><PlayLogo /></span>
-              <b>Genmax</b> <span>Studio</span>
+              <b>Genmax</b>
             </div>
             <p className={s.footBlurb}>The node-based AI creative canvas. Generate and connect images, video, audio, and text on one canvas.</p>
           </div>
