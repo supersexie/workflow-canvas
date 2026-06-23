@@ -85,9 +85,17 @@ export default function Library({ open, onClose }) {
             <div className="lib-grid">
               {items.map((it, i) => (
                 <a key={i} className="lib-block" href={it.url} target="_blank" rel="noreferrer">
-                  {it.kind === "image" && <img src={it.url} alt="" />}
+                  {it.kind === "image" && <img src={it.url} alt="" loading="lazy" decoding="async" />}
                   {it.kind === "video" && (
-                    <video src={it.url} muted loop playsInline onMouseOver={(e) => e.target.play()} onMouseOut={(e) => { e.target.pause(); e.target.currentTime = 0; }} />
+                    <video
+                      src={it.url}
+                      muted
+                      loop
+                      playsInline
+                      preload="none"
+                      onMouseOver={(e) => { e.target.play().catch(() => {}); }}
+                      onMouseOut={(e) => { e.target.pause(); e.target.currentTime = 0; }}
+                    />
                   )}
                   {it.kind === "audio" && (
                     <div className="lib-audio">
