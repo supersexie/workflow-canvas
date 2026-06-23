@@ -18,8 +18,8 @@ const PlayLogo = () => (
 const TOOLS = [
   { icon: "🖼️", title: "Image Generation", desc: "Generate stunning images with FLUX, Seedream, and Nano Banana — straight to a public URL.", img: "/tools/image-card.jpg" },
   { icon: "🎬", title: "Video Generation", desc: "Text-to-video and image-to-video powered by LTX, Wan, MiniMax Hailuo, and Kling.", video: "/tools/video-card.mp4" },
-  { icon: "🎙️", title: "AI Voiceover", desc: "Turn any script into natural-sounding narration with one click.", video: "/tools/voiceover.mp4" },
-  { icon: "✍️", title: "AI Scriptwriter", desc: "Generate captions, copy, and full scripts from a single prompt.", video: "/tools/scriptwriter.mp4" },
+  { icon: "🎙️", title: "AI Voiceover", desc: "Turn any script into natural-sounding narration with one click.", video: "/tools/voiceover-card.mp4" },
+  { icon: "✍️", title: "AI Scriptwriter", desc: "Generate captions, copy, and full scripts from a single prompt.", video: "/tools/scriptwriter-card.mp4" },
   { icon: "🔗", title: "Genmax Flow", desc: "Connect image, video, text, and audio nodes on one infinite canvas.", video: "/tools/genmax-card.mp4", tag: "New" },
 ];
 
