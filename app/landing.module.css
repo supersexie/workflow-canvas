@@ -163,14 +163,16 @@
 .mTile {
   width: 100%; height: 100%;
   border-radius: 18px; overflow: hidden;
+  /* promote to own layer so rounded-corner clipping holds under the animated marquee ancestor (Chrome compositing bug) */
+  transform: translateZ(0);
   background: linear-gradient(135deg, #eaf1ff, #f3ecff);
   border: 1px solid #e7ecff;
   box-shadow: 0 14px 34px rgba(16, 24, 40, 0.08);
 }
 .mPortrait { width: 169px; }   /* 9:16 */
 .mLandscape { width: 533px; }  /* 16:9 */
-.mVideo { width: 100%; height: 100%; object-fit: cover; display: block; }
-.mTile video { width: 100%; height: 100%; object-fit: cover; display: block; }
+.mVideo { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit; }
+.mTile video { width: 100%; height: 100%; object-fit: cover; display: block; border-radius: inherit; }
 .mViews {
   position: absolute; top: -30px; left: 50%; transform: translateX(-50%);
   z-index: 3; white-space: nowrap;
@@ -186,6 +188,7 @@
 }
 .mCap {
   position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 12px 12px;
+  border-radius: 0 0 18px 18px;
   background: linear-gradient(transparent, rgba(11, 18, 32, 0.9));
   color: #fff; text-align: left; pointer-events: none;
 }
