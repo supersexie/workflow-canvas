@@ -1,5 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
+import CloneVoiceModal from "./CloneVoiceModal";
+
+const CLONE_SENTINEL = "__clone__";
 
 const MODELS = {
   image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"],
@@ -58,6 +61,7 @@ function Dropdown({ open, options, onPick, onClose }) {
 export default function PromptBar({ node, sources = [], onChange, onRun, running }) {
   const [openMenu, setOpenMenu] = useState(null);
   const [voices, setVoices] = useState(_voicesCache || []);
+  const [cloneOpen, setCloneOpen] = useState(false);
 
   const kind = node?.data?.kind;
   const isAudio = kind === "audio";
@@ -193,7 +197,15 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
                 label={currentVoiceLabel}
                 onClick={() => toggle("voice")}
               />
-              <Dropdown open={openMenu === "voice"} options={voices} onPick={(v) => set({ voice: v })} onClose={() => setOpenMenu(null)} />
+              <Dropdown
+                open={openMenu === "voice"}
+                options={[{ value: CLONE_SENTINEL, label: "+ Clone a voice…" }, ...voices]}
+                onPick={(v) => {
+                  if (v === CLONE_SENTINEL) { setCloneOpen(true); return; }
+                  set({ voice: v });
+                }}
+                onClose={() => setOpenMenu(null)}
+              />
             </div>
           )}
           {kind !== "text" && (
@@ -212,6 +224,21 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
           </span>
         </button>
       </div>
+
+      <CloneVoiceModal
+        open={cloneOpen}
+        onClose={() => setCloneOpen(false)}
+        onCloned={(v) => {
+          // Invalidate the cache so the dropdown refetches fresh, and select the new voice now.
+          _voicesCache = null;
+          setVoices((cur) => [v, ...cur.filter((x) => x.value !== v.value)]);
+          set({ voice: v.value });
+          // Background refetch picks up the canonical record with category="cloned".
+          fetch("/api/audio/voices").then((r) => (r.ok ? r.json() : { voices: [] })).then(({ voices }) => {
+            if (voices) { _voicesCache = voices; setVoices(voices); }
+          }).catch(() => {});
+        }}
+      />
     </div>
   );
 }
