@@ -34,7 +34,11 @@ const SHOWCASE = [
   { ratio: "9:16", views: "9.4M Views", video: "/marquee/p3.mp4" },
   { ratio: "9:16", views: "62.8M Views", video: "/marquee/p4.mp4" },
   { ratio: "16:9", views: "73.6M Views", video: "/marquee/l4.mp4" },
+  { ratio: "9:16", views: "27.4M Views", video: "/marquee/p5.mp4" },
   { ratio: "16:9", views: "45.9M Views", video: "/marquee/l5.mp4" },
+  { ratio: "9:16", views: "8.9M Views", video: "/marquee/p6.mp4" },
+  { ratio: "9:16", views: "51.2M Views", video: "/marquee/p7.mp4" },
+  { ratio: "9:16", views: "19.6M Views", video: "/marquee/p8.mp4" },
 ];
 
 const FEATURES = [
