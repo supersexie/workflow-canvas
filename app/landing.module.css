@@ -268,10 +268,11 @@
 
 /* ---------- Claude MCP (3-step connect) ---------- */
 .mcpSteps {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
+  display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 22px;
   margin-top: 48px; text-align: left;
 }
 .mcpStep {
+  min-width: 0;
   background: #fff; border: 1px solid var(--line); border-radius: 18px;
   padding: 26px; box-shadow: var(--shadow-sm);
 }
@@ -284,7 +285,7 @@
 .mcpStepBody { color: var(--muted); font-size: 15px; line-height: 1.55; margin: 0; }
 .mcpStepBody b { color: var(--ink); font-weight: 600; }
 .mcpRow {
-  display: flex; align-items: center; gap: 10px; margin-top: 14px;
+  display: flex; align-items: center; gap: 10px; margin-top: 14px; min-width: 0;
   background: #0b1220; border-radius: 10px; padding: 10px 12px;
 }
 .mcpUrl {
@@ -389,10 +390,10 @@
 @media (max-width: 900px) {
   .navLinks { display: none; }
   .grid { grid-template-columns: 1fr; }
-  .mcpSteps { grid-template-columns: 1fr; }
+  .mcpSteps { grid-template-columns: minmax(0, 1fr); }
   .features { grid-template-columns: 1fr; gap: 32px; }
   .footTop { grid-template-columns: 1fr; }
   .section { padding: 64px 24px; }
-  .priceGrid { grid-template-columns: 1fr; max-width: 420px; }
+  .priceGrid { grid-template-columns: minmax(0, 1fr); max-width: 420px; }
   .priceCardPop { transform: none; }
 }
