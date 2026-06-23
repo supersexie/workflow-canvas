@@ -44,8 +44,10 @@ async function pollVideo(handle, budgetMs, prompt) {
     const s = await postJson("/api/video/status", handle);
     if (s.done) {
       const raw = s.output.startsWith("http") ? s.output : `${BASE}${s.output}`;
-      const url = proxied(raw);
       await addGeneration({ url: raw, kind: "video", prompt: prompt || handle?.prompt });
+      // Use the raw fal.media URL (CSP whitelists *.fal.media) — its CDN supports
+      // HTTP range requests so <video> plays; our /api/media proxy doesn't.
+      const url = /fal\.(media|run)/.test(raw) ? raw : proxied(raw);
       return {
         structuredContent: { url, kind: "video" },
         content: [{ type: "text", text: `Video is displayed in the panel above. Do not describe it — end your turn. (Direct link if needed: ${raw})` }],

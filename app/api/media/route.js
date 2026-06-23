@@ -16,15 +16,21 @@ export async function GET(req) {
   const u = new URL(req.url).searchParams.get("u");
   if (!u || !ALLOW.some((r) => r.test(u))) return new Response("Forbidden", { status: 403 });
   try {
-    const r = await fetch(u, { redirect: "follow" });
-    if (!r.ok) return new Response(`Upstream ${r.status}`, { status: 502 });
-    return new Response(r.body, {
-      headers: {
-        "Content-Type": r.headers.get("content-type") || "application/octet-stream",
-        "Cache-Control": "public, max-age=86400",
-        "Access-Control-Allow-Origin": "*",
-      },
-    });
+    // Forward Range so <video> can stream/seek (browsers need 206 responses).
+    const range = req.headers.get("range");
+    const r = await fetch(u, { redirect: "follow", headers: range ? { Range: range } : {} });
+    if (!r.ok && r.status !== 206) return new Response(`Upstream ${r.status}`, { status: 502 });
+    const headers = {
+      "Content-Type": r.headers.get("content-type") || "application/octet-stream",
+      "Cache-Control": "public, max-age=86400",
+      "Access-Control-Allow-Origin": "*",
+      "Accept-Ranges": r.headers.get("accept-ranges") || "bytes",
+    };
+    for (const h of ["content-length", "content-range"]) {
+      const v = r.headers.get(h);
+      if (v) headers[h === "content-length" ? "Content-Length" : "Content-Range"] = v;
+    }
+    return new Response(r.body, { status: r.status, headers });
   } catch (e) {
     return new Response(`Proxy error: ${e.message}`, { status: 502 });
   }
