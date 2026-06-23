@@ -114,6 +114,7 @@ export default function Landing() {
           <div className={s.navLinks}>
             <a href="#tools">Tools</a>
             <a href="#features">Features</a>
+            <Link href="/pricing">Pricing</Link>
             <a href="#mcp">Claude MCP</a>
             <a href="#faq">FAQs</a>
             <Link href="/app">Library</Link>
@@ -288,6 +289,7 @@ export default function Landing() {
             <h4>Product</h4>
             <a href="#tools">Tools</a>
             <a href="#features">Features</a>
+            <Link href="/pricing">Pricing</Link>
             <Link href="/app">Library</Link>
           </div>
           <div className={s.footCol}>

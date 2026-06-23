@@ -324,6 +324,67 @@
 .footBlurb { color: var(--muted); font-size: 15px; line-height: 1.5; max-width: 320px; margin-top: 14px; }
 .footBar { border-top: 1px solid var(--line); text-align: center; padding: 22px; color: var(--muted); font-size: 14px; }
 
+/* ---------- pricing ---------- */
+.billing {
+  display: inline-flex; align-items: center; gap: 4px;
+  margin: 34px auto 0; padding: 5px;
+  background: #fff; border: 1px solid var(--line); border-radius: 999px;
+  box-shadow: 0 4px 18px rgba(16,24,40,.05);
+}
+.billOpt {
+  display: inline-flex; align-items: center; gap: 8px;
+  border: none; cursor: pointer; background: transparent;
+  font-size: 15px; font-weight: 700; color: var(--muted);
+  padding: 9px 20px; border-radius: 999px;
+  transition: background .15s ease, color .15s ease;
+}
+.billActive { background: var(--blue); color: #fff; }
+.billSave {
+  font-size: 11px; font-weight: 800; padding: 2px 8px; border-radius: 999px;
+  background: #dcfce7; color: #15803d;
+}
+.billActive .billSave { background: rgba(255,255,255,.22); color: #fff; }
+
+.priceGrid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 22px; max-width: 1080px; margin: 48px auto 0;
+  text-align: left; align-items: start;
+}
+.priceCard {
+  position: relative; background: #fff; border: 1px solid var(--line);
+  border-radius: 22px; padding: 30px 28px;
+  display: flex; flex-direction: column;
+  box-shadow: 0 4px 18px rgba(16,24,40,.04);
+}
+.priceCardPop {
+  border: 2px solid var(--blue);
+  box-shadow: 0 20px 50px rgba(37,99,235,.18);
+  transform: translateY(-8px);
+}
+.popBadge {
+  position: absolute; top: -13px; left: 50%; transform: translateX(-50%);
+  white-space: nowrap; background: var(--blue); color: #fff;
+  font-size: 12px; font-weight: 800; letter-spacing: .02em;
+  padding: 6px 16px; border-radius: 999px;
+  box-shadow: 0 6px 16px rgba(37,99,235,.35);
+}
+.priceName { font-size: 22px; font-weight: 800; }
+.priceDesc { color: var(--muted); font-size: 14px; line-height: 1.5; margin-top: 6px; min-height: 42px; }
+.priceAmount {
+  display: flex; align-items: flex-end; gap: 2px;
+  font-size: 52px; font-weight: 800; letter-spacing: -0.03em;
+  margin-top: 16px; line-height: 1;
+}
+.priceCurrency { font-size: 26px; font-weight: 700; margin-right: 2px; align-self: flex-start; margin-top: 6px; }
+.pricePer { font-size: 17px; font-weight: 600; color: var(--muted); margin-bottom: 6px; }
+.priceBilled { color: var(--muted); font-size: 13px; margin: 6px 0 20px; }
+.priceFeatures { list-style: none; padding: 0; margin: 24px 0 0; display: flex; flex-direction: column; gap: 13px; }
+.priceFeat { display: flex; align-items: flex-start; gap: 10px; font-size: 14.5px; font-weight: 500; line-height: 1.4; }
+.priceCheck { flex: 0 0 auto; color: var(--blue); margin-top: 1px; }
+.priceCardPop .priceCheck { color: var(--blue); }
+.btnOutline { background: #fff; color: var(--ink); border: 1.5px solid var(--line); }
+.btnOutline:hover { background: #f1f5ff; color: var(--blue); border-color: #c7d7ff; }
+
 /* ---------- responsive ---------- */
 @media (max-width: 900px) {
   .navLinks { display: none; }
@@ -332,4 +393,6 @@
   .features { grid-template-columns: 1fr; gap: 32px; }
   .footTop { grid-template-columns: 1fr; }
   .section { padding: 64px 24px; }
+  .priceGrid { grid-template-columns: 1fr; max-width: 420px; }
+  .priceCardPop { transform: none; }
 }
