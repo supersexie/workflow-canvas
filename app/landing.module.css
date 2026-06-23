@@ -185,9 +185,24 @@
   padding: 3px 9px; border-radius: 999px;
 }
 .mCap {
-  position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 12px 10px;
-  background: linear-gradient(transparent, rgba(11, 18, 32, 0.82));
-  color: #fff; font-size: 13px; font-weight: 600; text-align: left;
+  position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 12px 12px;
+  background: linear-gradient(transparent, rgba(11, 18, 32, 0.9));
+  color: #fff; text-align: left; pointer-events: none;
+}
+.mCreator { display: flex; align-items: center; gap: 7px; margin-bottom: 6px; }
+.mAvatar {
+  flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%;
+  display: grid; place-items: center; font-size: 14px; line-height: 1;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+}
+.mName {
+  font-size: 14px; font-weight: 700; color: #fff;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.mVerified { flex: 0 0 auto; width: 15px; height: 15px; }
+.mTitle {
+  font-size: 14px; font-weight: 700; color: #fff; line-height: 1.25;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 
 /* ---------- generic section ---------- */

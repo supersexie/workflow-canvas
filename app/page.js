@@ -26,28 +26,28 @@ const TOOLS = [
 
 // Auto-scrolling showcase tiles — empty placeholders (3 landscape, 3 portrait).
 const SHOWCASE = [
-  { ratio: "16:9", views: "54.2M Views", video: "/marquee/l1.mp4" },
-  { ratio: "9:16", views: "12.7M Views", video: "/marquee/p1.mp4" },
-  { ratio: "16:9", views: "88.1M Views", video: "/marquee/l2.mp4" },
-  { ratio: "9:16", views: "31.5M Views", video: "/marquee/p2.mp4" },
-  { ratio: "16:9", views: "117.3M Views", video: "/marquee/l3.mp4" },
-  { ratio: "9:16", views: "9.4M Views", video: "/marquee/p3.mp4" },
-  { ratio: "9:16", views: "62.8M Views", video: "/marquee/p4.mp4" },
-  { ratio: "16:9", views: "73.6M Views", video: "/marquee/l4.mp4" },
-  { ratio: "9:16", views: "27.4M Views", video: "/marquee/p5.mp4" },
-  { ratio: "16:9", views: "45.9M Views", video: "/marquee/l5.mp4" },
-  { ratio: "9:16", views: "8.9M Views", video: "/marquee/p6.mp4" },
-  { ratio: "9:16", views: "51.2M Views", video: "/marquee/p7.mp4" },
-  { ratio: "9:16", views: "19.6M Views", video: "/marquee/p8.mp4" },
-  { ratio: "9:16", views: "34.8M Views", video: "/marquee/p9.mp4" },
-  { ratio: "9:16", views: "11.2M Views", video: "/marquee/p10.mp4" },
-  { ratio: "16:9", views: "92.5M Views", video: "/marquee/l6.mp4" },
-  { ratio: "9:16", views: "47.1M Views", video: "/marquee/p11.mp4" },
-  { ratio: "9:16", views: "23.9M Views", video: "/marquee/p12.mp4" },
-  { ratio: "9:16", views: "68.4M Views", video: "/marquee/p13.mp4" },
-  { ratio: "9:16", views: "15.6M Views", video: "/marquee/p14.mp4" },
-  { ratio: "9:16", views: "39.7M Views", video: "/marquee/p15.mp4" },
-  { ratio: "9:16", views: "57.3M Views", video: "/marquee/p16.mp4" },
+  { ratio: "16:9", views: "54.2M Views", video: "/marquee/l1.mp4", creator: "Tiny Tunes", emoji: "🍼", color: "#38bdf8", title: "Baby Shark's New Best Friend" },
+  { ratio: "9:16", views: "12.7M Views", video: "/marquee/p1.mp4", creator: "Tiny Tunes", emoji: "🐮", color: "#38bdf8", title: "Old MacDonald's Surprise Guest" },
+  { ratio: "16:9", views: "88.1M Views", video: "/marquee/l2.mp4", creator: "Pixel Pals", emoji: "🦎", color: "#34d399", title: "The Chameleon Who Couldn't Hide" },
+  { ratio: "9:16", views: "31.5M Views", video: "/marquee/p2.mp4", creator: "Story Barn", emoji: "🐴", color: "#f59e0b", title: "The Pony Who Loved to Sing" },
+  { ratio: "16:9", views: "117.3M Views", video: "/marquee/l3.mp4", creator: "Lullaby Land", emoji: "🐰", color: "#f472b6", title: "Bunny Teaches Baby to Hop" },
+  { ratio: "9:16", views: "9.4M Views", video: "/marquee/p3.mp4", creator: "Anime Dreams", emoji: "🍙", color: "#fb7185", title: "A Quiet Morning in the Countryside" },
+  { ratio: "9:16", views: "62.8M Views", video: "/marquee/p4.mp4", creator: "Monster Mash", emoji: "👾", color: "#8b5cf6", title: "Meet the Fuzziest Monster Yet" },
+  { ratio: "16:9", views: "73.6M Views", video: "/marquee/l4.mp4", creator: "Whisker Tales", emoji: "🐱", color: "#a78bfa", title: "Two Cats, One Big Adventure" },
+  { ratio: "9:16", views: "27.4M Views", video: "/marquee/p5.mp4", creator: "POV Daily", emoji: "🎥", color: "#0ea5e9", title: "You've Never Seen a City Like This" },
+  { ratio: "16:9", views: "45.9M Views", video: "/marquee/l5.mp4", creator: "Night Reels", emoji: "🌙", color: "#6366f1", title: "What Lurks in the Attic" },
+  { ratio: "9:16", views: "8.9M Views", video: "/marquee/p6.mp4", creator: "Whisker Tales", emoji: "🐱", color: "#a78bfa", title: "He Waits By the Door Every Night" },
+  { ratio: "9:16", views: "51.2M Views", video: "/marquee/p7.mp4", creator: "Wander More", emoji: "🚵", color: "#10b981", title: "The Trail That Changed My Life" },
+  { ratio: "9:16", views: "19.6M Views", video: "/marquee/p8.mp4", creator: "Track Nation", emoji: "🏃", color: "#ef4444", title: "The Comeback Nobody Saw Coming" },
+  { ratio: "9:16", views: "34.8M Views", video: "/marquee/p9.mp4", creator: "Doodle Doze", emoji: "🍋", color: "#facc15", title: "The Lemon Who Wanted to Be Sweet" },
+  { ratio: "9:16", views: "11.2M Views", video: "/marquee/p10.mp4", creator: "Wander More", emoji: "🏔️", color: "#10b981", title: "Would You Dare Cross This?" },
+  { ratio: "16:9", views: "92.5M Views", video: "/marquee/l6.mp4", creator: "Cinematic AI", emoji: "🎬", color: "#1e293b", title: "He Shouldn't Have Looked Back" },
+  { ratio: "9:16", views: "47.1M Views", video: "/marquee/p11.mp4", creator: "Mega Machines", emoji: "🚜", color: "#f97316", title: "Building the World's Richest Garage" },
+  { ratio: "9:16", views: "23.9M Views", video: "/marquee/p12.mp4", creator: "AI Critters", emoji: "🐈", color: "#14b8a6", title: "These Cats Built an Entire House" },
+  { ratio: "9:16", views: "68.4M Views", video: "/marquee/p13.mp4", creator: "AI Critters", emoji: "🦁", color: "#d97706", title: "The Lion's First Haircut" },
+  { ratio: "9:16", views: "15.6M Views", video: "/marquee/p14.mp4", creator: "Suburban Hacks", emoji: "🍂", color: "#65a30d", title: "This Yard Trick Went Viral" },
+  { ratio: "9:16", views: "39.7M Views", video: "/marquee/p15.mp4", creator: "Flow State", emoji: "🤸", color: "#f43f5e", title: "Sunset Flips Hit Different" },
+  { ratio: "9:16", views: "57.3M Views", video: "/marquee/p16.mp4", creator: "Oddly Satisfying", emoji: "🔪", color: "#22c55e", title: "What's Really Inside a Soda Can?" },
 ];
 
 const FEATURES = [
@@ -156,6 +156,14 @@ export default function Landing() {
                 <span className={s.mViews}>{t.views}</span>
                 <div className={s.mTile}>
                   {t.video && <video className={s.mVideo} src={t.video} autoPlay loop muted playsInline preload="metadata" />}
+                  <div className={s.mCap}>
+                    <div className={s.mCreator}>
+                      <span className={s.mAvatar} style={{ background: t.color }}>{t.emoji}</span>
+                      <span className={s.mName}>{t.creator}</span>
+                      <svg className={s.mVerified} viewBox="0 0 24 24" aria-hidden="true"><path fill="#3897f0" d="M12 2l2.4 1.8 3-.3 1 2.8 2.6 1.5-.9 2.9.9 2.9-2.6 1.5-1 2.8-3-.3L12 22l-2.4-1.8-3 .3-1-2.8L3 16.5l.9-2.9L3 10.7l2.6-1.5 1-2.8 3 .3z"/><path fill="#fff" d="M10.6 14.6l-2.2-2.2 1.1-1.1 1.1 1.1 3-3 1.1 1.1z"/></svg>
+                    </div>
+                    <div className={s.mTitle}>{t.title}</div>
+                  </div>
                 </div>
               </div>
             ))}
