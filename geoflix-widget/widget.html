@@ -2,8 +2,8 @@
 <html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <style>
 html,body{margin:0;padding:0;background:transparent}
-#root{min-height:40px}
-#root img,#root video{width:100%;height:auto;display:block;border-radius:12px}
+#root{min-height:40px;display:flex;align-items:flex-start;justify-content:center}
+#root img,#root video{max-width:100%;max-height:100vh;width:auto;height:auto;display:block;border-radius:12px}
 #log{color:#9aa3b2;font:11px ui-monospace,Menlo,monospace;padding:8px;white-space:pre-wrap}
 </style></head>
 <body><div id="root"><div id="log">Geoflix · loading…</div></div>
@@ -12,18 +12,18 @@ html,body{margin:0;padding:0;background:transparent}
   var root=document.getElementById('root'), logEl=document.getElementById('log');
   var lines=[]; function log(s){ lines.push(s); if(logEl) logEl.textContent=lines.slice(-12).join('\n'); }
   var done=false, lastH=0, pend=false;
-  // Measure exactly like the official MCP-Apps SDK: force max-content height,
-  // read the natural height, restore. scrollHeight returns the clamped iframe
-  // height, which made us report the wrong size.
+  // Report the height the media WOULD be at full iframe width (from its natural
+  // aspect ratio) — independent of CSS caps — so the host can grow the iframe.
+  // The CSS max-height:100vh guarantees no scrollbar even if the host ignores it.
   function reportSize(){
     if(pend) return; pend=true;
     requestAnimationFrame(function(){
       pend=false;
-      var J=document.documentElement, prev=J.style.height;
-      J.style.height="max-content";
-      var h=Math.ceil(J.getBoundingClientRect().height);
-      J.style.height=prev;
-      var w=Math.ceil(window.innerWidth);
+      var el=root.querySelector('img,video');
+      var w=Math.ceil(window.innerWidth), h=0;
+      var nw=el&&(el.naturalWidth||el.videoWidth), nh=el&&(el.naturalHeight||el.videoHeight);
+      if(nw&&nh){ h=Math.ceil(w*nh/nw); }
+      else { var J=document.documentElement, p=J.style.height; J.style.height="max-content"; h=Math.ceil(J.getBoundingClientRect().height); J.style.height=p; }
       if(h>0 && h!==lastH){ lastH=h; send({jsonrpc:'2.0',method:'ui/notifications/size-changed',params:{width:w,height:h}}); }
     });
   }
