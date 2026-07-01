@@ -144,7 +144,7 @@ const handler = createMcpHandler(
         _meta: { ui: { resourceUri: UI_URI } },
       },
       async ({ prompt, model, image_url, aspect, resolution, duration }) => {
-        const start = await postJson("/api/video/start", { prompt, model: model || "LTX Video", image: image_url, aspect, resolution, duration });
+        const start = await postJson("/api/video/start", { prompt, model: model || "Wan 2.2", image: image_url, aspect, resolution, duration });
         if (start.mock) return { content: [{ type: "text", text: start.output }] };
         const done = await pollVideo(start, 45 * 1000, prompt);
         if (done) return done;

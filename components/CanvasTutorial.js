@@ -75,7 +75,7 @@ export const TUT_STEPS = [
     placement: "bl",
     optional: true,
     title: "Choose a video model",
-    body: "Pick the video model, aspect ratio and length for this clip. LTX is the fastest to start — tweak if you like, then Next.",
+    body: "Pick the video model, aspect ratio and length for this clip. Wan 2.2 is a solid default — tweak if you like, then Next.",
   },
   {
     mode: "spotlight",

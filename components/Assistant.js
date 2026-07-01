@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from "react";
 
 // Only models with a wired fal endpoint (kept in sync with PromptBar + backend).
 const IMAGE_MODELS = ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Nano Banana 2", "Seedream 4.5", "GPT Image 2"];
-const VIDEO_MODELS = ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "MiniMax Hailuo 2.3", "Kling v2", "Kling 2.5 Turbo", "Kling 2.6", "Kling 3.0", "Seedance 2.0", "Sora 2"];
+const VIDEO_MODELS = ["Wan 2.2", "LTX Video", "MiniMax Hailuo", "MiniMax Hailuo 2.3", "Kling v2", "Kling 2.5 Turbo", "Kling 2.6", "Kling 3.0", "Seedance 2.0", "Sora 2"];
 
 export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage }) {
   const [history, setHistory] = useState([]);
@@ -17,7 +17,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
   // invisible transitions. Sequential, so slower — opt-in.
   const [seamless, setSeamless] = useState(false);
   const [imageModel, setImageModel] = useState("Flux 2 Pro");
-  const [videoModel, setVideoModel] = useState("LTX Video");
+  const [videoModel, setVideoModel] = useState("Wan 2.2");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
   const inputRef = useRef(null);

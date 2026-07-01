@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 const MODELS = {
   image: ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Nano Banana 2", "Seedream 4.5", "GPT Image 2"],
   video: [
-    "LTX Video", "Wan 2.2", "MiniMax Hailuo", "MiniMax Hailuo 2.3", "Kling v2",
+    "Wan 2.2", "LTX Video", "MiniMax Hailuo", "MiniMax Hailuo 2.3", "Kling v2",
     "Kling 2.5 Turbo", "Kling 2.6", "Kling 3.0", "Seedance 2.0", "Sora 2",
     "Veo 3.1 Fast", "Veo 3.1",
   ],

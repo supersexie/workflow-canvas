@@ -344,7 +344,7 @@ function CanvasInner({ workflowId }) {
         const dur = parseInt(node.data.duration) || 8;
         output = await generateVideo({
           prompt,
-          model: node.data.model || "LTX Video", // match the prompt bar's displayed default (else falls through to Veo)
+          model: node.data.model || "Wan 2.2", // match the prompt bar's displayed default (else falls through to Veo)
           image: node.data.sourceThumb || null,
           aspect: aspectRatio,
           resolution,
@@ -382,7 +382,7 @@ function CanvasInner({ workflowId }) {
     // video is ~"seconds" long — not a fixed 6s-per-clip pile-up.
     const totalSeconds = Number(seconds) > 0 ? Number(seconds) : list.length * 6;
     const perClip = Math.max(4, Math.min(10, Math.round(totalSeconds / list.length)));
-    const videoModel = models.videoModel || "LTX Video";
+    const videoModel = models.videoModel || "Wan 2.2";
     const IMG_MODEL = models.imageModel || "Flux 2 Pro"; // image model for reference + staging
     // Script narration: per-part voiceover of the user's exact lines (muxed onto the stitched video).
     const lines = models.narrate && Array.isArray(narration) ? narration : null;
