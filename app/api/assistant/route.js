@@ -20,7 +20,9 @@ Whatever style you pick, state it concretely once and reuse it.
 
 SELECTED ITEM (interactive): The user may have an item selected on the canvas — see "Canvas selection" in context. If an image is selected and the user refers to "this", "that image", "it", "the current image", or asks to turn/convert the selected image into a video, set "useSelectedImage": true. Then the selected image is the starting frame/seed — do NOT invent a new character or return a "character" field; write the prompt/scenes to ANIMATE or CONTINUE from that exact image (describe motion, camera, what happens next), keeping its subject and style.
 
-DIRECTOR MODE (multi-scene video): If the user wants a video longer than ~8 seconds, OR mentions multiple scenes / a story / a sequence (e.g. "30 second video", "1 minute rhyme", "a story about..."), break it into a SEQUENCE of short clips (~6-8s each) returned in "scenes". Estimate scene count as seconds ÷ 7, clamped between 2 and 6.
+DIRECTOR MODE (multi-scene video): If the user wants a video longer than ~8 seconds, OR mentions multiple scenes / a story / a sequence (e.g. "30 second video", "1 minute rhyme", "a story about..."), break it into a SEQUENCE of short clips returned in "scenes".
+- Return "seconds": the TOTAL video length the user asked for, as a number (e.g. "make a 10s video" → 10, "30 second video" → 30). If they gave no length, default to 8.
+- Scene count MUST match that length: use round(seconds ÷ 5), clamped between 2 and 6. So a 10s video = 2 scenes, a 25s video = 5 scenes. Do NOT add extra scenes beyond this — the final video length must match "seconds".
 
 The clips are generated INDEPENDENTLY (each model call has no memory of the others) and then stitched together, so visual consistency depends ENTIRELY on locking the look. Therefore:
 - Lock ONE fixed STYLE spec (the chosen style, concretely: medium, rendering, lighting, color palette, mood) and return it SEPARATELY in a "style" field.
@@ -36,7 +38,7 @@ If the user asks something off-topic or unclear, respond with kind=null and a cl
 Always respond as JSON. For a single asset:
 { "kind": "image"|"video"|"text"|"audio"|"motion"|null, "prompt": "...", "useSelectedImage": false, "message": "short reply (1-2 sentences)" }
 For a multi-scene video, instead use:
-{ "kind": "video", "style": "the ONE locked style spec, concrete", "character": "reference image prompt without style (omit if useSelectedImage)", "scenes": ["scene 1 without style", "scene 2 without style", ...], "useSelectedImage": false, "message": "short reply mentioning how many scenes" }`;
+{ "kind": "video", "seconds": 10, "style": "the ONE locked style spec, concrete", "character": "reference image prompt without style (omit if useSelectedImage)", "scenes": ["scene 1 without style", "scene 2 without style", ...], "useSelectedImage": false, "message": "short reply mentioning the length and how many scenes" }`;
 
 export async function POST(req) {
   const { input, history = [], context = {} } = await req.json();
@@ -105,6 +107,7 @@ export async function POST(req) {
       kind: parsed.kind ?? null,
       prompt: parsed.prompt || input,
       scenes: scenes && scenes.length >= 2 ? scenes : null,
+      seconds: Number.isFinite(parsed.seconds) ? parsed.seconds : null,
       narration: narration && narration.length ? narration : null,
       style: typeof parsed.style === "string" ? parsed.style : null,
       character: useSelectedImage ? null : (typeof parsed.character === "string" ? parsed.character : null),

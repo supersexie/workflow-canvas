@@ -361,9 +361,14 @@ function CanvasInner({ workflowId }) {
 
   // Director mode (character-consistent): one reference image → per-scene
   // staged image (image-to-image) → image-to-video → stitch into one video.
-  const runDirector = async ({ scenes, character, style, seedImage, narration }, models = {}) => {
+  const runDirector = async ({ scenes, character, style, seedImage, narration, seconds }, models = {}) => {
     const list = (scenes || []).slice(0, 6);
     if (list.length < 2) return;
+    // Match the user's requested total length: split it evenly across the scenes
+    // (per-clip 4–10s) and use the SAME durations when stitching, so the final
+    // video is ~"seconds" long — not a fixed 6s-per-clip pile-up.
+    const totalSeconds = Number(seconds) > 0 ? Number(seconds) : list.length * 6;
+    const perClip = Math.max(4, Math.min(10, Math.round(totalSeconds / list.length)));
     const videoModel = models.videoModel || "LTX Video";
     const IMG_MODEL = models.imageModel || "Flux 2 Pro"; // image model for reference + staging
     // Script narration: per-part voiceover of the user's exact lines (muxed onto the stitched video).
@@ -433,7 +438,7 @@ function CanvasInner({ workflowId }) {
           catch (e) { setNodeData(audId, { status: "error", error: e.message }); }
         }
         try {
-          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: prevFrame || null, aspect: "16:9", resolution: "720p", duration: 6, seed: sceneSeed(i), audio: true });
+          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: prevFrame || null, aspect: "16:9", resolution: "720p", duration: perClip, seed: sceneSeed(i), audio: true });
           setNodeData(vidId, { status: "done", output: clip });
           clips.push(clip);
           audioUrls.push(typeof audOut === "string" && /^https?:/.test(audOut) ? audOut : null);
@@ -451,7 +456,7 @@ function CanvasInner({ workflowId }) {
         return;
       }
       try {
-        const finalUrl = await combineVideos(clips, clips.map(() => 5), undefined, lines ? audioUrls : null);
+        const finalUrl = await combineVideos(clips, clips.map(() => perClip), undefined, lines ? audioUrls : null);
         setNodeData(combineId, { status: "done", output: finalUrl });
         fitView({ padding: 0.2, duration: 400 });
       } catch (e) {
@@ -508,7 +513,7 @@ function CanvasInner({ workflowId }) {
           : Promise.resolve(null);
         try {
           const [clip, audio] = await Promise.all([
-            generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: 6, seed: sceneSeed(i), audio: true }),
+            generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: perClip, seed: sceneSeed(i), audio: true }),
             audioPromise,
           ]);
           setNodeData(vidId, { status: "done", output: clip });
@@ -532,7 +537,7 @@ function CanvasInner({ workflowId }) {
       ? kept.map((r) => (typeof r.audio === "string" && /^https?:/.test(r.audio) ? r.audio : null))
       : null;
     try {
-      const finalUrl = await combineVideos(urls, urls.map(() => 5), undefined, audioUrls);
+      const finalUrl = await combineVideos(urls, urls.map(() => perClip), undefined, audioUrls);
       setNodeData(combineId, { status: "done", output: finalUrl });
       fitView({ padding: 0.2, duration: 400 });
     } catch (e) {
