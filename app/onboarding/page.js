@@ -158,8 +158,8 @@ export default function Onboarding() {
               <p className={s.lead}>Join thousands of creators building on Genmax. We'll guide you through every step — it only takes a few minutes.</p>
               <div className={s.stats}>
                 <div className={s.stat}><div className={s.statNum}>5 min</div><div className={s.statLabel}>Setup time</div></div>
-                <div className={s.stat}><div className={s.statNum}>4</div><div className={s.statLabel}>Node types</div></div>
                 <div className={s.stat}><div className={s.statNum}>10+</div><div className={s.statLabel}>AI models</div></div>
+                <div className={s.stat}><div className={s.statNum}>100K+</div><div className={s.statLabel}>Creators</div></div>
               </div>
             </div>
           )}
