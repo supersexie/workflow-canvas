@@ -378,7 +378,18 @@ function CanvasInner({ workflowId }) {
     const sceneSeed = (i) => (baseSeed + (i + 1) * 7919) % 1_000_000_000; // distinct per scene, deterministic
     const colX = { ref: 40, img: 420, vid: 900, aud: 900, out: 1480 };
     const gapY = 330;
-    const midY = 80 + ((list.length - 1) * gapY) / 2;
+    // Drop the new graph in clean empty space BELOW existing nodes (not on top of
+    // an older run), with a small margin. Then pan the user straight to it.
+    const existing = nodesRef.current || [];
+    const startY = existing.length
+      ? Math.max(...existing.map((n) => (n.position?.y || 0) + (n.height || 340))) + 160
+      : 80;
+    const midY = startY + ((list.length - 1) * gapY) / 2;
+    // Frame the new graph's region right away so the user is taken to it as it builds.
+    const gW = colX.out + 560 - colX.ref;
+    const gH = (list.length - 1) * gapY + 380;
+    const focusZoom = Math.max(0.2, Math.min(0.7, Math.min(window.innerWidth / gW, window.innerHeight / gH) * 0.85));
+    setCenter((colX.ref + colX.out + 525) / 2, midY + 150, { zoom: focusZoom, duration: 600 });
 
     // 1) Reference image (the shared character/style anchor). Use the selected
     //    image if provided ("turn this image into a video"), else generate one.
@@ -405,7 +416,7 @@ function CanvasInner({ workflowId }) {
       const clips = [], audioUrls = [];
       for (let i = 0; i < list.length; i++) {
         const scene = list[i];
-        const y = 80 + i * gapY;
+        const y = startY + i * gapY;
         const vidId = addNode("video", { prompt: styled(scene), model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y }, noFocus: true });
         if (i === 0 && refId) addEdgeBetween(refId, vidId);
         if (prevVidId) addEdgeBetween(prevVidId, vidId); // chain edge (previous clip → this one)
@@ -457,7 +468,7 @@ function CanvasInner({ workflowId }) {
     const vidIds = [];
     const results = await Promise.all(
       list.map(async (scene, i) => {
-        const y = 80 + i * gapY;
+        const y = startY + i * gapY;
         const vidId = addNode("video", { prompt: styled(scene), model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y }, noFocus: true });
         vidIds.push(vidId);
         // Staged scene image (only if we have a reference to seed from): same
