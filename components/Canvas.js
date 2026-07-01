@@ -16,6 +16,7 @@ import PromptBar from "./PromptBar";
 import Assistant from "./Assistant";
 import Library from "./Library";
 import UserMenu from "./UserMenu";
+import CanvasTutorial, { TUT_STEPS, TUTORIAL_DONE_KEY } from "./CanvasTutorial";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
 import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
@@ -76,6 +77,7 @@ function CanvasInner({ workflowId }) {
   const [picker, setPicker] = useState(null); // { x, y, flowPos, sourceId }
   const [assistantOpen, setAssistantOpen] = useState(false);
   const [libraryOpen, setLibraryOpen] = useState(false);
+  const [tutStep, setTutStep] = useState(null); // null = tour closed
   const [past, setPast] = useState([]);
   const [future, setFuture] = useState([]);
   const saveTimer = useRef(null);
@@ -127,6 +129,41 @@ function CanvasInner({ workflowId }) {
     setName(wf.name || "Untitled Workflow");
     setLoaded(true);
   }, [workflowId, router]);
+
+  // Auto-launch the hands-on tour once — on the user's first canvas. Mark it
+  // shown immediately so it never auto-opens again; the "How it works" button
+  // replays it anytime.
+  useEffect(() => {
+    if (!loaded) return;
+    try {
+      if (!localStorage.getItem(TUTORIAL_DONE_KEY)) {
+        setTutStep(0);
+        localStorage.setItem(TUTORIAL_DONE_KEY, "1");
+      }
+    } catch {}
+  }, [loaded]);
+
+  const closeTutorial = useCallback(() => {
+    setTutStep(null);
+    try { localStorage.setItem(TUTORIAL_DONE_KEY, "1"); } catch {}
+  }, []);
+
+  // Hands-on advancement: auto-advance when the user actually does the step.
+  // Step 1 (add a node) → advance once a node exists.
+  useEffect(() => {
+    if (tutStep === 1 && nodes.length >= 1) setTutStep(2);
+  }, [tutStep, nodes.length]);
+  // Step 4 (generate) → advance once a run starts.
+  useEffect(() => {
+    if (tutStep === 4 && runningId) setTutStep(5);
+  }, [tutStep, runningId]);
+  // Steps that point at the prompt bar (2–5) need a node selected so the bar is
+  // mounted; auto-select one so the spotlight never dims to a blank screen.
+  useEffect(() => {
+    if ([2, 3, 4, 5].includes(tutStep) && !selectedId && nodes.length > 0) {
+      setSelectedId(nodes[nodes.length - 1].id);
+    }
+  }, [tutStep, selectedId, nodes]);
 
   useEffect(() => {
     if (!loaded || !workflowId) return;
@@ -420,6 +457,8 @@ function CanvasInner({ workflowId }) {
   };
 
   const selectedNode = nodes.find((n) => n.id === selectedId);
+  // Step 2 (write prompt) advances via Next, enabled only once a prompt is typed.
+  const tutNextEnabled = tutStep === 2 ? !!(selectedNode?.data?.prompt || "").trim() : true;
   const selectedSources = selectedId ? (sourcesByNode[selectedId] || []) : [];
   const selectedImageUrl =
     selectedNode?.data?.kind === "image" &&
@@ -443,6 +482,10 @@ function CanvasInner({ workflowId }) {
         </div>
         <div className="topbar-right">
           {savedAt && <span className="save-indicator">Saved</span>}
+          <button className="howitworks-btn" onClick={() => setTutStep(0)} title="Replay the tutorial">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="10"/><path d="M9.1 9a3 3 0 0 1 5.8 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+            How it works
+          </button>
           <button className="assistant-open-btn" onClick={() => setAssistantOpen(true)} title="Open AI Assistant">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2l2 6h6l-5 4 2 7-7-4-7 4 2-7-5-4h6z"/></svg>
             Assistant
@@ -456,7 +499,7 @@ function CanvasInner({ workflowId }) {
 
       <div className="rail">
         <button title="Select">{RAIL_ICONS.cursor}</button>
-        <button title="Add node" onClick={() => setAddMenuOpen((v) => !v)}>{RAIL_ICONS.plus}</button>
+        <button title="Add node" data-tut="add" onClick={() => setAddMenuOpen((v) => !v)}>{RAIL_ICONS.plus}</button>
         <button title="Fit view" onClick={() => fitView({ padding: 0.3, duration: 300 })}>{RAIL_ICONS.frame}</button>
         <button title="Templates">{RAIL_ICONS.grid}</button>
         <button title="Comments">{RAIL_ICONS.chat}</button>
@@ -590,6 +633,15 @@ function CanvasInner({ workflowId }) {
         onDirector={(payload, model, useSelected) =>
           runDirector({ ...payload, seedImage: useSelected ? selectedImageUrl : null }, model)
         }
+      />
+
+      <CanvasTutorial
+        step={tutStep}
+        total={TUT_STEPS.length}
+        nextEnabled={tutNextEnabled}
+        onNext={() => setTutStep((s) => (s >= TUT_STEPS.length - 1 ? (closeTutorial(), null) : s + 1))}
+        onBack={() => setTutStep((s) => Math.max(0, (s ?? 0) - 1))}
+        onSkip={closeTutorial}
       />
     </>
   );

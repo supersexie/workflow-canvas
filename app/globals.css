@@ -750,3 +750,81 @@ body {
   cursor: pointer; font-family: inherit;
 }
 .nw-cancel:hover { background: var(--surface-2); }
+
+/* ---- Canvas hands-on tutorial ---- */
+/* Root is click-through so spotlight steps let the user interact with the live
+   UI underneath; only the tip card / modal backdrop re-enable pointer events. */
+.tut-root { position: fixed; inset: 0; z-index: 1000; pointer-events: none; }
+.tut-overlay { position: fixed; inset: 0; pointer-events: none; } /* click-through dim */
+.tut-ring {
+  stroke: var(--blue); stroke-width: 2.5;
+  filter: drop-shadow(0 0 10px rgba(37, 99, 235, 0.55));
+  animation: tut-pulse 1.6s ease-in-out infinite;
+}
+@keyframes tut-pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.45; } }
+
+.tut-modal-backdrop {
+  position: fixed; inset: 0; background: rgba(11, 18, 32, 0.55);
+  display: flex; align-items: center; justify-content: center; padding: 24px;
+  pointer-events: auto;
+}
+
+.tut-card {
+  width: 340px; max-width: calc(100vw - 32px);
+  background: var(--surface); border: 1px solid var(--line-2);
+  border-radius: 14px; padding: 18px; box-shadow: var(--shadow);
+}
+.tut-card-tip { position: fixed; pointer-events: auto; }
+.tut-card-fallback { left: 50%; top: 50%; transform: translate(-50%, -50%); }
+.tut-card-modal { width: 400px; }
+.tut-card h3 { margin: 6px 0 8px; font-size: 17px; color: var(--ink); }
+.tut-card p { margin: 0; font-size: 13.5px; line-height: 1.55; color: var(--muted); }
+.tut-progress {
+  font-size: 11px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--blue);
+}
+.tut-actions {
+  display: flex; align-items: center; justify-content: space-between;
+  gap: 8px; margin-top: 16px;
+}
+.tut-actions-right { display: flex; align-items: center; gap: 8px; }
+.tut-skip {
+  background: none; border: none; color: var(--muted-2);
+  font-size: 12.5px; cursor: pointer; padding: 6px 2px; font-family: inherit;
+}
+.tut-skip:hover { color: var(--text); }
+.tut-back {
+  background: var(--surface-2); border: 1px solid var(--line);
+  color: var(--text); font-size: 13px; font-weight: 500;
+  padding: 7px 14px; border-radius: 9px; cursor: pointer; font-family: inherit;
+}
+.tut-back:hover { background: var(--line); }
+.tut-next {
+  background: var(--blue); border: none; color: #fff;
+  font-size: 13px; font-weight: 600; padding: 8px 18px;
+  border-radius: 9px; cursor: pointer; font-family: inherit;
+}
+.tut-next:hover { background: var(--blue-dark); }
+.tut-next:disabled { opacity: 0.4; cursor: not-allowed; }
+.tut-hint { font-size: 12px; color: var(--blue); font-weight: 500; }
+
+/* During the "branch into a new node" step, reveal node source handles so the
+   spotlight has something visible to point at (they're hover-only otherwise). */
+body.tut-reveal-handles .react-flow .react-flow__handle.source { opacity: 1; }
+
+/* Popups opened DURING a spotlight step must render above the 1000-z overlay,
+   or they appear buried in the dim and look dead. */
+.add-menu-backdrop { z-index: 1090; }
+.add-menu { z-index: 1100; }
+.type-picker { z-index: 1100; }
+.dd-backdrop { z-index: 1090; }
+.dd-menu { z-index: 1100; }
+
+/* The "How it works" replay button (top bar). */
+.howitworks-btn {
+  display: inline-flex; align-items: center; gap: 6px;
+  background: var(--surface); border: 1px solid var(--line);
+  color: var(--muted); padding: 6px 11px; border-radius: 8px;
+  font-size: 12.5px; font-weight: 600; cursor: pointer; font-family: inherit;
+}
+.howitworks-btn:hover { color: var(--ink); border-color: var(--line-2); background: var(--surface-2); }
