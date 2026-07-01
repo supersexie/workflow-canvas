@@ -59,7 +59,7 @@ async function pollVideo(handle, budgetMs, prompt) {
 
 const VIDEO_INPUT = {
   prompt: z.string(),
-  model: z.enum(["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2", "Veo 3.1 Fast", "Veo 3.1"]).optional(),
+  model: z.enum(["LTX Video", "Wan 2.2", "MiniMax Hailuo", "MiniMax Hailuo 2.3", "Kling v2", "Kling 2.5 Turbo", "Kling 2.6", "Kling 3.0", "Seedance 2.0", "Sora 2", "Veo 3.1 Fast", "Veo 3.1"]).optional(),
   image_url: z.string().optional(),
   aspect: z.enum(["16:9", "9:16"]).optional(),
   resolution: z.enum(["720p", "1080p"]).optional(),
@@ -84,7 +84,7 @@ const handler = createMcpHandler(
       {
         title: "Generate image",
         description: "Generate an image from a text prompt (FLUX / Seedream / Nano Banana). Renders inline.",
-        inputSchema: { prompt: z.string(), model: z.enum(["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Seedream 4.5"]).optional() },
+        inputSchema: { prompt: z.string(), model: z.enum(["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Nano Banana 2", "Seedream 4.5", "GPT Image 2"]).optional() },
         _meta: { ui: { resourceUri: UI_URI } },
       },
       async ({ prompt, model }) => {

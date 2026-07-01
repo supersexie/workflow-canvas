@@ -157,6 +157,10 @@ function CanvasInner({ workflowId }) {
   useEffect(() => {
     if (tutStep === 4 && runningId) setTutStep(5);
   }, [tutStep, runningId]);
+  // Step 6 (meet the Assistant) → advance once the panel opens.
+  useEffect(() => {
+    if (tutStep === 6 && assistantOpen) setTutStep(7);
+  }, [tutStep, assistantOpen]);
   // Steps that point at the prompt bar (2–5) need a node selected so the bar is
   // mounted; auto-select one so the spotlight never dims to a blank screen.
   useEffect(() => {
@@ -351,10 +355,11 @@ function CanvasInner({ workflowId }) {
 
   // Director mode (character-consistent): one reference image → per-scene
   // staged image (image-to-image) → image-to-video → stitch into one video.
-  const runDirector = async ({ scenes, character, seedImage }, model = "LTX Video") => {
+  const runDirector = async ({ scenes, character, seedImage }, models = {}) => {
     const list = (scenes || []).slice(0, 6);
     if (list.length < 2) return;
-    const IMG_MODEL = "Flux 2 Pro"; // reliable for text-to-image + image-to-image
+    const videoModel = models.videoModel || "LTX Video";
+    const IMG_MODEL = models.imageModel || "Flux 2 Pro"; // image model for reference + staging
     const colX = { ref: 40, img: 420, vid: 900, out: 1480 };
     const gapY = 330;
     const midY = 80 + ((list.length - 1) * gapY) / 2;
@@ -383,7 +388,7 @@ function CanvasInner({ workflowId }) {
     const results = await Promise.all(
       list.map(async (scene, i) => {
         const y = 80 + i * gapY;
-        const vidId = addNode("video", { prompt: scene, model, aspect: "16:9 · 720p", position: { x: colX.vid, y } });
+        const vidId = addNode("video", { prompt: scene, model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y } });
         vidIds.push(vidId);
         // Staged scene image (only if we have a reference to seed from).
         let seed = null;
@@ -402,7 +407,7 @@ function CanvasInner({ workflowId }) {
         addEdgeBetween(vidId, combineId);
         setNodeData(vidId, { status: "running" });
         try {
-          const clip = await generateVideo({ prompt: scene, model, image: seed || null, aspect: "16:9", resolution: "720p", duration: 6 });
+          const clip = await generateVideo({ prompt: scene, model: videoModel, image: seed || null, aspect: "16:9", resolution: "720p", duration: 6 });
           setNodeData(vidId, { status: "done", output: clip });
           return clip;
         } catch (e) {
@@ -620,18 +625,20 @@ function CanvasInner({ workflowId }) {
         open={assistantOpen}
         onClose={() => setAssistantOpen(false)}
         hasSelectedImage={!!selectedImageUrl}
-        onCreateAndMaybeRun={({ kind, prompt }, autoRun, useSelected) => {
+        onCreateAndMaybeRun={({ kind, prompt, imageModel, videoModel }, autoRun, useSelected) => {
+          // Apply the Assistant's chosen model to the matching node kind.
+          const model = kind === "image" ? imageModel : kind === "video" ? videoModel : undefined;
           // "turn this image into a video" → seed a video node from the selected image
           if (kind === "video" && useSelected && selectedImageUrl && selectedId) {
-            const id = addNode("video", { prompt, aspect: "16:9 · 720p", connectFrom: selectedId });
+            const id = addNode("video", { prompt, model: videoModel, aspect: "16:9 · 720p", connectFrom: selectedId });
             if (autoRun) setTimeout(() => runNode(id), 50);
             return;
           }
-          const id = addNode(kind, { prompt });
+          const id = addNode(kind, { prompt, model });
           if (autoRun) setTimeout(() => runNode(id), 50);
         }}
-        onDirector={(payload, model, useSelected) =>
-          runDirector({ ...payload, seedImage: useSelected ? selectedImageUrl : null }, model)
+        onDirector={(payload, models, useSelected) =>
+          runDirector({ ...payload, seedImage: useSelected ? selectedImageUrl : null }, models)
         }
       />
 

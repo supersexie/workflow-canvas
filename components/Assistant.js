@@ -1,12 +1,15 @@
 "use client";
 import { useEffect, useRef, useState } from "react";
 
-const VIDEO_MODELS = ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "Kling v2"];
+// Only models with a wired fal endpoint (kept in sync with PromptBar + backend).
+const IMAGE_MODELS = ["Flux 2 Pro", "Flux 2 Max", "Nano Banana Pro", "Nano Banana 2", "Seedream 4.5", "GPT Image 2"];
+const VIDEO_MODELS = ["LTX Video", "Wan 2.2", "MiniMax Hailuo", "MiniMax Hailuo 2.3", "Kling v2", "Kling 2.5 Turbo", "Kling 2.6", "Kling 3.0", "Seedance 2.0", "Sora 2"];
 
 export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirector, hasSelectedImage }) {
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
   const [autoRun, setAutoRun] = useState(true);
+  const [imageModel, setImageModel] = useState("Flux 2 Pro");
   const [videoModel, setVideoModel] = useState("LTX Video");
   const [sending, setSending] = useState(false);
   const scrollRef = useRef(null);
@@ -49,8 +52,8 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
               : null,
         },
       ]);
-      if (isDirector) onDirector({ scenes: data.scenes, character: data.character }, videoModel, data.useSelectedImage);
-      else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt }, autoRun, data.useSelectedImage);
+      if (isDirector) onDirector({ scenes: data.scenes, character: data.character }, { imageModel, videoModel }, data.useSelectedImage);
+      else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt, imageModel, videoModel }, autoRun, data.useSelectedImage);
     } catch (e) {
       setHistory((h) => [...h, { role: "assistant", content: `⚠ ${e.message}` }]);
     } finally {
@@ -123,7 +126,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
         </div>
 
         <div className="cb-inputbar">
-          <div className="cb-autorun-row">
+          <div className="cb-autorun-row" data-tut="cb-models">
             <button
               className={`cb-autorun ${autoRun ? "on" : ""}`}
               onClick={() => setAutoRun((v) => !v)}
@@ -133,9 +136,19 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
             </button>
             <select
               className="cb-model"
+              value={imageModel}
+              onChange={(e) => setImageModel(e.target.value)}
+              title="Image model used for generated / reference images"
+            >
+              {IMAGE_MODELS.map((m) => (
+                <option key={m} value={m}>🖼 {m}</option>
+              ))}
+            </select>
+            <select
+              className="cb-model"
               value={videoModel}
               onChange={(e) => setVideoModel(e.target.value)}
-              title="Video model used for multi-scene (director) videos"
+              title="Video model used for generated / multi-scene videos"
             >
               {VIDEO_MODELS.map((m) => (
                 <option key={m} value={m}>🎬 {m}</option>
