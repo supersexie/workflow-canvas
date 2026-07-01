@@ -198,6 +198,7 @@
   padding: 18px 28px; border-top: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
 }
+.bottomCenter { justify-content: center; }
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
   font-weight: 700; font-size: 15px; border: none; cursor: pointer; text-decoration: none;

@@ -11,6 +11,8 @@ the user's first workflow (named after their channel) and routes into the app.
 - **Logo:** place the app icon at `public/genmax-icon.jpg` (referenced as `/genmax-icon.jpg`).
 - **On finish:** saves answers to `localStorage` (`gmx:onboarding`), creates a first
   workflow via `createWorkflow(name)`, and `router.push("/app")`.
+- **Buttons** are pill-shaped (`border-radius: 999px`); the hero-step CTA is centered
+  (the bottom bar gets `.bottomCenter` when `step === 0`).
 
 ## Wiring
 - **Trigger after sign-up** (`app/layout.js`, Clerk example): set
@@ -376,10 +378,10 @@ export default function Onboarding() {
       </div>
 
       {/* BOTTOM NAV */}
-      <div className={s.bottom}>
+      <div className={`${s.bottom} ${step === 0 ? s.bottomCenter : ""}`}>
         {step > 0 ? (
           <button type="button" className={`${s.btn} ${s.btnBack}`} onClick={prev}><Back /> Back</button>
-        ) : <span />}
+        ) : null}
         {step === 0 ? (
           <button type="button" className={`${s.btn} ${s.btnPrimary} ${s.btnLg}`} onClick={next}>Start Creating <Arrow /></button>
         ) : step === TOTAL_STEPS - 1 ? (
@@ -597,6 +599,7 @@ export default function Onboarding() {
   padding: 18px 28px; border-top: 1px solid var(--line);
   background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
 }
+.bottomCenter { justify-content: center; }
 .btn {
   display: inline-flex; align-items: center; gap: 8px;
   font-weight: 700; font-size: 15px; border: none; cursor: pointer; text-decoration: none;

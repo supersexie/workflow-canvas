@@ -344,10 +344,10 @@ export default function Onboarding() {
       </div>
 
       {/* BOTTOM NAV */}
-      <div className={s.bottom}>
+      <div className={`${s.bottom} ${step === 0 ? s.bottomCenter : ""}`}>
         {step > 0 ? (
           <button type="button" className={`${s.btn} ${s.btnBack}`} onClick={prev}><Back /> Back</button>
-        ) : <span />}
+        ) : null}
         {step === 0 ? (
           <button type="button" className={`${s.btn} ${s.btnPrimary} ${s.btnLg}`} onClick={next}>Start Creating <Arrow /></button>
         ) : step === TOTAL_STEPS - 1 ? (
