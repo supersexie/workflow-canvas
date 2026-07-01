@@ -1,6 +1,7 @@
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { createWorkflow, listWorkflows } from "@/lib/store";
 import s from "./onboarding.module.css";
 
 const TOTAL_STEPS = 6;
@@ -118,6 +119,10 @@ export default function Onboarding() {
     if (step === TOTAL_STEPS - 1) {
       try {
         localStorage.setItem("gmx:onboarding", JSON.stringify({ ...ans, completedAt: Date.now() }));
+        // Create the user's first workflow named after their workspace, so it's
+        // waiting for them on the dashboard. Dedupe by name in case of re-runs.
+        const name = ans.workspaceName.trim() || "My Workspace";
+        if (!listWorkflows().some((w) => w.name === name)) createWorkflow(name);
       } catch {}
       router.push("/app");
       return;
