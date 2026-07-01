@@ -8,7 +8,7 @@ const FAL = process.env.FAL_KEY;
 // Stitch multiple clips into one via fal's ffmpeg compose API (async queue).
 // Each clip is placed sequentially on a single video track.
 export async function POST(req) {
-  const { urls, durations } = await req.json();
+  const { urls, durations, audioUrls } = await req.json();
   if (!Array.isArray(urls) || urls.length < 2) {
     return NextResponse.json({ error: "Need at least 2 video URLs" }, { status: 400 });
   }
@@ -22,7 +22,25 @@ export async function POST(req) {
     t += d;
     return kf;
   });
-  const input = { tracks: [{ id: "1", type: "video", keyframes }] };
+  const tracks = [{ id: "1", type: "video", keyframes }];
+
+  // Narration track (script mode): place each part's voiceover at its clip's
+  // start so the finished video is narrated by the user's script, in order.
+  if (Array.isArray(audioUrls) && audioUrls.some(Boolean)) {
+    let at = 0;
+    const audioKf = [];
+    urls.forEach((_, i) => {
+      const d = (Array.isArray(durations) && durations[i]) || 5;
+      const a = audioUrls[i];
+      if (typeof a === "string" && /^https?:/.test(a)) {
+        audioKf.push({ url: a, timestamp: at, duration: d });
+      }
+      at += d;
+    });
+    if (audioKf.length) tracks.push({ id: "2", type: "audio", keyframes: audioKf });
+  }
+
+  const input = { tracks };
 
   try {
     const res = await fetch("https://queue.fal.run/fal-ai/ffmpeg-api/compose", {

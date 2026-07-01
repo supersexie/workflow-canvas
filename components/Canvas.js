@@ -356,11 +356,13 @@ function CanvasInner({ workflowId }) {
 
   // Director mode (character-consistent): one reference image → per-scene
   // staged image (image-to-image) → image-to-video → stitch into one video.
-  const runDirector = async ({ scenes, character, style, seedImage }, models = {}) => {
+  const runDirector = async ({ scenes, character, style, seedImage, narration }, models = {}) => {
     const list = (scenes || []).slice(0, 6);
     if (list.length < 2) return;
     const videoModel = models.videoModel || "LTX Video";
     const IMG_MODEL = models.imageModel || "Flux 2 Pro"; // image model for reference + staging
+    // Script narration: per-part voiceover of the user's exact lines (muxed onto the stitched video).
+    const lines = models.narrate && Array.isArray(narration) ? narration : null;
     // Style-lock lives in the TEXT: prepend the ONE locked style spec (verbatim)
     // to every prompt so all scenes share the same art style. Each scene gets its
     // OWN seed so compositions differ (a shared seed makes near-identical prompts
@@ -369,7 +371,7 @@ function CanvasInner({ workflowId }) {
     const styled = (p) => `${stylePrefix}${p}`;
     const baseSeed = Math.floor(Math.random() * 1_000_000_000);
     const sceneSeed = (i) => (baseSeed + (i + 1) * 7919) % 1_000_000_000; // distinct per scene, deterministic
-    const colX = { ref: 40, img: 420, vid: 900, out: 1480 };
+    const colX = { ref: 40, img: 420, vid: 900, aud: 900, out: 1480 };
     const gapY = 330;
     const midY = 80 + ((list.length - 1) * gapY) / 2;
 
@@ -417,25 +419,50 @@ function CanvasInner({ workflowId }) {
         }
         addEdgeBetween(vidId, combineId);
         setNodeData(vidId, { status: "running" });
+        // Voiceover of this part's exact script lines (script + narrate mode).
+        const line = lines && typeof lines[i] === "string" ? lines[i].trim() : "";
+        const audioPromise = line
+          ? (async () => {
+              const audId = addNode("audio", { prompt: line, position: { x: colX.aud, y: y + 150 } });
+              addEdgeBetween(audId, combineId);
+              setNodeData(audId, { status: "running" });
+              try {
+                const out = await generateOutput("audio", line, undefined, [], {});
+                setNodeData(audId, { status: "done", output: out });
+                return out;
+              } catch (e) {
+                setNodeData(audId, { status: "error", error: e.message });
+                return null;
+              }
+            })()
+          : Promise.resolve(null);
         try {
-          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: 6, seed: sceneSeed(i), audio: true });
+          const [clip, audio] = await Promise.all([
+            generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: 6, seed: sceneSeed(i), audio: true }),
+            audioPromise,
+          ]);
           setNodeData(vidId, { status: "done", output: clip });
-          return clip;
+          return { clip, audio };
         } catch (e) {
           setNodeData(vidId, { status: "error", error: e.message });
-          return null;
+          return { clip: null, audio: null };
         }
       })
     );
 
-    // 3) Stitch the finished clips into one video.
-    const urls = results.filter(Boolean);
+    // 3) Stitch the finished clips into one video (with narration audio if any).
+    const kept = results.filter((r) => r && r.clip);
+    const urls = kept.map((r) => r.clip);
     if (urls.length < 2) {
       setNodeData(combineId, { status: "error", error: "Not enough scenes generated to combine" });
       return;
     }
+    // Only mux narration that's a hosted URL — fal compose can't take data: URIs.
+    const audioUrls = lines
+      ? kept.map((r) => (typeof r.audio === "string" && /^https?:/.test(r.audio) ? r.audio : null))
+      : null;
     try {
-      const finalUrl = await combineVideos(urls, urls.map(() => 5));
+      const finalUrl = await combineVideos(urls, urls.map(() => 5), undefined, audioUrls);
       setNodeData(combineId, { status: "done", output: finalUrl });
       fitView({ padding: 0.2, duration: 400 });
     } catch (e) {

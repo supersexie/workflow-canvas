@@ -58,9 +58,21 @@ export async function POST(req) {
     const sel = context.hasSelectedImage
       ? "Canvas selection: the user currently has an IMAGE selected on the canvas."
       : "Canvas selection: nothing relevant is selected.";
+    // SCRIPT MODE: the user's message is a finished script to turn into a video.
+    const scriptMsg = context.script
+      ? `SCRIPT MODE IS ON. The user's message is a SCRIPT (their own written narration/story), not a brief. Turn it into a multi-scene video ("kind":"video" with "scenes"):
+- Segment the script FAITHFULLY and IN ORDER into 2-6 parts. Do not rewrite or reorder the user's content.
+- For each part, write a "scenes" entry = a VISUAL prompt for that part (what's on screen), using the locked style + fixed character description.${
+          context.narrate
+            ? `\n- ALSO return "narration": an array parallel to "scenes", where narration[i] is the EXACT script text for that part, VERBATIM (the lines to be read aloud). Split the user's script text across the parts in order; do not paraphrase, add, or drop words.`
+            : ``
+        }
+- Still return "style" and (unless a selected image is used) "character" as usual.`
+      : "";
     const messages = [
       { role: "system", content: SYS },
       { role: "system", content: sel },
+      ...(scriptMsg ? [{ role: "system", content: scriptMsg }] : []),
       ...history.slice(-6).map((m) => ({ role: m.role, content: m.content })),
       { role: "user", content: input },
     ];
@@ -84,11 +96,16 @@ export async function POST(req) {
     const scenes = Array.isArray(parsed.scenes)
       ? parsed.scenes.filter((s) => typeof s === "string" && s.trim()).slice(0, 6)
       : null;
+    // Per-part narration lines (script mode + narrate), aligned to scenes.
+    const narration = context.narrate && Array.isArray(parsed.narration)
+      ? parsed.narration.map((s) => (typeof s === "string" ? s : "")).slice(0, scenes ? scenes.length : 6)
+      : null;
     const useSelectedImage = parsed.useSelectedImage === true && context.hasSelectedImage === true;
     return NextResponse.json({
       kind: parsed.kind ?? null,
       prompt: parsed.prompt || input,
       scenes: scenes && scenes.length >= 2 ? scenes : null,
+      narration: narration && narration.length ? narration : null,
       style: typeof parsed.style === "string" ? parsed.style : null,
       character: useSelectedImage ? null : (typeof parsed.character === "string" ? parsed.character : null),
       useSelectedImage,

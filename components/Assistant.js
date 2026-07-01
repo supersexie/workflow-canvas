@@ -9,6 +9,8 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
   const [history, setHistory] = useState([]);
   const [input, setInput] = useState("");
   const [autoRun, setAutoRun] = useState(true);
+  const [scriptMode, setScriptMode] = useState(false);
+  const [narrate, setNarrate] = useState(true);
   const [imageModel, setImageModel] = useState("Flux 2 Pro");
   const [videoModel, setVideoModel] = useState("LTX Video");
   const [sending, setSending] = useState(false);
@@ -35,7 +37,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
       const res = await fetch("/api/assistant", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ input: text, history, context: { hasSelectedImage: !!hasSelectedImage } }),
+        body: JSON.stringify({ input: text, history, context: { hasSelectedImage: !!hasSelectedImage, script: scriptMode, narrate: scriptMode && narrate } }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error || `HTTP ${res.status}`);
@@ -52,7 +54,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
               : null,
         },
       ]);
-      if (isDirector) onDirector({ scenes: data.scenes, character: data.character, style: data.style }, { imageModel, videoModel }, data.useSelectedImage);
+      if (isDirector) onDirector({ scenes: data.scenes, character: data.character, style: data.style, narration: data.narration }, { imageModel, videoModel, narrate: scriptMode && narrate }, data.useSelectedImage);
       else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt, imageModel, videoModel }, autoRun, data.useSelectedImage);
     } catch (e) {
       setHistory((h) => [...h, { role: "assistant", content: `⚠ ${e.message}` }]);
@@ -134,6 +136,22 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
             >
               ⚡ Auto-run {autoRun ? "on" : "off"}
             </button>
+            <button
+              className={`cb-autorun ${scriptMode ? "on" : ""}`}
+              onClick={() => setScriptMode((v) => !v)}
+              title="Treat your message as a script — split it faithfully into parts and make a clip per part"
+            >
+              📜 Script {scriptMode ? "on" : "off"}
+            </button>
+            {scriptMode && (
+              <button
+                className={`cb-autorun ${narrate ? "on" : ""}`}
+                onClick={() => setNarrate((v) => !v)}
+                title="When on, each part gets a voiceover of that part's exact lines, muxed onto the clip"
+              >
+                🎙 Narrate {narrate ? "on" : "off"}
+              </button>
+            )}
             <select
               className="cb-model"
               value={imageModel}
