@@ -360,16 +360,19 @@ function CanvasInner({ workflowId }) {
     if (list.length < 2) return;
     const videoModel = models.videoModel || "LTX Video";
     const IMG_MODEL = models.imageModel || "Flux 2 Pro"; // image model for reference + staging
-    // Style-lock: prepend the ONE locked style spec (verbatim) to every prompt,
-    // and reuse ONE seed for every generation, so all scenes share the same look.
+    // Style-lock lives in the TEXT: prepend the ONE locked style spec (verbatim)
+    // to every prompt so all scenes share the same art style. Each scene gets its
+    // OWN seed so compositions differ (a shared seed makes near-identical prompts
+    // produce near-identical images — over-consistency).
     const stylePrefix = (style || "").trim() ? `${style.trim().replace(/[.\s]+$/, "")}. ` : "";
     const styled = (p) => `${stylePrefix}${p}`;
-    const seed = Math.floor(Math.random() * 1_000_000_000);
+    const baseSeed = Math.floor(Math.random() * 1_000_000_000);
+    const sceneSeed = (i) => (baseSeed + (i + 1) * 7919) % 1_000_000_000; // distinct per scene, deterministic
     const colX = { ref: 40, img: 420, vid: 900, out: 1480 };
     const gapY = 330;
     const midY = 80 + ((list.length - 1) * gapY) / 2;
 
-    // 1) Reference image (shared style + seed for every scene). Use the selected
+    // 1) Reference image (the shared character/style anchor). Use the selected
     //    image if provided ("turn this image into a video"), else generate one.
     let refUrl = seedImage || null;
     let refId = null;
@@ -377,7 +380,7 @@ function CanvasInner({ workflowId }) {
       refId = addNode("image", { prompt: styled(character), model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.ref, y: midY } });
       setNodeData(refId, { status: "running", output: null, error: null });
       try {
-        refUrl = await generateOutput("image", styled(character), IMG_MODEL, [], { seed });
+        refUrl = await generateOutput("image", styled(character), IMG_MODEL, [], { seed: baseSeed });
         setNodeData(refId, { status: "done", output: refUrl });
       } catch (e) {
         setNodeData(refId, { status: "error", error: e.message });
@@ -395,8 +398,9 @@ function CanvasInner({ workflowId }) {
         const y = 80 + i * gapY;
         const vidId = addNode("video", { prompt: styled(scene), model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y } });
         vidIds.push(vidId);
-        // Staged scene image (only if we have a reference to seed from). Same
-        // style prefix + same seed as every other scene → consistent look.
+        // Staged scene image (only if we have a reference to seed from): same
+        // style prefix + same character reference (→ consistent look), but its
+        // OWN seed (→ this scene's composition differs from the others).
         let stagedUrl = null;
         if (refUrl) {
           const imgId = addNode("image", { prompt: styled(scene), model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.img, y } });
@@ -404,7 +408,7 @@ function CanvasInner({ workflowId }) {
           addEdgeBetween(imgId, vidId);
           setNodeData(imgId, { status: "running" });
           try {
-            stagedUrl = await generateOutput("image", styled(scene), IMG_MODEL, [refUrl], { seed });
+            stagedUrl = await generateOutput("image", styled(scene), IMG_MODEL, [refUrl], { seed: sceneSeed(i) });
             setNodeData(imgId, { status: "done", output: stagedUrl });
           } catch (e) {
             setNodeData(imgId, { status: "error", error: e.message });
@@ -413,7 +417,7 @@ function CanvasInner({ workflowId }) {
         addEdgeBetween(vidId, combineId);
         setNodeData(vidId, { status: "running" });
         try {
-          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: 6, seed });
+          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: 6, seed: sceneSeed(i) });
           setNodeData(vidId, { status: "done", output: clip });
           return clip;
         } catch (e) {
