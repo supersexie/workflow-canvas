@@ -1,36 +1,36 @@
 #!/usr/bin/env bash
 set -euo pipefail
 cd "$(dirname "$0")/.."
-OUT=TUTORIAL-AND-ONBOARDING.md
 
 fence() { printf '````%s\n' "$1"; }   # 4-backtick fence so inner ``` can't break it
 endf() { printf '````\n'; }
 
+# ============================================================================
+# FILE 1 — INTERACTIVE-TUTORIAL.md
+# ============================================================================
+OUT=INTERACTIVE-TUTORIAL.md
 {
 cat <<'MD'
-# Interactive Tutorial + Onboarding Flow — Portable Code
+# Interactive Canvas Tutorial — Portable Code
 
-Everything needed to drop the **hands-on canvas tutorial** (spotlight tour) and the
-**6-step onboarding wizard** into another React / Next.js app. Copy each file to the
-path shown, add the CSS, and wire the small integration snippets.
+A hands-on guided tour that **dims the screen, cuts a bright "spotlight" hole around a
+real UI element, and advances when the user actually performs the step** (adds a node,
+types a prompt, hits generate). Welcome/Finish are centered modals. It auto-launches once
+per user (localStorage flag); a "How it works" button replays it anytime.
 
-**Stack assumptions:** React 18/19, Next.js App Router (`"use client"` components),
-`next/navigation` for routing. The tutorial targets a node-canvas editor (React Flow),
-but the mechanism is generic — you just point its CSS selectors at your own UI.
+Drop it into any React / Next.js app: copy the component, add the CSS, wire the small
+integration snippets, and repoint the step selectors at your own UI.
+
+**Stack assumptions:** React 18/19, Next.js App Router (`"use client"` component). The
+mechanism is generic — the example targets a React Flow node editor, but any UI works.
 
 ---
 
-# PART A — Interactive Canvas Tutorial
+## 1. The component — `components/CanvasTutorial.js`
 
-A guided tour that **dims the screen, cuts a bright "spotlight" hole around a real UI
-element, and advances when the user actually performs the step** (adds a node, types a
-prompt, hits generate). Welcome/Finish are centered modals. Auto-launches once per user
-(localStorage flag); a "How it works" button replays it.
-
-## A1. The component — `components/CanvasTutorial.js`
-
-Self-contained. `TUT_STEPS` defines the tour; edit the `target` selectors + copy to fit
+Self-contained. `TUT_STEPS` defines the tour; edit each `target` selector + copy to fit
 your UI. Each step is a `modal` (centered card) or a `spotlight` (dim + hole + tip card).
+The dim layer is click-through, so users interact with the live UI underneath.
 
 MD
 fence jsx
@@ -39,7 +39,7 @@ endf
 
 cat <<'MD'
 
-## A2. The CSS — add to your global stylesheet
+## 2. The CSS — add to your global stylesheet
 
 Uses CSS variables (`--surface`, `--line-2`, `--ink`, `--text`, `--muted`, `--muted-2`,
 `--blue`, `--blue-dark`, `--shadow`) — define them or replace with literals. The
@@ -54,7 +54,7 @@ endf
 
 cat <<'MD'
 
-## A3. Wiring it into your editor component
+## 3. Wiring it into your editor component
 
 The parent holds the current step index and detects when the user performs each step.
 Below are the exact snippets (from a React Flow canvas). Adapt the advancement
@@ -130,7 +130,7 @@ endf
 
 cat <<'MD'
 
-### Adapting the tour to your UI — checklist
+## 4. Adapting the tour to your UI — checklist
 1. Define the CSS variables (or swap for literals) and add the CSS incl. the z-index raises.
 2. In `TUT_STEPS`, set each `target` to a selector that exists in your UI and rewrite the copy.
 3. Wire the advancement `useEffect`s to your own state (node list, selection, is-generating).
@@ -139,18 +139,38 @@ cat <<'MD'
 **Placement values** (`step.placement`): `right`, `bl` (lower-left, above a bottom bar),
 `tl` (top-left), `top`, `left-of` (left of a separate `tipTarget`), or default (below).
 
+## Dependencies
+- **React 18/19 + Next.js App Router** (`"use client"`).
+- **No other libraries** — icons are inline SVG; the overlay is a plain SVG mask.
+MD
+} > "$OUT"
+echo "Wrote $OUT ($(wc -l < "$OUT") lines)"
+
+# ============================================================================
+# FILE 2 — ONBOARDING-FLOW.md
+# ============================================================================
+OUT=ONBOARDING-FLOW.md
+{
+cat <<'MD'
+# Onboarding Flow (6-step wizard) — Portable Code
+
+A full-screen, dark, gradient onboarding wizard: a progress bar, per-step cards
+(goal/experience, starting point, workspace name + style, output platforms/types), and a
+summary that reflects every choice. Cosmetic by default (saves answers to localStorage);
+the final step can create the user's first workspace and route into the app.
+
+Drop it into any React / Next.js app: copy the page + CSS module, then wire the trigger.
+
+**Stack assumptions:** React 18/19, Next.js App Router (`"use client"` component),
+`useRouter` from `next/navigation`. Auth-agnostic — trigger it however you like.
+
 ---
 
-# PART B — Onboarding Flow (6-step wizard)
+## 1. The page — `app/onboarding/page.js`
 
-A full-screen, dark, gradient onboarding wizard: progress bar, per-step cards
-(goal/experience, starting point, workspace name + style, output platforms/types),
-and a summary that reflects every choice. Cosmetic by default (saves answers to
-localStorage); the final step can create the user's first workspace.
+A standalone route. Outline SVG icons (no emoji), CSS-module styling, `localStorage`
+persistence so it never re-shows.
 
-## B1. The page — `app/onboarding/page.js`
-
-A standalone route. Uses outline SVG icons (no emoji) and CSS-module styling.
 MD
 fence jsx
 cat app/onboarding/page.js
@@ -158,7 +178,7 @@ endf
 
 cat <<'MD'
 
-## B2. The styles — `app/onboarding/onboarding.module.css`
+## 2. The styles — `app/onboarding/onboarding.module.css`
 MD
 fence css
 cat app/onboarding/onboarding.module.css
@@ -166,7 +186,7 @@ endf
 
 cat <<'MD'
 
-## B3. Wiring the onboarding flow
+## 3. Wiring the onboarding flow
 
 ### Trigger it after sign-up (Clerk example, `app/layout.js`)
 Point new sign-ups at `/onboarding` instead of straight to the app:
@@ -198,9 +218,9 @@ endf
 cat <<'MD'
 
 ### What the final step does
-On "Enter Your Studio", the page (see B1) saves the answers to `localStorage`
-(`gmx:onboarding`) so the wizard never re-shows, and creates the user's first workflow
-named after their workspace, then routes to `/app`:
+On "Enter Your Studio", the page (see §1) saves the answers to `localStorage`
+(`gmx:onboarding`) so the wizard never re-shows, creates the user's first workflow named
+after their workspace, then routes to `/app`:
 MD
 fence jsx
 cat <<'CODE'
@@ -217,18 +237,15 @@ endf
 cat <<'MD'
 
 `createWorkflow(name)` is a tiny localStorage helper — swap for your own "create a
-project/workspace" call. If you only want the cosmetic flow, drop the createWorkflow
-line and just `router.push()` wherever the app lives.
-
----
+project/workspace" call. For a purely cosmetic flow, drop the createWorkflow line and just
+`router.push()` wherever the app lives.
 
 ## Dependencies
-- **React 18/19 + Next.js App Router.** Both features are `"use client"` components.
-- **Routing:** `useRouter` from `next/navigation` (onboarding). Replace with your router.
-- **Auth (optional):** the onboarding trigger + route-gate examples use Clerk, but the
-  wizard itself is auth-agnostic — trigger it however you like.
-- **No other libraries.** Icons are inline SVG; styling is plain CSS / CSS Modules.
+- **React 18/19 + Next.js App Router** (`"use client"`).
+- **Routing:** `useRouter` from `next/navigation` — replace with your router if different.
+- **Auth (optional):** the trigger + route-gate examples use Clerk, but the wizard itself
+  is auth-agnostic.
+- **No other libraries** — icons are inline SVG; styling is a CSS Module.
 MD
 } > "$OUT"
-
 echo "Wrote $OUT ($(wc -l < "$OUT") lines)"
