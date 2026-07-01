@@ -10,7 +10,9 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
   const [input, setInput] = useState("");
   const [autoRun, setAutoRun] = useState(true);
   const [scriptMode, setScriptMode] = useState(false);
-  const [narrate, setNarrate] = useState(true);
+  // Off by default: Script mode uses your script purely as a visual framework
+  // (no voiceover → no TTS/voiceover key needed). Narration is an opt-in extra.
+  const [narrate, setNarrate] = useState(false);
   const [imageModel, setImageModel] = useState("Flux 2 Pro");
   const [videoModel, setVideoModel] = useState("LTX Video");
   const [sending, setSending] = useState(false);
