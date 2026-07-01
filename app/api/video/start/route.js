@@ -41,10 +41,12 @@ const FAL_MODELS = {
   "Kling 2.6": {
     t2v: "fal-ai/kling-video/v2.6/pro/text-to-video",
     i2v: "fal-ai/kling-video/v2.6/pro/image-to-video",
+    audio: true,
   },
   "Kling 3.0": {
     t2v: "fal-ai/kling-video/v3/pro/text-to-video",
     i2v: "fal-ai/kling-video/v3/pro/image-to-video",
+    audio: true,
   },
   "MiniMax Hailuo 2.3": {
     t2v: "fal-ai/minimax/hailuo-2.3/pro/text-to-video",
@@ -57,6 +59,7 @@ const FAL_MODELS = {
   "Sora 2": {
     t2v: "fal-ai/sora-2/text-to-video",
     i2v: "fal-ai/sora-2/image-to-video",
+    audio: true,
   },
 };
 
@@ -66,7 +69,8 @@ function parseDataUrl(d) {
 }
 
 export async function POST(req) {
-  const { prompt, model, image, aspect, resolution, duration, seed } = await req.json();
+  const { prompt, model, image, aspect, resolution, duration, seed, audio } = await req.json();
+  const wantAudio = audio !== false; // audio ON by default
 
   // ---- fal.ai ----
   // Only route to Veo for an explicit Veo model; otherwise default to fal LTX
@@ -85,6 +89,8 @@ export async function POST(req) {
     }
     // Same seed across a director run → consistent look between clips.
     if (Number.isFinite(seed)) input.seed = seed;
+    // Native audio (only models that support it — else fal 400s on the param).
+    if (fal.audio) input.generate_audio = wantAudio;
     try {
       const res = await fetch(`https://queue.fal.run/${endpoint}`, {
         method: "POST",
@@ -123,7 +129,7 @@ export async function POST(req) {
     } catch {}
   }
   if (img) instance.image = { bytesBase64Encoded: img.data, mimeType: img.mimeType };
-  const parameters = {};
+  const parameters = { generateAudio: wantAudio }; // Veo 3.1 supports native audio
   if (aspect) parameters.aspectRatio = aspect;
   if (resolution) parameters.resolution = resolution;
   if (duration) parameters.durationSeconds = Number(duration);

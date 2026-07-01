@@ -184,12 +184,19 @@ export default function PromptBar({ node, sources = [], onChange, onRun, running
               <Dropdown open={openMenu === "duration"} options={DURATIONS} onPick={(v) => set({ duration: v })} onClose={() => setOpenMenu(null)} />
             </div>
           )}
-          {isVideo && (
-            <Chip
-              icon={<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M22 9 18 13M18 9l4 4"/></svg>}
-              label={data.audio || "No Audio"}
-            />
-          )}
+          {isVideo && (() => {
+            const audioOn = data.audio !== false; // audio ON by default
+            return (
+              <button className="chip-btn" onClick={() => set({ audio: !audioOn })} title="Toggle generated audio (supported models only)">
+                {audioOn ? (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M15.5 8.5a5 5 0 0 1 0 7M19 5a9 9 0 0 1 0 14"/></svg>
+                ) : (
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M11 5 6 9H2v6h4l5 4V5z"/><path d="M22 9 18 13M18 9l4 4"/></svg>
+                )}
+                <span style={audioOn ? { color: "#10b981" } : null}>{audioOn ? "Audio On" : "No Audio"}</span>
+              </button>
+            );
+          })()}
           {isAudio && (
             <div className="chip-wrap">
               <Chip

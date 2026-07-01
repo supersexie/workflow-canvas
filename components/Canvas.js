@@ -331,6 +331,7 @@ function CanvasInner({ workflowId }) {
           aspect: aspectRatio,
           resolution,
           duration: dur,
+          audio: node.data.audio !== false, // audio ON by default
         });
       } else {
         // For image nodes, forward connected source image(s) → image-to-image edit.
@@ -417,7 +418,7 @@ function CanvasInner({ workflowId }) {
         addEdgeBetween(vidId, combineId);
         setNodeData(vidId, { status: "running" });
         try {
-          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: 6, seed: sceneSeed(i) });
+          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: 6, seed: sceneSeed(i), audio: true });
           setNodeData(vidId, { status: "done", output: clip });
           return clip;
         } catch (e) {
