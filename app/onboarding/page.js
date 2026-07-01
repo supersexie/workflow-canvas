@@ -47,40 +47,40 @@ const IcoPen = ico(<><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z" /><path d="M14 6l3
 const IcoPuzzle = ico(<path d="M9 3h4v2.5a1.5 1.5 0 0 0 3 0V3h3a2 2 0 0 1 2 2v3h-2.5a1.5 1.5 0 0 0 0 3H21v3a2 2 0 0 1-2 2h-3v-2.5a1.5 1.5 0 0 0-3 0V18H9a2 2 0 0 1-2-2v-3h2.5a1.5 1.5 0 0 0 0-3H7V7a2 2 0 0 1 2-2z" />);
 
 const GOALS = [
-  { key: "social", icon: IcoFilm, h: "Social Media Content", p: "Create videos & posts for Instagram, TikTok, YouTube" },
-  { key: "marketing", icon: IcoMegaphone, h: "Marketing & Ads", p: "Generate campaign creative and product content" },
-  { key: "personal", icon: IcoPalette, h: "Personal Projects", p: "Explore ideas and bring stories to life" },
-  { key: "learn", icon: IcoZap, h: "Learn AI Tools", p: "Explore what's possible with generative AI" },
+  { key: "rhymes", icon: IcoMusic, h: "Nursery Rhyme Videos", p: "Sing-along rhymes & catchy kids songs" },
+  { key: "learning", icon: IcoCap, h: "Learning & Educational", p: "ABCs, numbers, colors & shapes" },
+  { key: "stories", icon: IcoFilm, h: "Cartoon Stories", p: "Animated story episodes for kids" },
+  { key: "channel", icon: IcoPlay, h: "Grow a Kids Channel", p: "Post safe, consistent content" },
 ];
 const EXPERIENCE = [
-  "I'm new to AI content creation",
-  "I've used AI tools before",
-  "I'm experienced with AI creative tools",
+  "I'm new to making kids content",
+  "I've made a few kids videos",
+  "I run a kids channel already",
 ];
 const USE_CASES = [
-  { key: "social", icon: IcoSmartphone, h: "Social Media" },
-  { key: "ads", icon: IcoBag, h: "Product & Ads" },
-  { key: "story", icon: IcoBook, h: "Storytelling" },
-  { key: "edu", icon: IcoCap, h: "Education" },
-  { key: "music", icon: IcoHeadphones, h: "Music & Audio" },
+  { key: "rhymes", icon: IcoMusic, h: "Nursery Rhymes" },
+  { key: "learning", icon: IcoCap, h: "Learning & ABCs" },
+  { key: "stories", icon: IcoFilm, h: "Cartoons & Stories" },
+  { key: "numbers", icon: IcoPalette, h: "Numbers & Colors" },
+  { key: "songs", icon: IcoHeadphones, h: "Kids Songs" },
   { key: "other", icon: IcoSparkles, h: "Something Else" },
 ];
 const STYLES = [
-  { key: "realistic", h: "Realistic", p: "Photorealistic AI renders" },
-  { key: "stylized", h: "Stylized", p: "Bold, illustrated look" },
-  { key: "cinematic", h: "Cinematic", p: "Film-grade lighting & motion" },
-  { key: "anime", h: "Anime-Inspired", p: "Japanese animation style" },
+  { key: "3d", h: "3D Animation", p: "Pixar-style 3D characters" },
+  { key: "cartoon", h: "2D Cartoon", p: "Flat, colorful cartoon look" },
+  { key: "clay", h: "Claymation", p: "Playful clay-model style" },
+  { key: "storybook", h: "Storybook", p: "Hand-drawn picture-book art" },
 ];
 const PLATFORMS = [
-  { key: "instagram", icon: IcoCamera, h: "Instagram" },
-  { key: "youtube", icon: IcoPlay, h: "YouTube" },
+  { key: "youtubekids", icon: IcoPlay, h: "YouTube Kids" },
+  { key: "youtube", icon: IcoFilm, h: "YouTube" },
   { key: "tiktok", icon: IcoMusic, h: "TikTok" },
-  { key: "twitter", icon: IcoX, h: "Twitter / X" },
+  { key: "instagram", icon: IcoCamera, h: "Instagram" },
 ];
 const CONTENT_TYPES = [
-  { key: "images", icon: IcoImage, h: "Images" },
-  { key: "videos", icon: IcoFilm, h: "Videos" },
+  { key: "videos", icon: IcoFilm, h: "Rhyme Videos" },
   { key: "voiceovers", icon: IcoMic, h: "Voiceovers" },
+  { key: "art", icon: IcoImage, h: "Character Art" },
   { key: "scripts", icon: IcoPen, h: "Scripts" },
 ];
 
@@ -93,7 +93,7 @@ export default function Onboarding() {
     method: null,
     workspaceName: "",
     useCase: null,
-    style: "realistic",
+    style: "3d",
     platforms: [],
     contentTypes: [],
   });
@@ -159,8 +159,8 @@ export default function Onboarding() {
           {step === 0 && (
             <div className={s.center}>
               <span className={s.badge}><IcoSparkles width={15} height={15} /> 5-minute setup</span>
-              <h1 className={s.h1}>Create Your <span className={s.grad}>AI Workflow</span></h1>
-              <p className={s.lead}>Join thousands of creators building on Genmax. We'll guide you through every step — it only takes a few minutes.</p>
+              <h1 className={s.h1}>Create Videos <span className={s.grad}>Kids Love</span></h1>
+              <p className={s.lead}>Turn simple ideas into kid-friendly videos — nursery rhymes, learning songs, and cartoon stories. We'll set up your channel in minutes.</p>
               <div className={s.stats}>
                 <div className={s.stat}><div className={s.statNum}>5 min</div><div className={s.statLabel}>Setup time</div></div>
                 <div className={s.stat}><div className={s.statNum}>10+</div><div className={s.statLabel}>AI models</div></div>
@@ -173,7 +173,7 @@ export default function Onboarding() {
           {step === 1 && (
             <>
               <div className={s.center}>
-                <h2 className={s.h2}>What's your goal?</h2>
+                <h2 className={s.h2}>What do you want to make?</h2>
                 <p className={s.stepSub}>Choose your path to get started</p>
               </div>
               <div className={s.label}>I want to:</div>
@@ -206,8 +206,8 @@ export default function Onboarding() {
               </div>
               <div style={{ marginTop: 34 }}>
                 {[
-                  { key: "template", icon: IcoSparkles, h: "Template Workflow", p: "Start from a ready-made workflow for common tasks", list: ["Instant results, no setup", "Proven node combinations", "Customize as you go"] },
-                  { key: "blank", icon: IcoPuzzle, h: "Blank Canvas", p: "Start from scratch and build your own workflow", list: ["Full creative control", "Connect any node type", "Build exactly what you need"] },
+                  { key: "template", icon: IcoSparkles, h: "Kids Video Template", p: "Start from a ready-made nursery-rhyme / story workflow", list: ["A finished video in minutes", "Kid-safe, proven layouts", "Just swap the theme & characters"] },
+                  { key: "blank", icon: IcoPuzzle, h: "Blank Canvas", p: "Build your own kids video from scratch", list: ["Full creative control", "Connect any node type", "Make exactly the video you want"] },
                 ].map((m) => (
                   <button key={m.key} type="button" className={`${s.methodCard} ${ans.method === m.key ? s.methodSel : ""}`} onClick={() => toggle("method", m.key, false)}>
                     <span className={s.methodIcon}><m.icon /></span>
@@ -228,20 +228,20 @@ export default function Onboarding() {
           {step === 3 && (
             <>
               <div className={s.center}>
-                <h2 className={s.h2}>Set up your workspace</h2>
-                <p className={s.stepSub}>Give your workspace a name and a look</p>
+                <h2 className={s.h2}>Set up your channel</h2>
+                <p className={s.stepSub}>Give your kids channel a name and a look</p>
               </div>
-              <div className={s.label} style={{ marginTop: 34 }}>Workspace name</div>
+              <div className={s.label} style={{ marginTop: 34 }}>Channel name</div>
               <div className={s.field}>
                 <input
                   className={s.input}
-                  placeholder="My Workspace"
+                  placeholder="My Kids Channel"
                   value={ans.workspaceName}
                   onChange={(e) => setAns((a) => ({ ...a, workspaceName: e.target.value }))}
                   maxLength={40}
                 />
               </div>
-              <div className={s.label}>Primary use case</div>
+              <div className={s.label}>Content focus</div>
               <div className={s.grid2} style={{ gridTemplateColumns: "repeat(3, 1fr)" }}>
                 {USE_CASES.map((u) => (
                   <button key={u.key} type="button" className={`${s.tile} ${ans.useCase === u.key ? s.tileSel : ""}`} onClick={() => toggle("useCase", u.key, false)}>
@@ -298,8 +298,8 @@ export default function Onboarding() {
           {step === 5 && (
             <>
               <div className={s.center}>
-                <h2 className={s.h2}>{ans.workspaceName.trim() || "Your workspace"} is ready to launch</h2>
-                <p className={s.stepSub}>Your Genmax workspace is configured and ready to start creating.</p>
+                <h2 className={s.h2}>{ans.workspaceName.trim() || "Your channel"} is ready to launch</h2>
+                <p className={s.stepSub}>Your kids channel is set up on Genmax and ready to start creating.</p>
               </div>
               <div className={s.summaryGrid}>
                 <div className={s.summaryArt}>
@@ -310,8 +310,8 @@ export default function Onboarding() {
                   <div className={s.summaryItem}>
                     <span className={s.summaryCheck}><Check /></span>
                     <div>
-                      <div className={s.summaryH}>{ans.workspaceName.trim() || "Workspace"}</div>
-                      <div className={s.summaryP}>{label(ans.useCase, USE_CASES) || "General use"} · {label(ans.style, STYLES) || "Realistic"}</div>
+                      <div className={s.summaryH}>{ans.workspaceName.trim() || "Kids Channel"}</div>
+                      <div className={s.summaryP}>{label(ans.useCase, USE_CASES) || "Kids content"} · {label(ans.style, STYLES) || "3D Animation"}</div>
                     </div>
                   </div>
                   <div className={s.summaryItem}>
