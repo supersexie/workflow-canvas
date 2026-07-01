@@ -20,7 +20,7 @@ export default function RootLayout({ children }) {
         signInUrl="/sign-in"
         signUpUrl="/sign-up"
         signInFallbackRedirectUrl="/app"
-        signUpFallbackRedirectUrl="/app"
+        signUpFallbackRedirectUrl="/onboarding"
       >
         {page}
       </ClerkProvider>
