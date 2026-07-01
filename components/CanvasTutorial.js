@@ -23,8 +23,8 @@ export const TUT_STEPS = [
     mode: "spotlight",
     target: '[data-tut="add"]',
     placement: "right",
-    title: "Add your first node",
-    body: "Click the + button to add a node — or pick one of the cards in the centre. Try an Image node to start.",
+    title: "Add an Image node",
+    body: "Click the + button in the toolbar, then choose Image from the menu. That's your first node — we'll build from it.",
   },
   {
     mode: "spotlight",
