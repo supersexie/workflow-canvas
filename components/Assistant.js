@@ -13,6 +13,9 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
   // Off by default: Script mode uses your script purely as a visual framework
   // (no voiceover → no TTS/voiceover key needed). Narration is an opt-in extra.
   const [narrate, setNarrate] = useState(false);
+  // Seamless: chain clips (last frame of each → first frame of the next) for
+  // invisible transitions. Sequential, so slower — opt-in.
+  const [seamless, setSeamless] = useState(false);
   const [imageModel, setImageModel] = useState("Flux 2 Pro");
   const [videoModel, setVideoModel] = useState("LTX Video");
   const [sending, setSending] = useState(false);
@@ -56,7 +59,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
               : null,
         },
       ]);
-      if (isDirector) onDirector({ scenes: data.scenes, character: data.character, style: data.style, narration: data.narration }, { imageModel, videoModel, narrate: scriptMode && narrate }, data.useSelectedImage);
+      if (isDirector) onDirector({ scenes: data.scenes, character: data.character, style: data.style, narration: data.narration }, { imageModel, videoModel, narrate: scriptMode && narrate, seamless }, data.useSelectedImage);
       else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt, imageModel, videoModel }, autoRun, data.useSelectedImage);
     } catch (e) {
       setHistory((h) => [...h, { role: "assistant", content: `⚠ ${e.message}` }]);
@@ -144,6 +147,13 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
               title="Treat your message as a script — split it faithfully into parts and make a clip per part"
             >
               📜 Script {scriptMode ? "on" : "off"}
+            </button>
+            <button
+              className={`cb-autorun ${seamless ? "on" : ""}`}
+              onClick={() => setSeamless((v) => !v)}
+              title="Chain clips so each starts on the previous clip's last frame — seamless transitions (slower, sequential)"
+            >
+              🎞 Seamless {seamless ? "on" : "off"}
             </button>
             {scriptMode && (
               <button

@@ -18,7 +18,7 @@ import Library from "./Library";
 import UserMenu from "./UserMenu";
 import CanvasTutorial, { TUT_STEPS, TUTORIAL_DONE_KEY } from "./CanvasTutorial";
 import { getWorkflow, saveWorkflow, renameWorkflow } from "@/lib/store";
-import { generateOutput, generateVideo, combineVideos } from "@/lib/run";
+import { generateOutput, generateVideo, combineVideos, lastFrameDataUrl } from "@/lib/run";
 import { nodeDims } from "@/lib/cardSize";
 
 const NODE_TYPES_META = [
@@ -395,8 +395,62 @@ function CanvasInner({ workflowId }) {
       }
     }
 
-    // 2) Per scene: stage the character into the scene (image-to-image), then
-    //    animate that staged image (image-to-video). Runs in parallel.
+    // 2a) SEAMLESS mode: build clips SEQUENTIALLY, each starting on the previous
+    //     clip's last frame → invisible transitions. Slower (can't parallelize).
+    if (models.seamless) {
+      const combineId = addNode("video", { prompt: "Combined video", aspect: "16:9 · 720p", position: { x: colX.out, y: midY }, noFocus: true });
+      setNodeData(combineId, { status: "running" });
+      let prevFrame = refUrl || null;   // clip 1 seeds from the reference image
+      let prevVidId = null;
+      const clips = [], audioUrls = [];
+      for (let i = 0; i < list.length; i++) {
+        const scene = list[i];
+        const y = 80 + i * gapY;
+        const vidId = addNode("video", { prompt: styled(scene), model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y }, noFocus: true });
+        if (i === 0 && refId) addEdgeBetween(refId, vidId);
+        if (prevVidId) addEdgeBetween(prevVidId, vidId); // chain edge (previous clip → this one)
+        addEdgeBetween(vidId, combineId);
+        setNodeData(vidId, { status: "running" });
+        // Optional narration for this part.
+        const line = lines && typeof lines[i] === "string" ? lines[i].trim() : "";
+        let audOut = null;
+        if (line) {
+          const audId = addNode("audio", { prompt: line, position: { x: colX.aud, y: y + 150 }, noFocus: true });
+          addEdgeBetween(audId, combineId);
+          setNodeData(audId, { status: "running" });
+          try { audOut = await generateOutput("audio", line, undefined, [], {}); setNodeData(audId, { status: "done", output: audOut }); }
+          catch (e) { setNodeData(audId, { status: "error", error: e.message }); }
+        }
+        try {
+          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: prevFrame || null, aspect: "16:9", resolution: "720p", duration: 6, seed: sceneSeed(i), audio: true });
+          setNodeData(vidId, { status: "done", output: clip });
+          clips.push(clip);
+          audioUrls.push(typeof audOut === "string" && /^https?:/.test(audOut) ? audOut : null);
+          // Grab this clip's last frame to seed the next one. Fall back to the
+          // current seed if extraction fails (keeps the chain going).
+          const nf = await lastFrameDataUrl(clip);
+          prevFrame = nf || prevFrame;
+        } catch (e) {
+          setNodeData(vidId, { status: "error", error: e.message });
+        }
+        prevVidId = vidId;
+      }
+      if (clips.length < 2) {
+        setNodeData(combineId, { status: "error", error: "Not enough scenes generated to combine" });
+        return;
+      }
+      try {
+        const finalUrl = await combineVideos(clips, clips.map(() => 5), undefined, lines ? audioUrls : null);
+        setNodeData(combineId, { status: "done", output: finalUrl });
+        fitView({ padding: 0.2, duration: 400 });
+      } catch (e) {
+        setNodeData(combineId, { status: "error", error: e.message });
+      }
+      return;
+    }
+
+    // 2b) PARALLEL mode (default): stage each scene off the shared reference
+    //     (image-to-image), animate it, all at once. Faster, but hard cuts.
     const combineId = addNode("video", { prompt: "Combined video", aspect: "16:9 · 720p", position: { x: colX.out, y: midY }, noFocus: true });
     setNodeData(combineId, { status: "running" });
 
