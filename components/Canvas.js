@@ -153,19 +153,32 @@ function CanvasInner({ workflowId }) {
   useEffect(() => {
     if (tutStep === 1 && nodes.length >= 1) setTutStep(2);
   }, [tutStep, nodes.length]);
-  // Step 4 (generate) → advance once a run starts.
+  // Step 4 (generate image) → advance once a run starts.
+  // Step 8 (generate video) → same.
   useEffect(() => {
     if (tutStep === 4 && runningId) setTutStep(5);
+    if (tutStep === 8 && runningId) setTutStep(9);
   }, [tutStep, runningId]);
-  // Step 6 (meet the Assistant) → advance once the panel opens.
+  // Step 5 (branch into a video node) → advance once a video node exists.
   useEffect(() => {
-    if (tutStep === 6 && assistantOpen) setTutStep(7);
+    if (tutStep === 5 && nodes.some((n) => n.data?.kind === "video")) setTutStep(6);
+  }, [tutStep, nodes]);
+  // Step 9 (meet the Assistant) → advance once the panel opens.
+  useEffect(() => {
+    if (tutStep === 9 && assistantOpen) setTutStep(10);
   }, [tutStep, assistantOpen]);
-  // Steps that point at the prompt bar (2–5) need a node selected so the bar is
-  // mounted; auto-select one so the spotlight never dims to a blank screen.
+  // Keep the right node selected so the prompt bar is mounted for its spotlight:
+  // image steps (2–4) → any node; video steps (6–8) → the branched video node.
   useEffect(() => {
-    if ([2, 3, 4, 5].includes(tutStep) && !selectedId && nodes.length > 0) {
+    if ([2, 3, 4].includes(tutStep) && !selectedId && nodes.length > 0) {
       setSelectedId(nodes[nodes.length - 1].id);
+    }
+    if ([6, 7, 8].includes(tutStep)) {
+      const sel = nodes.find((n) => n.id === selectedId);
+      if (!sel || sel.data?.kind !== "video") {
+        const vid = [...nodes].reverse().find((n) => n.data?.kind === "video");
+        if (vid && vid.id !== selectedId) setSelectedId(vid.id);
+      }
     }
   }, [tutStep, selectedId, nodes]);
 
@@ -575,8 +588,19 @@ function CanvasInner({ workflowId }) {
   };
 
   const selectedNode = nodes.find((n) => n.id === selectedId);
-  // Step 2 (write prompt) advances via Next, enabled only once a prompt is typed.
-  const tutNextEnabled = tutStep === 2 ? !!(selectedNode?.data?.prompt || "").trim() : true;
+  // Write-prompt steps (2 = image, 6 = video) advance via Next, enabled only
+  // once a prompt is typed on the selected node.
+  const tutNextEnabled = (tutStep === 2 || tutStep === 6) ? !!(selectedNode?.data?.prompt || "").trim() : true;
+
+  const tutNext = () => {
+    // Leaving the "branch into a video node" step without one → create it for
+    // them, connected to the image, so the video sub-steps have a node to use.
+    if (tutStep === 5 && !nodes.some((n) => n.data?.kind === "video")) {
+      const img = nodes.find((n) => n.data?.kind === "image") || nodes[nodes.length - 1];
+      if (img) addNode("video", { aspect: "16:9 · 720p", connectFrom: img.id });
+    }
+    setTutStep((s) => (s >= TUT_STEPS.length - 1 ? (closeTutorial(), null) : s + 1));
+  };
   const selectedSources = selectedId ? (sourcesByNode[selectedId] || []) : [];
   const selectedImageUrl =
     selectedNode?.data?.kind === "image" &&
@@ -759,7 +783,7 @@ function CanvasInner({ workflowId }) {
         step={tutStep}
         total={TUT_STEPS.length}
         nextEnabled={tutNextEnabled}
-        onNext={() => setTutStep((s) => (s >= TUT_STEPS.length - 1 ? (closeTutorial(), null) : s + 1))}
+        onNext={tutNext}
         onBack={() => setTutStep((s) => Math.max(0, (s ?? 0) - 1))}
         onSkip={closeTutorial}
       />
