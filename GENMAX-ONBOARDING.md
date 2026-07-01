@@ -1,3 +1,35 @@
+# Genmax Onboarding Flow (YouTube Kids) — Complete Code
+
+A **6-step onboarding wizard** for a YouTube-Kids creator: dark violet/blue theme, a
+progress bar, per-step cards (goal/experience → starting point → channel setup → output →
+summary), full validation, and a summary that reflects every choice. On finish it creates
+the user's first workflow (named after their channel) and routes into the app.
+
+- **Stack:** **React 18/19 + Next.js App Router** (`"use client"`). `useRouter` from
+  `next/navigation`. Two files (a page + a CSS module) + one logo image.
+- **Route:** drop these at `app/onboarding/page.js` and `app/onboarding/onboarding.module.css`.
+- **Logo:** place the app icon at `public/genmax-icon.jpg` (referenced as `/genmax-icon.jpg`).
+- **On finish:** saves answers to `localStorage` (`gmx:onboarding`), creates a first
+  workflow via `createWorkflow(name)`, and `router.push("/app")`.
+
+## Wiring
+- **Trigger after sign-up** (`app/layout.js`, Clerk example): set
+  `signUpFallbackRedirectUrl="/onboarding"`.
+- **Gate the route** (`middleware.js`): add `"/onboarding(.*)"` to the protected matcher.
+- **First workflow:** the finish handler imports `createWorkflow, listWorkflows` from your
+  store (`@/lib/store`) — swap for your own "create project" call, or delete for a purely
+  cosmetic flow.
+
+## Customizing the content
+Everything a YouTube-Kids creator sees lives in the data arrays near the top of the page:
+`GOALS`, `EXPERIENCE`, `USE_CASES` (content focus/niche), `STYLES` (animation styles),
+`PLATFORMS`, `CONTENT_TYPES`. Edit those + the hero/summary copy to retarget.
+
+---
+
+## `app/onboarding/page.js`
+
+````jsx
 "use client";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -359,3 +391,243 @@ export default function Onboarding() {
     </div>
   );
 }
+
+````
+
+## `app/onboarding/onboarding.module.css`
+
+````css
+/* Genmax onboarding — light theme, matches the main site (white cards, #2563eb blue, purple/pink accent). */
+
+.page {
+  --blue: #2563eb;
+  --blue-dark: #1d4ed8;
+  --violet: #7c3aed;
+  --grad: linear-gradient(90deg, var(--blue), var(--violet));
+  --bg: #f3f6fb;
+  --panel: #fff;
+  --panel-2: #fff;
+  --line: #e7eaef;
+  --ink: #0b1220;
+  --muted: #5b6472;
+  --icon: #2563eb;
+  height: 100vh;            /* fixed shell so the body scrolls internally (globals locks body overflow) */
+  overflow: hidden;
+  background:
+    radial-gradient(1000px 460px at 50% -140px, #dbe7ff 0%, rgba(219,231,255,0) 70%),
+    var(--bg);
+  color: var(--ink);
+  font-family: "SF Pro Display", "SF Pro Text", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  letter-spacing: -0.01em;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  flex-direction: column;
+}
+.page * { box-sizing: border-box; }
+
+/* ---------- top bar ---------- */
+.top {
+  flex: 0 0 auto;
+  display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 22px;
+  padding: 16px 28px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(14px) saturate(160%);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 9px; font-size: 17px; justify-self: start; }
+.brand b { font-weight: 800; }
+.logoIcon {
+  width: 28px; height: 28px; border-radius: 8px;
+  display: grid; place-items: center; color: #fff;
+  background: linear-gradient(135deg, #3b82f6, #2563eb);
+}
+.logoImg { width: 30px; height: 30px; border-radius: 8px; object-fit: cover; display: block; }
+.progress { display: flex; gap: 6px; width: min(600px, 48vw); justify-self: center; }
+.seg { flex: 1; height: 5px; border-radius: 999px; background: #e2e8f5; overflow: hidden; }
+.segFill { height: 100%; width: 0%; background: var(--grad); border-radius: 999px; transition: width .35s ease; }
+.segDone .segFill { width: 100%; }
+.stepCount { justify-self: end; font-size: 13px; color: var(--muted); font-weight: 600; font-variant-numeric: tabular-nums; }
+
+/* ---------- body ---------- */
+.body {
+  flex: 1 1 auto; min-height: 0; overflow-y: scroll; padding: 48px 24px 40px;
+  scrollbar-width: thin; scrollbar-color: #b9c2d6 transparent;
+}
+.body::-webkit-scrollbar { width: 12px; }
+.body::-webkit-scrollbar-track { background: transparent; }
+.body::-webkit-scrollbar-thumb {
+  background: #b9c2d6; border-radius: 999px;
+  border: 3px solid transparent; background-clip: padding-box;
+}
+.body::-webkit-scrollbar-thumb:hover { background: #98a3bd; background-clip: padding-box; }
+.inner { max-width: 900px; margin: 0 auto; }
+.center { text-align: center; }
+
+.badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  padding: 8px 16px; border-radius: 999px;
+  font-size: 14px; font-weight: 600;
+  background: linear-gradient(#fff, #fff) padding-box,
+    linear-gradient(90deg, #7c3aed, #ec4899) border-box;
+  border: 1.5px solid transparent;
+  color: #6d28d9;
+}
+.h1 {
+  font-size: clamp(38px, 5vw, 58px); font-weight: 800; letter-spacing: -0.03em;
+  line-height: 1.05; margin: 22px 0 0;
+}
+.h1 .grad { background: var(--grad); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.h2 { font-size: clamp(26px, 3vw, 34px); font-weight: 800; letter-spacing: -0.02em; margin: 0; }
+.lead { color: var(--muted); font-size: 16.5px; line-height: 1.55; max-width: 560px; margin: 16px auto 0; }
+.stepSub { color: var(--muted); font-size: 15px; margin: 8px 0 0; }
+
+/* hero stats */
+.stats { display: flex; gap: 16px; justify-content: center; margin-top: 40px; flex-wrap: wrap; }
+.stat {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+  padding: 22px 34px; min-width: 150px;
+  box-shadow: 0 4px 18px rgba(16, 24, 40, 0.04);
+}
+.statNum { font-size: 30px; font-weight: 800; }
+.statLabel { color: var(--muted); font-size: 13.5px; margin-top: 4px; }
+.heroCta { margin-top: 38px; display: flex; justify-content: center; }
+
+/* section label */
+.label { font-size: 14px; font-weight: 700; color: var(--muted); margin: 34px 0 14px; }
+.label:first-child { margin-top: 0; }
+
+/* option grid (goal cards, niche cards, platform/content cards) */
+.grid2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+.grid4 { display: grid; grid-template-columns: repeat(4, 1fr); gap: 14px; }
+.tile {
+  position: relative; text-align: left; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 20px; color: var(--ink); font: inherit;
+  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.03);
+  transition: border-color .15s ease, background .15s ease, transform .1s ease, box-shadow .15s ease;
+}
+.tile:hover { border-color: #c7d2e6; transform: translateY(-1px); box-shadow: 0 8px 20px rgba(16, 24, 40, 0.06); }
+.tileSel {
+  border-color: var(--blue);
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(124, 58, 237, 0.04));
+}
+.tileIcon { display: flex; margin-bottom: 12px; color: var(--icon); }
+.tileH { font-size: 15.5px; font-weight: 700; }
+.tileP { color: var(--muted); font-size: 13.5px; margin-top: 5px; line-height: 1.4; }
+.tileCheck {
+  position: absolute; top: 12px; right: 12px;
+  width: 20px; height: 20px; border-radius: 50%;
+  background: var(--grad); color: #fff;
+  display: grid; place-items: center; font-size: 12px;
+}
+
+/* method / bigger feature cards (step 3) */
+.methodCard {
+  display: flex; gap: 16px; text-align: left; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+  padding: 26px; margin-bottom: 14px; color: var(--ink); font: inherit; width: 100%;
+  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.03);
+}
+.methodCard:hover { border-color: #c7d2e6; }
+.methodSel { border-color: var(--blue); background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(124, 58, 237, 0.04)); }
+.methodIcon {
+  flex: 0 0 auto; width: 44px; height: 44px; border-radius: 12px;
+  background: #eef2ff; display: grid; place-items: center; color: var(--icon);
+}
+.methodH { font-size: 17px; font-weight: 700; }
+.methodP { color: var(--muted); font-size: 14px; margin-top: 4px; }
+.methodList { list-style: none; padding: 0; margin: 12px 0 0; display: flex; flex-direction: column; gap: 7px; }
+.methodList li { display: flex; align-items: center; gap: 8px; font-size: 13.5px; color: #3b4452; }
+.methodList svg { flex: 0 0 auto; color: var(--blue); }
+
+/* text input */
+.field { margin-bottom: 8px; }
+.fieldLabel { font-size: 14px; font-weight: 700; color: var(--muted); margin-bottom: 10px; display: block; }
+.input {
+  width: 100%; background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 14px 16px; color: var(--ink); font-size: 15px; font-family: inherit;
+}
+.input:focus { outline: none; border-color: var(--blue); }
+.input::placeholder { color: #9aa3b5; }
+
+/* radio rows (experience level) */
+.radioRow {
+  display: flex; align-items: center; gap: 12px; cursor: pointer;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 12px;
+  padding: 16px 18px; margin-bottom: 10px;
+  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.03);
+}
+.radioRow:hover { border-color: #c7d2e6; }
+.radioSel { border-color: var(--blue); background: linear-gradient(135deg, rgba(37, 99, 235, 0.06), rgba(124, 58, 237, 0.03)); }
+.radioDot { width: 18px; height: 18px; border-radius: 50%; border: 2px solid #c7cedd; flex: 0 0 auto; position: relative; }
+.radioSel .radioDot { border-color: var(--blue); }
+.radioSel .radioDot::after {
+  content: ""; position: absolute; inset: 3px; border-radius: 50%; background: var(--grad);
+}
+.radioLabel { font-size: 14.5px; font-weight: 500; }
+
+/* summary (step 6) */
+.summaryGrid { display: grid; grid-template-columns: 1fr 1.2fr; gap: 18px; margin-top: 36px; text-align: left; }
+.summaryArt {
+  background: var(--panel); border: 1px solid var(--line); border-radius: 18px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px;
+  min-height: 220px; padding: 24px;
+  box-shadow: 0 4px 18px rgba(16, 24, 40, 0.04);
+}
+.summaryArtIcon {
+  width: 64px; height: 64px; border-radius: 50%;
+  background: linear-gradient(135deg, rgba(37, 99, 235, 0.14), rgba(124, 58, 237, 0.1));
+  display: grid; place-items: center; color: var(--icon);
+}
+.summaryArtText { color: var(--muted); font-size: 14.5px; text-align: center; }
+.summaryList { background: var(--panel); border: 1px solid var(--line); border-radius: 18px; padding: 8px 22px; box-shadow: 0 4px 18px rgba(16, 24, 40, 0.04); }
+.summaryItem { display: flex; gap: 14px; align-items: flex-start; padding: 18px 0; border-bottom: 1px solid var(--line); }
+.summaryItem:last-child { border-bottom: none; }
+.summaryCheck {
+  flex: 0 0 auto; width: 26px; height: 26px; border-radius: 50%; margin-top: 1px;
+  background: var(--grad); color: #fff; display: grid; place-items: center; font-size: 14px;
+}
+.summaryH { font-size: 16px; font-weight: 700; }
+.summaryP { color: var(--muted); font-size: 13.5px; margin-top: 2px; }
+
+/* ---------- bottom nav ---------- */
+.bottom {
+  flex: 0 0 auto;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 18px 28px; border-top: 1px solid var(--line);
+  background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px);
+}
+.btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-weight: 700; font-size: 15px; border: none; cursor: pointer; text-decoration: none;
+  padding: 13px 26px; border-radius: 999px; font-family: inherit;
+  transition: transform .12s ease, opacity .12s ease, background .12s ease;
+}
+.btnBack { background: #fff; border: 1px solid var(--line); color: var(--ink); }
+.btnBack:hover { border-color: #c7d2e6; background: #f8fafc; }
+.btnPrimary { background: var(--blue); color: #fff; }
+.btnPrimary:hover:not(:disabled) { background: var(--blue-dark); transform: translateY(-1px); }
+.btnPrimary:disabled { opacity: 0.4; cursor: not-allowed; }
+.btnLg { padding: 15px 34px; font-size: 16.5px; border-radius: 999px; }
+
+@media (max-width: 720px) {
+  .grid2, .grid4 { grid-template-columns: 1fr 1fr; }
+  .summaryGrid { grid-template-columns: 1fr; }
+  .stats { gap: 10px; }
+  .stat { padding: 16px 20px; min-width: 120px; }
+  .top { gap: 12px; padding: 14px 16px; }
+  .brand span.brandFull { display: none; }
+}
+@media (max-width: 480px) {
+  .grid4 { grid-template-columns: 1fr 1fr; }
+}
+
+````
+
+## Dependencies
+- **React 18/19 + Next.js App Router** (`"use client"`).
+- **`useRouter`** from `next/navigation`.
+- **A store helper** `createWorkflow(name)` / `listWorkflows()` (optional — for the
+  "create first workflow" step). Auth (Clerk) is only used to *trigger* the flow; the
+  wizard itself is auth-agnostic.
+- **No other libraries** — icons are inline SVG; styling is a CSS Module.
