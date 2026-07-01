@@ -52,7 +52,7 @@ export default function Assistant({ open, onClose, onCreateAndMaybeRun, onDirect
               : null,
         },
       ]);
-      if (isDirector) onDirector({ scenes: data.scenes, character: data.character }, { imageModel, videoModel }, data.useSelectedImage);
+      if (isDirector) onDirector({ scenes: data.scenes, character: data.character, style: data.style }, { imageModel, videoModel }, data.useSelectedImage);
       else if (data.kind) onCreateAndMaybeRun({ kind: data.kind, prompt: data.prompt, imageModel, videoModel }, autoRun, data.useSelectedImage);
     } catch (e) {
       setHistory((h) => [...h, { role: "assistant", content: `⚠ ${e.message}` }]);

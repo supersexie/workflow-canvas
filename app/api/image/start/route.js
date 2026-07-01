@@ -10,13 +10,15 @@ const KEY = process.env.OPENAI_API_KEY;
 // Async image generation/editing via fal's queue, so slow models (Nano Banana
 // Pro / Seedream edit) aren't bound by Vercel's 60s sync function cap.
 export async function POST(req) {
-  const { prompt, model, images } = await req.json();
+  const { prompt, model, images, seed } = await req.json();
   const hasImages = Array.isArray(images) && images.length > 0;
 
   if (FAL) {
     const endpoint = pickImageEndpoint(model, hasImages);
     const input = { prompt: prompt || "abstract gradient" };
     if (hasImages) input.image_urls = images;
+    // Same seed across a director run → consistent style/character between scenes.
+    if (Number.isFinite(seed)) input.seed = seed;
     try {
       const res = await fetch(`https://queue.fal.run/${endpoint}`, {
         method: "POST",

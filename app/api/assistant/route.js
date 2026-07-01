@@ -22,19 +22,21 @@ SELECTED ITEM (interactive): The user may have an item selected on the canvas �
 
 DIRECTOR MODE (multi-scene video): If the user wants a video longer than ~8 seconds, OR mentions multiple scenes / a story / a sequence (e.g. "30 second video", "1 minute rhyme", "a story about..."), break it into a SEQUENCE of short clips (~6-8s each) returned in "scenes". Estimate scene count as seconds ÷ 7, clamped between 2 and 6.
 
-The clips are generated INDEPENDENTLY (each model call has no memory of the others) and then stitched together, so visual consistency depends ENTIRELY on you repeating identical descriptors. Therefore:
-- Lock ONE fixed STYLE spec (the chosen style, concretely) and a precise, FIXED description for every recurring CHARACTER (species/role, exact colors, outfit, size, distinguishing features).
-- Write each scene as: <the SAME style spec> + <the SAME character description(s), word-for-word> + <this scene's specific action, setting, and camera move>. Repeat the style and character text VERBATIM in every scene so every clip looks like the same world and characters.
+The clips are generated INDEPENDENTLY (each model call has no memory of the others) and then stitched together, so visual consistency depends ENTIRELY on locking the look. Therefore:
+- Lock ONE fixed STYLE spec (the chosen style, concretely: medium, rendering, lighting, color palette, mood) and return it SEPARATELY in a "style" field.
+- Do NOT repeat the style text inside each scene — the app prepends the "style" field to every scene automatically, so the style is byte-identical across all clips.
+- DO give a precise, FIXED description for every recurring CHARACTER (species/role, exact colors, outfit, size, distinguishing features), and repeat that character text VERBATIM in every scene.
+- Write each scene as: <the SAME character description(s), word-for-word> + <this scene's specific action, setting, and camera move>. (No style text — that's in the "style" field.)
 - Keep setting, time of day, and color palette continuous across consecutive scenes unless the story calls for a change. End/begin scenes on matching framing where possible for smooth cuts.
 - 2-4 sentences per scene. No "Shot N" labels or timestamps.
-- Return a "character" field: ONE text-to-image prompt for a single reference image of the main character — full body, simple neutral background, in the locked style. (OMIT "character" when useSelectedImage is true — the selected image is the reference.)
+- Return a "character" field: ONE prompt for a single reference image of the main character — full body, simple neutral background (no style text; the app prepends "style"). (OMIT "character" when useSelectedImage is true — the selected image is the reference.)
 
 If the user asks something off-topic or unclear, respond with kind=null and a clarifying message.
 
 Always respond as JSON. For a single asset:
 { "kind": "image"|"video"|"text"|"audio"|"motion"|null, "prompt": "...", "useSelectedImage": false, "message": "short reply (1-2 sentences)" }
 For a multi-scene video, instead use:
-{ "kind": "video", "character": "reference image prompt (omit if useSelectedImage)", "scenes": ["scene 1", "scene 2", ...], "useSelectedImage": false, "message": "short reply mentioning how many scenes" }`;
+{ "kind": "video", "style": "the ONE locked style spec, concrete", "character": "reference image prompt without style (omit if useSelectedImage)", "scenes": ["scene 1 without style", "scene 2 without style", ...], "useSelectedImage": false, "message": "short reply mentioning how many scenes" }`;
 
 export async function POST(req) {
   const { input, history = [], context = {} } = await req.json();
@@ -87,6 +89,7 @@ export async function POST(req) {
       kind: parsed.kind ?? null,
       prompt: parsed.prompt || input,
       scenes: scenes && scenes.length >= 2 ? scenes : null,
+      style: typeof parsed.style === "string" ? parsed.style : null,
       character: useSelectedImage ? null : (typeof parsed.character === "string" ? parsed.character : null),
       useSelectedImage,
       message: parsed.message || "Done.",

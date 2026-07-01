@@ -355,24 +355,29 @@ function CanvasInner({ workflowId }) {
 
   // Director mode (character-consistent): one reference image → per-scene
   // staged image (image-to-image) → image-to-video → stitch into one video.
-  const runDirector = async ({ scenes, character, seedImage }, models = {}) => {
+  const runDirector = async ({ scenes, character, style, seedImage }, models = {}) => {
     const list = (scenes || []).slice(0, 6);
     if (list.length < 2) return;
     const videoModel = models.videoModel || "LTX Video";
     const IMG_MODEL = models.imageModel || "Flux 2 Pro"; // image model for reference + staging
+    // Style-lock: prepend the ONE locked style spec (verbatim) to every prompt,
+    // and reuse ONE seed for every generation, so all scenes share the same look.
+    const stylePrefix = (style || "").trim() ? `${style.trim().replace(/[.\s]+$/, "")}. ` : "";
+    const styled = (p) => `${stylePrefix}${p}`;
+    const seed = Math.floor(Math.random() * 1_000_000_000);
     const colX = { ref: 40, img: 420, vid: 900, out: 1480 };
     const gapY = 330;
     const midY = 80 + ((list.length - 1) * gapY) / 2;
 
-    // 1) Reference image (shared seed for every scene). Use the selected image
-    //    if provided ("turn this image into a video"), else generate one.
+    // 1) Reference image (shared style + seed for every scene). Use the selected
+    //    image if provided ("turn this image into a video"), else generate one.
     let refUrl = seedImage || null;
     let refId = null;
     if (!refUrl && character) {
-      refId = addNode("image", { prompt: character, model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.ref, y: midY } });
+      refId = addNode("image", { prompt: styled(character), model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.ref, y: midY } });
       setNodeData(refId, { status: "running", output: null, error: null });
       try {
-        refUrl = await generateOutput("image", character, IMG_MODEL);
+        refUrl = await generateOutput("image", styled(character), IMG_MODEL, [], { seed });
         setNodeData(refId, { status: "done", output: refUrl });
       } catch (e) {
         setNodeData(refId, { status: "error", error: e.message });
@@ -388,18 +393,19 @@ function CanvasInner({ workflowId }) {
     const results = await Promise.all(
       list.map(async (scene, i) => {
         const y = 80 + i * gapY;
-        const vidId = addNode("video", { prompt: scene, model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y } });
+        const vidId = addNode("video", { prompt: styled(scene), model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y } });
         vidIds.push(vidId);
-        // Staged scene image (only if we have a reference to seed from).
-        let seed = null;
+        // Staged scene image (only if we have a reference to seed from). Same
+        // style prefix + same seed as every other scene → consistent look.
+        let stagedUrl = null;
         if (refUrl) {
-          const imgId = addNode("image", { prompt: scene, model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.img, y } });
+          const imgId = addNode("image", { prompt: styled(scene), model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.img, y } });
           if (refId) addEdgeBetween(refId, imgId);
           addEdgeBetween(imgId, vidId);
           setNodeData(imgId, { status: "running" });
           try {
-            seed = await generateOutput("image", scene, IMG_MODEL, [refUrl]);
-            setNodeData(imgId, { status: "done", output: seed });
+            stagedUrl = await generateOutput("image", styled(scene), IMG_MODEL, [refUrl], { seed });
+            setNodeData(imgId, { status: "done", output: stagedUrl });
           } catch (e) {
             setNodeData(imgId, { status: "error", error: e.message });
           }
@@ -407,7 +413,7 @@ function CanvasInner({ workflowId }) {
         addEdgeBetween(vidId, combineId);
         setNodeData(vidId, { status: "running" });
         try {
-          const clip = await generateVideo({ prompt: scene, model: videoModel, image: seed || null, aspect: "16:9", resolution: "720p", duration: 6 });
+          const clip = await generateVideo({ prompt: styled(scene), model: videoModel, image: stagedUrl || null, aspect: "16:9", resolution: "720p", duration: 6, seed });
           setNodeData(vidId, { status: "done", output: clip });
           return clip;
         } catch (e) {

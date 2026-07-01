@@ -66,7 +66,7 @@ function parseDataUrl(d) {
 }
 
 export async function POST(req) {
-  const { prompt, model, image, aspect, resolution, duration } = await req.json();
+  const { prompt, model, image, aspect, resolution, duration, seed } = await req.json();
 
   // ---- fal.ai ----
   // Only route to Veo for an explicit Veo model; otherwise default to fal LTX
@@ -83,6 +83,8 @@ export async function POST(req) {
     if (fal.ar) {
       input.aspect_ratio = aspect === "9:16" || aspect === "1:1" ? aspect : "16:9";
     }
+    // Same seed across a director run → consistent look between clips.
+    if (Number.isFinite(seed)) input.seed = seed;
     try {
       const res = await fetch(`https://queue.fal.run/${endpoint}`, {
         method: "POST",
