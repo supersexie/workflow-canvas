@@ -67,7 +67,7 @@ export const TUT_STEPS = [
     placement: "bl",
     optional: true,
     title: "Prompt your video",
-    body: "Your image seeds this video node. Describe the motion or scene — for example: “the tiger runs across the field”. Then click Next.",
+    body: "Your image seeds this video node. Describe the motion or scene — for example: “the boy is playing with his puppy”. Then click Next.",
   },
   {
     mode: "spotlight",
