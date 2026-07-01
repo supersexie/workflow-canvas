@@ -22,11 +22,34 @@ const PlayLogo = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
 );
 
+// Outline icon set (Lucide-style) replacing emoji — colored via CSS (var(--icon), Genmax's blue/violet accent).
+const ico = (children) => (p) => (
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round" {...p}>{children}</svg>
+);
+const IcoSparkles = ico(<path d="M12 3l1.6 4.2L18 9l-4.4 1.8L12 15l-1.6-4.2L6 9l4.4-1.8L12 3zM19 13.5l.8 2 2 .8-2 .8-.8 2-.8-2-2-.8 2-.8.8-2zM5 14.5l.7 1.7L7.5 17l-1.8.8L5 19.5l-.7-1.7L2.5 17l1.8-.8.7-1.7z" />);
+const IcoFilm = ico(<><rect x="3" y="5" width="18" height="14" rx="2" /><path d="M7 5v14M17 5v14M3 10h4M17 10h4M3 15h4M17 15h4" /></>);
+const IcoMegaphone = ico(<><path d="M3 11v2a2 2 0 0 0 2 2h1l2 6h2l-1-6h4l7 4V5l-7 4H6a2 2 0 0 0-2 2z" /></>);
+const IcoPalette = ico(<><circle cx="12" cy="12" r="9" /><circle cx="9" cy="10" r="1" fill="currentColor" /><circle cx="13" cy="8" r="1" fill="currentColor" /><circle cx="16" cy="11" r="1" fill="currentColor" /><circle cx="10.5" cy="14" r="1" fill="currentColor" /><path d="M12 21a2 2 0 0 1-2-2c0-1 .8-1.3.8-2.2 0-.8-.8-1.3-1.8-1.3H9" /></>);
+const IcoZap = ico(<path d="M13 3L4 14h6l-1 7 9-11h-6l1-7z" />);
+const IcoSmartphone = ico(<><rect x="6" y="2.5" width="12" height="19" rx="2.5" /><path d="M11 18.5h2" /></>);
+const IcoBag = ico(<><path d="M6 8h12l1 12H5L6 8z" /><path d="M9 8V6a3 3 0 0 1 6 0v2" /></>);
+const IcoBook = ico(<><path d="M4 5.5A2.5 2.5 0 0 1 6.5 3H20v15H6.5A2.5 2.5 0 0 0 4 20.5v-15z" /><path d="M4 20.5A2.5 2.5 0 0 1 6.5 18H20" /></>);
+const IcoCap = ico(<><path d="M12 3l10 5-10 5-10-5 10-5z" /><path d="M6 10.5V16c0 1.2 2.7 3 6 3s6-1.8 6-3v-5.5" /></>);
+const IcoHeadphones = ico(<><path d="M4 14v-2a8 8 0 0 1 16 0v2" /><rect x="2.5" y="14" width="4" height="6" rx="1.3" /><rect x="17.5" y="14" width="4" height="6" rx="1.3" /></>);
+const IcoCamera = ico(<><path d="M4 8h3l1.5-2h7L17 8h3a1 1 0 0 1 1 1v10a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9a1 1 0 0 1 1-1z" /><circle cx="12" cy="14" r="3.5" /></>);
+const IcoPlay = ico(<><circle cx="12" cy="12" r="9" /><path d="M10 8.5l6 3.5-6 3.5v-7z" fill="currentColor" stroke="none" /></>);
+const IcoMusic = ico(<><path d="M9 18V5l11-2v13" /><circle cx="6" cy="18" r="3" /><circle cx="17" cy="16" r="3" /></>);
+const IcoX = ico(<path d="M5 5l14 14M19 5L5 19" />);
+const IcoImage = ico(<><rect x="3" y="4" width="18" height="16" rx="2" /><circle cx="8.5" cy="9.5" r="1.5" /><path d="M21 16l-5.5-5.5L4 21" /></>);
+const IcoMic = ico(<><rect x="9" y="2" width="6" height="12" rx="3" /><path d="M5 11a7 7 0 0 0 14 0M12 18v4M9 22h6" /></>);
+const IcoPen = ico(<><path d="M4 20l4-1 11-11-3-3L5 16l-1 4z" /><path d="M14 6l3 3" /></>);
+const IcoPuzzle = ico(<path d="M9 3h4v2.5a1.5 1.5 0 0 0 3 0V3h3a2 2 0 0 1 2 2v3h-2.5a1.5 1.5 0 0 0 0 3H21v3a2 2 0 0 1-2 2h-3v-2.5a1.5 1.5 0 0 0-3 0V18H9a2 2 0 0 1-2-2v-3h2.5a1.5 1.5 0 0 0 0-3H7V7a2 2 0 0 1 2-2z" />);
+
 const GOALS = [
-  { key: "social", icon: "🎬", h: "Social Media Content", p: "Create videos & posts for Instagram, TikTok, YouTube" },
-  { key: "marketing", icon: "📣", h: "Marketing & Ads", p: "Generate campaign creative and product content" },
-  { key: "personal", icon: "✨", h: "Personal Projects", p: "Explore ideas and bring stories to life" },
-  { key: "learn", icon: "⚡", h: "Learn AI Tools", p: "Explore what's possible with generative AI" },
+  { key: "social", icon: IcoFilm, h: "Social Media Content", p: "Create videos & posts for Instagram, TikTok, YouTube" },
+  { key: "marketing", icon: IcoMegaphone, h: "Marketing & Ads", p: "Generate campaign creative and product content" },
+  { key: "personal", icon: IcoPalette, h: "Personal Projects", p: "Explore ideas and bring stories to life" },
+  { key: "learn", icon: IcoZap, h: "Learn AI Tools", p: "Explore what's possible with generative AI" },
 ];
 const EXPERIENCE = [
   "I'm new to AI content creation",
@@ -34,12 +57,12 @@ const EXPERIENCE = [
   "I'm experienced with AI creative tools",
 ];
 const USE_CASES = [
-  { key: "social", icon: "📱", h: "Social Media" },
-  { key: "ads", icon: "🛍️", h: "Product & Ads" },
-  { key: "story", icon: "📖", h: "Storytelling" },
-  { key: "edu", icon: "🎓", h: "Education" },
-  { key: "music", icon: "🎧", h: "Music & Audio" },
-  { key: "other", icon: "💡", h: "Something Else" },
+  { key: "social", icon: IcoSmartphone, h: "Social Media" },
+  { key: "ads", icon: IcoBag, h: "Product & Ads" },
+  { key: "story", icon: IcoBook, h: "Storytelling" },
+  { key: "edu", icon: IcoCap, h: "Education" },
+  { key: "music", icon: IcoHeadphones, h: "Music & Audio" },
+  { key: "other", icon: IcoSparkles, h: "Something Else" },
 ];
 const STYLES = [
   { key: "realistic", h: "Realistic", p: "Photorealistic AI renders" },
@@ -48,16 +71,16 @@ const STYLES = [
   { key: "anime", h: "Anime-Inspired", p: "Japanese animation style" },
 ];
 const PLATFORMS = [
-  { key: "instagram", icon: "📷", h: "Instagram" },
-  { key: "youtube", icon: "▶️", h: "YouTube" },
-  { key: "tiktok", icon: "🎵", h: "TikTok" },
-  { key: "twitter", icon: "🐦", h: "Twitter / X" },
+  { key: "instagram", icon: IcoCamera, h: "Instagram" },
+  { key: "youtube", icon: IcoPlay, h: "YouTube" },
+  { key: "tiktok", icon: IcoMusic, h: "TikTok" },
+  { key: "twitter", icon: IcoX, h: "Twitter / X" },
 ];
 const CONTENT_TYPES = [
-  { key: "images", icon: "🖼️", h: "Images" },
-  { key: "videos", icon: "🎬", h: "Videos" },
-  { key: "voiceovers", icon: "🎙️", h: "Voiceovers" },
-  { key: "scripts", icon: "✍️", h: "Scripts" },
+  { key: "images", icon: IcoImage, h: "Images" },
+  { key: "videos", icon: IcoFilm, h: "Videos" },
+  { key: "voiceovers", icon: IcoMic, h: "Voiceovers" },
+  { key: "scripts", icon: IcoPen, h: "Scripts" },
 ];
 
 export default function Onboarding() {
@@ -130,7 +153,7 @@ export default function Onboarding() {
           {/* STEP 1 — hero */}
           {step === 0 && (
             <div className={s.center}>
-              <span className={s.badge}>✨ 5-minute setup</span>
+              <span className={s.badge}><IcoSparkles width={15} height={15} /> 5-minute setup</span>
               <h1 className={s.h1}>Create Your <span className={s.grad}>AI Workflow</span></h1>
               <p className={s.lead}>Join thousands of creators building on Genmax. We'll guide you through every step — it only takes a few minutes.</p>
               <div className={s.stats}>
@@ -153,7 +176,7 @@ export default function Onboarding() {
                 {GOALS.map((g) => (
                   <button key={g.key} type="button" className={`${s.tile} ${ans.goal === g.key ? s.tileSel : ""}`} onClick={() => toggle("goal", g.key, false)}>
                     {ans.goal === g.key && <span className={s.tileCheck}><Check /></span>}
-                    <span className={s.tileIcon}>{g.icon}</span>
+                    <span className={s.tileIcon}><g.icon /></span>
                     <div className={s.tileH}>{g.h}</div>
                     <div className={s.tileP}>{g.p}</div>
                   </button>
@@ -178,11 +201,11 @@ export default function Onboarding() {
               </div>
               <div style={{ marginTop: 34 }}>
                 {[
-                  { key: "template", icon: "⚡", h: "Template Workflow", p: "Start from a ready-made workflow for common tasks", list: ["Instant results, no setup", "Proven node combinations", "Customize as you go"] },
-                  { key: "blank", icon: "🧩", h: "Blank Canvas", p: "Start from scratch and build your own workflow", list: ["Full creative control", "Connect any node type", "Build exactly what you need"] },
+                  { key: "template", icon: IcoSparkles, h: "Template Workflow", p: "Start from a ready-made workflow for common tasks", list: ["Instant results, no setup", "Proven node combinations", "Customize as you go"] },
+                  { key: "blank", icon: IcoPuzzle, h: "Blank Canvas", p: "Start from scratch and build your own workflow", list: ["Full creative control", "Connect any node type", "Build exactly what you need"] },
                 ].map((m) => (
                   <button key={m.key} type="button" className={`${s.methodCard} ${ans.method === m.key ? s.methodSel : ""}`} onClick={() => toggle("method", m.key, false)}>
-                    <span className={s.methodIcon}>{m.icon}</span>
+                    <span className={s.methodIcon}><m.icon /></span>
                     <div>
                       <div className={s.methodH}>{m.h}</div>
                       <div className={s.methodP}>{m.p}</div>
@@ -218,7 +241,7 @@ export default function Onboarding() {
                 {USE_CASES.map((u) => (
                   <button key={u.key} type="button" className={`${s.tile} ${ans.useCase === u.key ? s.tileSel : ""}`} onClick={() => toggle("useCase", u.key, false)}>
                     {ans.useCase === u.key && <span className={s.tileCheck}><Check /></span>}
-                    <span className={s.tileIcon}>{u.icon}</span>
+                    <span className={s.tileIcon}><u.icon /></span>
                     <div className={s.tileH}>{u.h}</div>
                   </button>
                 ))}
@@ -248,7 +271,7 @@ export default function Onboarding() {
                 {PLATFORMS.map((p) => (
                   <button key={p.key} type="button" className={`${s.tile} ${ans.platforms.includes(p.key) ? s.tileSel : ""}`} onClick={() => toggle("platforms", p.key, true)}>
                     {ans.platforms.includes(p.key) && <span className={s.tileCheck}><Check /></span>}
-                    <span className={s.tileIcon}>{p.icon}</span>
+                    <span className={s.tileIcon}><p.icon /></span>
                     <div className={s.tileH}>{p.h}</div>
                   </button>
                 ))}
@@ -258,7 +281,7 @@ export default function Onboarding() {
                 {CONTENT_TYPES.map((c) => (
                   <button key={c.key} type="button" className={`${s.tile} ${ans.contentTypes.includes(c.key) ? s.tileSel : ""}`} onClick={() => toggle("contentTypes", c.key, true)}>
                     {ans.contentTypes.includes(c.key) && <span className={s.tileCheck}><Check /></span>}
-                    <span className={s.tileIcon}>{c.icon}</span>
+                    <span className={s.tileIcon}><c.icon /></span>
                     <div className={s.tileH}>{c.h}</div>
                   </button>
                 ))}
@@ -275,7 +298,7 @@ export default function Onboarding() {
               </div>
               <div className={s.summaryGrid}>
                 <div className={s.summaryArt}>
-                  <div className={s.summaryArtIcon}>✨</div>
+                  <div className={s.summaryArtIcon}><IcoSparkles width={28} height={28} /></div>
                   <div className={s.summaryArtText}>{label(ans.method, [{ key: "blank", h: "Blank canvas" }, { key: "template", h: "Template workflow" }]) || "Canvas"} ready to open</div>
                 </div>
                 <div className={s.summaryList}>
