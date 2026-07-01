@@ -65,7 +65,7 @@ const nextId = () => `n_${++idCounter}_${Math.random().toString(36).slice(2, 6)}
 
 function CanvasInner({ workflowId }) {
   const router = useRouter();
-  const { screenToFlowPosition, fitView } = useReactFlow();
+  const { screenToFlowPosition, fitView, setCenter, getZoom } = useReactFlow();
   const [nodes, setNodes] = useState([]);
   const [edges, setEdges] = useState([]);
   const [name, setName] = useState("Untitled Workflow");
@@ -295,6 +295,11 @@ function CanvasInner({ workflowId }) {
     }
     setSelectedId(id);
     setAddMenuOpen(false);
+    // Pan the canvas to the new card so the user doesn't have to hunt for it.
+    // Skipped for bulk creators (director mode) that fit-view the whole result.
+    if (!options.noFocus) {
+      setCenter(pos.x + W / 2, pos.y + H / 2, { zoom: Math.max(getZoom(), 0.7), duration: 500 });
+    }
     return id;
   };
 
@@ -380,7 +385,7 @@ function CanvasInner({ workflowId }) {
     let refUrl = seedImage || null;
     let refId = null;
     if (!refUrl && character) {
-      refId = addNode("image", { prompt: styled(character), model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.ref, y: midY } });
+      refId = addNode("image", { prompt: styled(character), model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.ref, y: midY }, noFocus: true });
       setNodeData(refId, { status: "running", output: null, error: null });
       try {
         refUrl = await generateOutput("image", styled(character), IMG_MODEL, [], { seed: baseSeed });
@@ -392,21 +397,21 @@ function CanvasInner({ workflowId }) {
 
     // 2) Per scene: stage the character into the scene (image-to-image), then
     //    animate that staged image (image-to-video). Runs in parallel.
-    const combineId = addNode("video", { prompt: "Combined video", aspect: "16:9 · 720p", position: { x: colX.out, y: midY } });
+    const combineId = addNode("video", { prompt: "Combined video", aspect: "16:9 · 720p", position: { x: colX.out, y: midY }, noFocus: true });
     setNodeData(combineId, { status: "running" });
 
     const vidIds = [];
     const results = await Promise.all(
       list.map(async (scene, i) => {
         const y = 80 + i * gapY;
-        const vidId = addNode("video", { prompt: styled(scene), model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y } });
+        const vidId = addNode("video", { prompt: styled(scene), model: videoModel, aspect: "16:9 · 720p", position: { x: colX.vid, y }, noFocus: true });
         vidIds.push(vidId);
         // Staged scene image (only if we have a reference to seed from): same
         // style prefix + same character reference (→ consistent look), but its
         // OWN seed (→ this scene's composition differs from the others).
         let stagedUrl = null;
         if (refUrl) {
-          const imgId = addNode("image", { prompt: styled(scene), model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.img, y } });
+          const imgId = addNode("image", { prompt: styled(scene), model: IMG_MODEL, aspect: "16:9 · 1080p", position: { x: colX.img, y }, noFocus: true });
           if (refId) addEdgeBetween(refId, imgId);
           addEdgeBetween(imgId, vidId);
           setNodeData(imgId, { status: "running" });
@@ -423,7 +428,7 @@ function CanvasInner({ workflowId }) {
         const line = lines && typeof lines[i] === "string" ? lines[i].trim() : "";
         const audioPromise = line
           ? (async () => {
-              const audId = addNode("audio", { prompt: line, position: { x: colX.aud, y: y + 150 } });
+              const audId = addNode("audio", { prompt: line, position: { x: colX.aud, y: y + 150 }, noFocus: true });
               addEdgeBetween(audId, combineId);
               setNodeData(audId, { status: "running" });
               try {
